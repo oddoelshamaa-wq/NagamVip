@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mahmoud & Nagham - Full System</title>
+    <!-- استيراد الخطوط والأيقونات -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -56,7 +57,7 @@
             padding: 20px 40px; border: none; border-radius: 15px; color: #fff;
             font-size: 1.3rem; font-weight: bold; width: 200px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.3); font-family: 'Tajawal';
-            transition: transform 0.2s;
+            transition: transform 0.2s; cursor: pointer;
         }
         .role-btn:active { transform: scale(0.95); }
         .btn-m { background: var(--mahmoud); }
@@ -141,8 +142,8 @@
         .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; font-family: 'Tajawal'; text-align: center; font-size: 1.1rem; }
         .money-input { border-color: var(--money-color); color: var(--money-color); font-weight: bold; }
         .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { background: #555; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; }
-        .btn-confirm { background: #e74c3c; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; }
+        .btn-cancel { background: #555; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; }
+        .btn-confirm { background: #e74c3c; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
 
         /* --- 3D Game Area --- */
         #game-container {
@@ -182,7 +183,8 @@
             pointer-events: all; width: 85px; height: 85px; border-radius: 50%;
             background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center;
-            font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5); cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         #jump-btn-large:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
 
@@ -200,6 +202,7 @@
         .money-change.negative { color: #e74c3c; }
     </style>
 
+    <!-- تحديد مكتبات الجافاسكريبت -->
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
@@ -227,7 +230,7 @@
 
     <!-- Wallets (Money) -->
     <div class="wallets-container">
-        <button class="fine-float-btn" onclick="openFineModal()"><i class="fas fa-gavel"></i></button>
+        <button class="fine-float-btn" onclick="window.openFineModal()"><i class="fas fa-gavel"></i></button>
         
         <div class="wallet-card w-mahmoud">
             <div class="wallet-name">Mahmoud</div>
@@ -249,7 +252,7 @@
         <div id="game-overlay">
             <h2 id="overlay-msg" style="color:#fff; margin-bottom:10px;">انتظار التحضير...</h2>
             <p id="sub-msg" style="color:#aaa; font-size:0.8rem;">لعبة الرهان أو الغرامة اليدوية</p>
-            <button id="start-btn" class="btn-game" onclick="openSetup()" disabled>ضبط الرهان</button>
+            <button id="start-btn" class="btn-game" onclick="window.openSetup()" disabled>ضبط الرهان</button>
         </div>
     </div>
 
@@ -277,7 +280,7 @@
             <input type="number" id="input-wager" class="form-input money-input" value="20">
         </div>
 
-        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="submitSetup()">حفظ وانتظار</button>
+        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="window.submitSetup()">حفظ وانتظار</button>
     </div>
 </div>
 
@@ -301,8 +304,8 @@
             <input type="text" id="fine-reason" class="form-input" placeholder="مثلاً: إزعاج...">
         </div>
         <div class="modal-btns">
-            <button class="btn-cancel" onclick="closeFineModal()">إلغاء</button>
-            <button class="btn-confirm" onclick="submitFine()">تنفيذ التحويل</button>
+            <button class="btn-cancel" onclick="window.closeFineModal()">إلغاء</button>
+            <button class="btn-confirm" onclick="window.submitFine()">تنفيذ التحويل</button>
         </div>
     </div>
 </div>
@@ -313,7 +316,7 @@
         <div id="res-icon" style="font-size:4rem; margin-bottom:10px;"></div>
         <h2 id="res-title" style="font-size:1.5rem;"></h2>
         <div id="res-money" class="money-change"></div>
-        <button class="btn-game" style="background:#444;" onclick="resetGame()">تم</button>
+        <button class="btn-game" style="background:#444;" onclick="window.resetGame()">تم</button>
     </div>
 </div>
 
@@ -323,10 +326,12 @@
 </div>
 
 <script type="module">
+    // استيراد المكتبات المطلوبة
     import * as THREE from 'three';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, runTransaction, push } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
+    // إعدادات Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",
         authDomain: "nagam-12f98.firebaseapp.com",
@@ -336,8 +341,17 @@
         appId: "1:489197943984:web:2b1823691e8e525b288f75",
         measurementId: "G-LB7V0QWTYP"
     };
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    
+    // تهيئة التطبيق
+    let app, db;
+    try {
+        app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        console.log("Firebase connected successfully");
+    } catch (e) {
+        console.error("Firebase Error:", e);
+        window.showToast("خطأ في الاتصال بقاعدة البيانات", 'error');
+    }
 
     let myRole = null;
     let gameRunning = false;
@@ -418,7 +432,11 @@
         playerMesh.position.set(-1.5, 0.5, 0); scene.add(playerMesh);
 
         window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth/container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight);
+            const cWidth = container.clientWidth;
+            const cHeight = container.clientHeight;
+            camera.aspect = cWidth/cHeight; 
+            camera.updateProjectionMatrix(); 
+            renderer.setSize(cWidth, cHeight);
         });
         animate();
     }
@@ -462,11 +480,14 @@
         mesh.position.set(-1.5, h/2, -50); scene.add(mesh); obstacles.push({mesh});
     }
 
-    window.jump = function() {
+    // تعريف دالة القفز في النافذة لتكون متاحة للأحداث
+    window.jumpAction = function() {
         if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.35; }
     };
-    document.getElementById('jump-btn-large').addEventListener('touchstart', e => { e.preventDefault(); jump(); });
-    window.addEventListener('keydown', e => { if(e.code === 'Space') jump(); });
+    
+    document.getElementById('jump-btn-large').addEventListener('touchstart', e => { e.preventDefault(); window.jumpAction(); });
+    document.getElementById('jump-btn-large').addEventListener('mousedown', e => { e.preventDefault(); window.jumpAction(); });
+    window.addEventListener('keydown', e => { if(e.code === 'Space') window.jumpAction(); });
 
     // --- 4. Setup & Logic ---
     
@@ -479,7 +500,7 @@
         const wager = document.getElementById('input-wager').value;
         
         if(!wager || wager <= 0) {
-            showToast('اكتب قيمة الرهان صح!', 'error');
+            window.showToast('اكتب قيمة الرهان صح!', 'error');
             return;
         }
 
@@ -490,7 +511,7 @@
         update(ref(db), updates);
         document.getElementById('setup-modal').style.display = 'none';
         document.getElementById('overlay-msg').innerText = "تم الاتفاق.. بانتظار البدء";
-        showToast('تم حفظ شروط الرهان', 'success');
+        window.showToast('تم حفظ شروط الرهان', 'success');
     };
 
     // --- 5. Fine System (Manual Transfer) ---
@@ -503,7 +524,7 @@
         const reason = document.getElementById('fine-reason').value || "بدون سبب";
 
         if(amount <= 0) {
-            showToast('اكتب مبلغ صحيح!', 'error');
+            window.showToast('اكتب مبلغ صحيح!', 'error');
             return;
         }
 
@@ -517,7 +538,7 @@
         // 1. خصم من الضحية
         runTransaction(ref(db, `bank_coins/${victimRole}`), c => Math.max(0, (c||0) - amount));
         
-        // 2. إضافة للمستقبل (الشريك) - "هنا التعديل المطلوب"
+        // 2. إضافة للمستقبل (الشريك)
         runTransaction(ref(db, `bank_coins/${receiverRole}`), c => (c||0) + amount);
         
         // 3. تسجيل العملية
@@ -528,8 +549,8 @@
             time: Date.now() 
         });
 
-        showToast(`تم تحويل ${amount} جنيه لصالح ${receiverName}`, 'success');
-        closeFineModal();
+        window.showToast(`تم تحويل ${amount} جنيه لصالح ${receiverName}`, 'success');
+        window.closeFineModal();
     };
 
     function listenToDB() {
@@ -547,7 +568,7 @@
             elM.classList.remove('balance-update', 'balance-deduct'); void elM.offsetWidth; // Trigger reflow
             elN.classList.remove('balance-update', 'balance-deduct'); void elN.offsetWidth;
 
-            // تحديد لون التحديث (إيجابي أو سلبي) حسب التغيير (اختياري، هنا سنستخدم لون محايد للتأثير)
+            // تحديد لون التحديث (إيجابي أو سلبي)
             elM.classList.add('balance-update');
             elN.classList.add('balance-update');
             
