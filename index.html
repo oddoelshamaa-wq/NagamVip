@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mahmoud & Nagham - 3D Love Race</title>
+    <title>Mahmoud & Nagham - 3D Love & Fines</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -14,6 +14,7 @@
             --mahmoud: #00d2ff;
             --nagham: #ff4b1f;
             --gold: #ffd700;
+            --red-punish: #e74c3c;
             --text: #fff;
         }
 
@@ -26,7 +27,7 @@
             color: var(--text);
             overflow-x: hidden;
             display: flex; flex-direction: column; gap: 10px;
-            padding-bottom: 80px; /* Space for controls */
+            padding-bottom: 80px;
         }
 
         /* --- Anniversary Counter --- */
@@ -39,7 +40,6 @@
         }
         .love-title { font-size: 0.9rem; color: #fab1a0; margin-bottom: 5px; }
         .timer-display { font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; }
-        .timer-unit { font-size: 0.8rem; color: #aaa; display: block; margin-top: 2px;}
 
         /* --- UI Cards --- */
         .card {
@@ -47,6 +47,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 15px; padding: 10px; margin: 5px;
+            position: relative;
         }
 
         /* --- Header / Bank --- */
@@ -55,11 +56,21 @@
         .avatar-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
         .score-val { font-size: 1.2rem; font-family: sans-serif; }
         
+        /* --- Manual Fine Button --- */
+        .fine-btn {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            background: var(--red-punish); border: 2px solid #fff; color: #fff;
+            width: 40px; height: 40px; border-radius: 50%;
+            font-size: 1.2rem; cursor: pointer; z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
+        }
+        .fine-btn:active { transform: translateX(-50%) scale(0.9); }
+
         /* --- 3D Game Container --- */
         #game-container {
             position: relative;
             width: 100%;
-            height: 350px; /* Taller for 3D view */
+            height: 350px;
             background: #000;
             border-radius: 15px;
             overflow: hidden;
@@ -68,7 +79,6 @@
         }
         canvas { display: block; width: 100%; height: 100%; outline: none; }
 
-        /* HUD Overlay */
         #game-hud {
             position: absolute; top: 0; left: 0; width: 100%; padding: 10px;
             display: flex; justify-content: space-between; pointer-events: none;
@@ -76,7 +86,6 @@
         }
         .hud-target { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; border: 1px solid #fff; }
 
-        /* Start/Result Overlay */
         #game-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
@@ -93,7 +102,6 @@
         }
         .btn-3d:active { transform: scale(0.95); }
 
-        /* Controls */
         #controls-area {
             position: fixed; bottom: 20px; left: 0; width: 100%;
             display: flex; justify-content: center; z-index: 100; pointer-events: none;
@@ -107,33 +115,20 @@
             font-size: 2rem; color: #fff;
             box-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
-        #jump-btn-large:active { background: rgba(255,255,255,0.4); transform: scale(0.9); }
 
-        /* Logs */
+        /* --- Logs Section (Punishment Record) --- */
         #log-container {
-            height: 120px; overflow-y: auto; font-size: 0.85rem;
-            display: flex; flex-direction: column; gap: 5px;
+            height: 140px; overflow-y: auto; font-size: 0.85rem;
+            display: flex; flex-direction: column; gap: 5px; padding: 5px;
         }
+        .log-header { font-size: 0.9rem; color: #aaa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 5px; display: flex; justify-content: space-between;}
         .log-item {
-            background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 8px;
-            border-right: 3px solid #555;
+            background: rgba(255,255,255,0.05); padding: 8px 10px; border-radius: 8px;
+            border-right: 3px solid #555; display: flex; justify-content: space-between;
         }
         .log-win { border-color: var(--gold); color: #fff; background: rgba(255, 215, 0, 0.1); }
         .log-loss { border-color: var(--nagham); color: #ffcccc; background: rgba(255, 75, 31, 0.1); }
-
-        /* Selection Screen */
-        #select-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #111; z-index: 5000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;
-        }
-        .char-select-btn {
-            width: 200px; padding: 20px; border-radius: 15px; border: 2px solid #fff;
-            background: transparent; color: #fff; font-size: 1.2rem; font-weight: bold;
-            cursor: pointer; transition: 0.3s;
-        }
-        .char-select-btn.m-btn:hover { background: var(--mahmoud); border-color: var(--mahmoud); box-shadow: 0 0 20px var(--mahmoud); }
-        .char-select-btn.n-btn:hover { background: var(--nagham); border-color: var(--nagham); box-shadow: 0 0 20px var(--nagham); }
+        .log-fine { border-color: var(--red-punish); background: rgba(231, 76, 60, 0.15); color: #ffebee; }
 
         /* Modals */
         .modal {
@@ -145,33 +140,18 @@
             background: #222; border: 1px solid #444; padding: 25px; border-radius: 20px;
             width: 85%; text-align: center; color: #fff;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes popIn { from{transform:scale(0.5); opacity:0;} to{transform:scale(1); opacity:1;} }
-
-        .result-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
-        .win-text { color: var(--gold); }
-        .lose-text { color: var(--nagham); }
-        .money-change { font-size: 2rem; margin: 15px 0; font-family: monospace; }
-        .btn-close { background: #555; color: #fff; border: none; padding: 10px 30px; border-radius: 10px; margin-top: 15px; cursor: pointer;}
+        .form-group { margin-bottom: 15px; text-align: right; }
+        .form-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; }
+        .modal-btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; margin: 5px; }
+        .btn-cancel { background: #555; color: #fff; }
+        .btn-confirm { background: var(--red-punish); color: #fff; }
     </style>
-    <!-- Import Three.js as module -->
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-            }
-        }
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
 </head>
 <body>
-
-<!-- Selection Screen -->
-<div id="select-screen">
-    <h1 style="color:white; margin-bottom:30px;">من يلعب؟</h1>
-    <button class="char-select-btn m-btn" onclick="selectChar('mahmoud')">🔵 Mahmoud</button>
-    <button class="char-select-btn n-btn" onclick="selectChar('nagham')">🔴 Nagham</button>
-</div>
 
 <!-- Anniversary Counter -->
 <div id="love-counter">
@@ -179,15 +159,17 @@
     <div class="timer-display" id="timer">Loading...</div>
 </div>
 
-<!-- Bank Section -->
+<!-- Bank Section with Fine Button -->
 <div class="card">
+    <button class="fine-btn" onclick="openFineModal()" title="غرامة / محكمة">⚖️</button>
+    
     <div class="bank-header">
         <div class="player-score-box">
             <div class="avatar-dot" style="background:var(--mahmoud)"></div>
             <span style="color:#ccc">Mahmoud</span>
             <span class="score-val" id="score-m">0</span>
         </div>
-        <div style="font-size:0.9rem; color:#888;">المحفظة المشتركة</div>
+        <div style="font-size:0.8rem; color:#888; text-align:center;">الرصيد الحالي</div>
         <div class="player-score-box">
             <span class="score-val" id="score-n">0</span>
             <span style="color:#ccc">Nagham</span>
@@ -205,15 +187,18 @@
     
     <div id="game-overlay">
         <h2 id="overlay-msg" style="color:#fff; margin-bottom:20px;">انتظار الشريك...</h2>
-        <p id="sub-msg" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">ابدأ السباق أول ما يتجهز الاثنين</p>
+        <p id="sub-msg" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">أول شخص يوصل 50 ياخد 20 نقطة</p>
         <button id="start-btn" class="btn-3d" onclick="requestStart()" disabled>جاري التجهيز...</button>
     </div>
-    <!-- Canvas injected by Three.js here -->
 </div>
 
-<!-- Logs -->
+<!-- Punishment Log Section -->
 <div class="card" id="log-container">
-    <div class="log-item">أهلاً بكما في السباق ثلاثي الأبعاد!</div>
+    <div class="log-header">
+        <span><i class="fas fa-gavel"></i> سجل العقوبات والغرامات</span>
+        <span style="font-size:0.7rem; color:#666;">Live</span>
+    </div>
+    <!-- Logs injected here -->
 </div>
 
 <!-- Controls -->
@@ -227,36 +212,45 @@
         <div id="res-icon" style="font-size:3rem; margin-bottom:10px;"></div>
         <div id="res-title" class="result-title"></div>
         <div id="res-desc" style="color:#bbb; margin-bottom:10px;"></div>
-        <div id="res-money" class="money-change"></div>
-        <button class="btn-close" onclick="closeResult()">تم</button>
+        <div id="res-money" style="font-size:2rem; margin:10px 0; font-weight:bold;"></div>
+        <button class="modal-btn btn-confirm" style="width:100%" onclick="closeResult()">تم</button>
+    </div>
+</div>
+
+<!-- Manual Fine Modal -->
+<div id="fine-modal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-bottom:15px; color:var(--red-punish)">⚖️ تطبيق غرامة</h3>
+        
+        <div class="form-group">
+            <label>مين اللي هيدفع؟</label>
+            <select id="fine-target" class="form-input">
+                <option value="partner">الشريك (عقاب)</option>
+                <option value="me">أنا (اعتذار)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>المبلغ (نقاط)</label>
+            <input type="number" id="fine-amount" class="form-input" value="10">
+        </div>
+
+        <div class="form-group">
+            <label>السبب</label>
+            <input type="text" id="fine-reason" class="form-input" placeholder="مثلاً: إزعاج...">
+        </div>
+
+        <div style="display:flex; justify-content:center;">
+            <button class="modal-btn btn-cancel" onclick="closeFineModal()">إلغاء</button>
+            <button class="modal-btn btn-confirm" onclick="submitFine()">تنفيذ الغرامة</button>
+        </div>
     </div>
 </div>
 
 <script type="module">
     import * as THREE from 'three';
-
-    // --- 1. Anniversary Logic ---
-    const START_DATE = new Date('2024-11-20T00:00:00');
-    function updateTimer() {
-        const now = new Date();
-        const diff = now - START_DATE;
-        
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / 1000 / 60) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-        
-        document.getElementById('timer').innerHTML = `
-            ${days} يوم  <span style="font-size:0.8em; color:#666">|</span>  
-            ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}
-        `;
-    }
-    setInterval(updateTimer, 1000);
-    updateTimer();
-
-    // --- 2. Firebase Setup ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, runTransaction, push, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, runTransaction, push } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",
@@ -270,368 +264,241 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Global State
+    // Globals
     let myRole = localStorage.getItem('role');
     let gameRunning = false;
     let myScore = 0;
-    const WIN_SCORE = 50; // The target to reach
-    const STAKE_AMOUNT = 20; // Money transferred on win/loss
+    const WIN_SCORE = 50; 
+    const STAKE_AMOUNT = 20; 
 
-    // DOM Elements
-    const scoreMEl = document.getElementById('score-m');
-    const scoreNEl = document.getElementById('score-n');
-    const myScoreValEl = document.getElementById('my-score-val');
-    const overlay = document.getElementById('game-overlay');
-    const overlayMsg = document.getElementById('overlay-msg');
-    const subMsg = document.getElementById('sub-msg');
-    const startBtn = document.getElementById('start-btn');
-    const logContainer = document.getElementById('log-container');
-
-    // --- Auth & Listeners ---
-    window.selectChar = function(role) {
-        myRole = role;
-        localStorage.setItem('role', role);
-        document.getElementById('select-screen').style.display = 'none';
-        initGame();
-        listenToDB();
-    };
-
-    if(myRole) {
-        document.getElementById('select-screen').style.display = 'none';
-        initGame();
-        listenToDB();
+    // --- 1. Timer Logic ---
+    const START_DATE = new Date('2024-11-20T00:00:00');
+    function updateTimer() {
+        const now = new Date();
+        const diff = now - START_DATE;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        document.getElementById('timer').innerHTML = `${days} يوم  |  ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
     }
+    setInterval(updateTimer, 1000); updateTimer();
 
-    function addLog(html, type) {
-        const div = document.createElement('div');
-        div.className = 'log-item ' + (type === 'win' ? 'log-win' : (type === 'loss' ? 'log-loss' : ''));
-        div.innerHTML = html;
-        logContainer.prepend(div);
-    }
-
-    // --- 3. Three.js 3D Game Engine ---
-    let scene, camera, renderer;
-    let playerMesh, partnerMesh;
-    let obstacles = [];
-    let ground;
-    let animationId;
-    
-    // Game Physics
-    let speed = 0.4;
-    let playerY = 0;
-    let playerVelY = 0;
-    let isJumping = false;
-    let frameCount = 0;
-    let gameSeed = 0;
+    // --- 2. Three.js 3D Game ---
+    let scene, camera, renderer, playerMesh, partnerMesh;
+    let obstacles = [], frameCount = 0, speed = 0.4;
+    let playerY = 0, playerVelY = 0, isJumping = false;
 
     function initGame() {
         const container = document.getElementById('game-container');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+        const width = container.clientWidth; const height = container.clientHeight;
 
-        // Scene Setup
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x111111);
-        scene.fog = new THREE.Fog(0x111111, 10, 50);
-
-        // Camera (Behind player view)
-        camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
-        camera.position.set(0, 3, 6);
-        camera.lookAt(0, 0, -5);
-
-        // Renderer
+        scene = new THREE.Scene(); scene.background = new THREE.Color(0x111111); scene.fog = new THREE.Fog(0x111111, 10, 50);
+        camera = new THREE.PerspectiveCamera(60, width/height, 0.1, 100);
+        camera.position.set(0, 3, 6); camera.lookAt(0, 0, -5);
+        
         renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(width, height);
-        renderer.shadowMap.enabled = true;
+        renderer.setSize(width, height); renderer.shadowMap.enabled = true;
         container.appendChild(renderer.domElement);
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
+        // Lights
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(5, 10, 5);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
+        dirLight.position.set(5, 10, 5); dirLight.castShadow = true; scene.add(dirLight);
 
-        // Ground (Infinite Grid effect)
-        const gridHelper = new THREE.GridHelper(200, 200, 0x444444, 0x222222);
-        scene.add(gridHelper);
-        
-        // Player (Me)
-        const color = myRole === 'mahmoud' ? 0x00d2ff : 0xff4b1f;
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.5 });
-        playerMesh = new THREE.Mesh(geometry, material);
-        playerMesh.position.set(-1.5, 0.5, 0); // Left lane
-        playerMesh.castShadow = true;
-        scene.add(playerMesh);
+        // Ground
+        scene.add(new THREE.GridHelper(200, 200, 0x444444, 0x222222));
 
-        // Partner (Visual Only)
-        const partnerColor = myRole === 'mahmoud' ? 0xff4b1f : 0x00d2ff;
-        const partnerMat = new THREE.MeshStandardMaterial({ color: partnerColor, emissive: partnerColor, emissiveIntensity: 0.5 });
-        partnerMesh = new THREE.Mesh(geometry, partnerMat);
-        partnerMesh.position.set(1.5, 0.5, -5); // Right lane (start behind)
-        scene.add(partnerMesh);
+        // Player
+        const pColor = myRole === 'mahmoud' ? 0x00d2ff : 0xff4b1f;
+        const pGeo = new THREE.BoxGeometry(1, 1, 1);
+        const pMat = new THREE.MeshStandardMaterial({ color: pColor, emissive: pColor, emissiveIntensity: 0.5 });
+        playerMesh = new THREE.Mesh(pGeo, pMat);
+        playerMesh.position.set(-1.5, 0.5, 0); playerMesh.castShadow = true; scene.add(playerMesh);
 
-        // Resize Listener
+        // Partner
+        const nColor = myRole === 'mahmoud' ? 0xff4b1f : 0x00d2ff;
+        const nMat = new THREE.MeshStandardMaterial({ color: nColor, emissive: nColor, emissiveIntensity: 0.5 });
+        partnerMesh = new THREE.Mesh(pGeo, nMat);
+        partnerMesh.position.set(1.5, 0.5, -5); scene.add(partnerMesh);
+
         window.addEventListener('resize', () => {
-            const w = container.clientWidth;
-            const h = container.clientHeight;
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-            renderer.setSize(w, h);
+            camera.aspect = width/height; camera.updateProjectionMatrix(); renderer.setSize(width, height);
         });
 
-        // Start Loop
         animate();
-    }
-
-    // Pseudo Random for Synced Obstacles
-    function seededRandom(seed) {
-        var x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
     }
 
     function animate() {
         requestAnimationFrame(animate);
-
         if (gameRunning) {
-            frameCount++;
-            myScore++;
-            myScoreValEl.innerText = myScore;
-            
-            // Ground movement simulation
-            // We actually move objects towards camera
-            
-            // Obstacle Spawning (Synced)
-            // We spawn based on score/frames so both see same obstacle pattern
-            // Example: Spawn obstacle every 50 units of score
-            if (myScore % 40 === 0) {
-                createObstacle(myScore);
-            }
+            frameCount++; myScore++;
+            document.getElementById('my-score-val').innerText = myScore;
 
-            // Move Obstacles
+            if (myScore % 40 === 0) createObstacle(myScore); // Synced spawn
+
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 const obs = obstacles[i];
-                obs.mesh.position.z += speed; // Move towards camera
-                
-                // Collision Detection
-                if (Math.abs(obs.mesh.position.z - playerMesh.position.z) < 0.8) {
-                    if (isJumping && playerY < 0.5) { // If jump too low
-                        crash();
-                    } else if (!isJumping) {
-                        crash();
-                    }
-                }
+                obs.mesh.position.z += speed;
 
-                // Remove if passed camera
-                if (obs.mesh.position.z > 10) {
-                    scene.remove(obs.mesh);
-                    obstacles.splice(i, 1);
+                // Collision
+                if (Math.abs(obs.mesh.position.z - playerMesh.position.z) < 0.8) {
+                    if ((isJumping && playerY < 0.5) || !isJumping) crash();
                 }
+                if (obs.mesh.position.z > 10) { scene.remove(obs.mesh); obstacles.splice(i, 1); }
             }
 
-            // Jump Physics
+            // Physics
             if (isJumping) {
-                playerVelY -= 0.015; // Gravity
-                playerY += playerVelY;
-                if (playerY <= 0) {
-                    playerY = 0;
-                    isJumping = false;
-                }
+                playerVelY -= 0.015; playerY += playerVelY;
+                if (playerY <= 0) { playerY = 0; isJumping = false; }
                 playerMesh.position.y = 0.5 + playerY;
             }
         }
-
-        // Render
         renderer.render(scene, camera);
     }
 
-    function createObstacle(currentScore) {
-        // Use score as seed base to ensure sync
-        const seedBase = currentScore;
-        const type = seededRandom(seedBase) > 0.5 ? 1 : 0; // 0 = low, 1 = high
-        
-        const height = type === 0 ? 1 : 2;
-        const geometry = new THREE.BoxGeometry(1.5, height, 1);
-        const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-        const mesh = new THREE.Mesh(geometry, material);
-        
-        mesh.position.set(-1.5, height/2, -50); // Spawn far away in my lane
-        scene.add(mesh);
-        obstacles.push({ mesh: mesh });
+    function createObstacle(seed) {
+        const h = (Math.sin(seed * 12.9898) * 43758.5453 % 1 > 0.5) ? 1 : 2;
+        const geo = new THREE.BoxGeometry(1.5, h, 1);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xff0000 }));
+        mesh.position.set(-1.5, h/2, -50); scene.add(mesh); obstacles.push({mesh});
     }
 
     window.jump = function() {
-        if (!isJumping && gameRunning) {
-            isJumping = true;
-            playerVelY = 0.35; // Jump force
-        }
+        if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.35; }
     };
 
-    // Controls
-    document.getElementById('jump-btn-large').addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
-    document.getElementById('jump-btn-large').addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
-    window.addEventListener('keydown', (e) => { if(e.code === 'Space') jump(); });
+    document.getElementById('jump-btn-large').addEventListener('touchstart', e => { e.preventDefault(); jump(); });
+    window.addEventListener('keydown', e => { if(e.code === 'Space') jump(); });
 
-    // --- 4. Firebase Sync & Game Logic ---
-
+    // --- 3. Firebase & Logic ---
     const gameRef = ref(db, 'race_room');
-    const scoresRef = ref(db, 'bank_coins');
+    const logsRef = ref(db, 'punishment_logs');
+
+    if(myRole) {
+        document.getElementById('select-screen')?.remove(); // Safety
+        initGame();
+        listenToDB();
+    }
+
+    // Logs Helper
+    function addLog(text, type) {
+        push(logsRef, { text: text, type: type, role: myRole, time: Date.now() });
+    }
 
     function listenToDB() {
-        // Sync Scores
-        onValue(scoresRef, (snap) => {
-            const data = snap.val() || { mahmoud: 0, nagham: 0 };
-            scoreMEl.innerText = data.mahmoud || 0;
-            scoreNEl.innerText = data.nagham || 0;
+        // Scores
+        onValue(ref(db, 'bank_coins'), snap => {
+            const d = snap.val() || {mahmoud:0, nagham:0};
+            document.getElementById('score-m').innerText = d.mahmoud || 0;
+            document.getElementById('score-n').innerText = d.nagham || 0;
         });
 
-        // Sync Game State
-        onValue(gameRef, (snap) => {
-            const data = snap.val();
-            if (!data) return;
+        // Logs UI
+        onValue(logsRef, snap => {
+            const logs = snap.val(); const container = document.getElementById('log-container');
+            container.innerHTML = '<div class="log-header"><span><i class="fas fa-gavel"></i> سجل العقوبات والغرامات</span><span style="font-size:0.7rem;color:#666;">Live</span></div>';
+            if(!logs) return;
+            Object.values(logs).reverse().slice(0, 15).forEach(l => {
+                const div = document.createElement('div');
+                div.className = `log-item log-${l.type}`;
+                div.innerHTML = `<span>${l.text}</span> <span style="font-size:0.7rem;opacity:0.7">${new Date(l.time).getHours()}:${String(new Date(l.time).getMinutes()).padStart(2,'0')}</span>`;
+                container.appendChild(div);
+            });
+        });
 
-            // Update Partner Visuals
-            // We map partner's score to a Z position relative to ours or absolute
-            // To keep it simple: Show partner running if data.p_status === 'playing'
-            if (data.p_status === 'playing') {
-                // Simple visual feedback that partner is running
-                partnerMesh.position.x = 1.5;
-                // Shake effect or something could be added here
-            } else if (data.p_status === 'crashed') {
-                partnerMesh.rotation.x = 1.5; // Fall over
-                partnerMesh.position.y = 0;
-            } else {
-                partnerMesh.rotation.x = 0; // Reset
-            }
-
-            // Game Flow
-            if (data.state === 'waiting') {
-                gameRunning = false;
-                overlay.style.display = 'flex';
-                startBtn.disabled = false;
-                startBtn.innerText = "ابدأ السباق!";
-                overlayMsg.innerText = data.requester ? `${data.requester} مستعد...` : "في انتظار البداية";
-                subMsg.innerText = "أول شخص يوصل 50 ياخد 20 نقطة!";
-            } else if (data.state === 'playing') {
-                if (!gameRunning && data.status !== 'crashed') {
-                    startGame(data.seed);
-                }
-            } else if (data.state === 'finished') {
-                gameRunning = false;
-                handleFinish(data);
+        // Game State
+        onValue(gameRef, snap => {
+            const d = snap.val(); if(!d) return;
+            
+            if (d.state === 'waiting') {
+                gameRunning = false; overlay.style.display = 'flex';
+                startBtn.disabled = false; startBtn.innerText = "ابدأ السباق!";
+                overlayMsg.innerText = d.requester ? `${d.requester} مستعد...` : "في انتظار البداية";
+            } else if (d.state === 'playing') {
+                if (!gameRunning && d.status !== 'crashed') startGame(d.seed);
+            } else if (d.state === 'finished') {
+                gameRunning = false; handleFinish(d);
             }
         });
     }
 
     window.requestStart = function() {
         const myName = myRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
-        const randomSeed = Math.floor(Math.random() * 10000);
-        
-        // Reset state
-        set(gameRef, {
-            state: 'waiting',
-            requester: myName,
-            seed: randomSeed
-        });
-
-        // Auto start after 2 seconds if both are "ready" (simulated by delay here for simplicity)
-        setTimeout(() => {
-            set(gameRef, { 
-                state: 'playing', 
-                seed: randomSeed,
-                status: 'playing',
-                p_status: 'waiting' // Reset partner status
-            });
-        }, 2000);
+        set(gameRef, { state: 'waiting', requester: myName, seed: Math.floor(Math.random()*10000) });
+        setTimeout(() => set(gameRef, { state: 'playing', seed: Math.floor(Math.random()*10000), status: 'playing' }), 2000);
     };
 
-    function startGame(seed) {
-        gameRunning = true;
-        myScore = 0;
-        gameSeed = seed;
-        frameCount = 0;
-        obstacles.forEach(o => scene.remove(o.mesh));
-        obstacles = [];
-        
-        playerMesh.position.y = 0.5;
-        playerY = 0;
-        isJumping = false;
-        partnerMesh.rotation.x = 0;
-
+    function startGame() {
+        gameRunning = true; myScore = 0; obstacles.forEach(o => scene.remove(o.mesh)); obstacles = [];
+        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; partnerMesh.rotation.x = 0;
         overlay.style.display = 'none';
-
-        // Write "I am playing" to DB
-        const update = {};
-        update[`status`] = 'playing';
-        if (myRole === 'mahmoud') update['m_status'] = 'playing';
-        else update['n_status'] = 'playing';
-        
-        set(gameRef, update);
     }
 
     function crash() {
-        if (!gameRunning) return;
-        gameRunning = false;
-        
-        // Visual crash
-        playerMesh.rotation.x = 1.5;
-        playerMesh.position.y = 0.5;
-
-        // Update DB: I crashed
-        const update = {};
-        update[`status`] = 'crashed';
-        update[`winner`] = (myRole === 'mahmoud') ? 'nagham' : 'mahmoud'; // Partner wins
-        
-        set(gameRef, update);
+        if(!gameRunning) return; gameRunning = false;
+        playerMesh.rotation.x = 1.5; playerMesh.position.y = 0.5;
+        set(gameRef, { status: 'crashed', winner: (myRole === 'mahmoud') ? 'nagham' : 'mahmoud', state: 'finished' });
     }
 
     function handleFinish(data) {
-        overlay.style.display = 'flex';
-        
-        // Determine Result
         const amIWinner = data.winner === myRole;
         const opponentName = (myRole === 'mahmoud') ? 'Nagham' : 'Mahmoud';
-
+        
         if (amIWinner) {
-            // Win Modal
-            showResultModal(true, `فزت على ${opponentName}!`, `أنت أسرع ووصلت للهدف.`, `+${STAKE_AMOUNT}`);
-            addLog(`🏆 ${myRole} فاز السباق وحصل على ${STAKE_AMOUNT} نقطة.`, 'win');
-            
-            // Transfer Money
-            runTransaction(ref(db, `bank_coins/${myRole}`), c => (c||0) + STAKE_AMOUNT);
+            // Win
+            addPoints(myRole, STAKE_AMOUNT);
+            addLog(`🏆 <b>${myRole}</b> فاز السباق على ${opponentName} وحصل على ${STAKE_AMOUNT} نقطة.`, 'win');
+            showResultModal(true, "مبروك الفوز!", `أنت وصلت للهدف أولاً.`, `+${STAKE_AMOUNT}`);
         } else {
-            // Lose Modal
-            showResultModal(false, `خسرت أمام ${opponentName}`, `أنت اصطدمت أو تأخرت.`, `-${STAKE_AMOUNT}`);
-            addLog(`💥 ${myRole} خسر السباق وتم خصم ${STAKE_AMOUNT} نقطة.`, 'loss');
-            
-            // Transfer Money (Deduct)
-            runTransaction(ref(db, `bank_coins/${myRole}`), c => Math.max(0, (c||0) - STAKE_AMOUNT));
+            // Lose (Punishment)
+            addPoints(myRole, -STAKE_AMOUNT);
+            addLog(`💥 <b>${myRole}</b> خسر السباق وتتم عليه غرامة ${STAKE_AMOUNT} نقطة.`, 'fine');
+            showResultModal(false, "لقد خسرت!", `${opponentName} وصل أولاً.`, `-${STAKE_AMOUNT}`);
         }
+    }
+
+    function addPoints(role, amount) {
+        runTransaction(ref(db, `bank_coins/${role}`), c => (c||0) + amount);
     }
 
     function showResultModal(win, title, desc, money) {
         const modal = document.getElementById('result-modal');
-        const icon = document.getElementById('res-icon');
-        const t = document.getElementById('res-title');
-        const d = document.getElementById('res-desc');
-        const m = document.getElementById('res-money');
-
+        document.getElementById('res-icon').innerText = win ? '🏆' : '💸';
+        const t = document.getElementById('res-title'); t.innerText = title; t.style.color = win ? 'var(--gold)' : 'var(--red-punish)';
+        document.getElementById('res-desc').innerText = desc;
+        document.getElementById('res-money').innerText = money; document.getElementById('res-money').style.color = win ? '#00b894' : '#e74c3c';
         modal.style.display = 'flex';
-        icon.innerHTML = win ? '🏆' : '💥';
-        t.innerText = title;
-        t.className = 'result-title ' + (win ? 'win-text' : 'lose-text');
-        d.innerText = desc;
-        m.innerText = money;
-        m.style.color = win ? '#00b894' : '#ff7675';
     }
 
     window.closeResult = function() {
         document.getElementById('result-modal').style.display = 'none';
-        set(gameRef, { state: 'waiting' }); // Reset to waiting for next round
+        set(gameRef, { state: 'waiting' });
     };
 
+    // --- 4. Manual Fine Logic ---
+    window.openFineModal = () => document.getElementById('fine-modal').style.display = 'flex';
+    window.closeFineModal = () => document.getElementById('fine-modal').style.display = 'none';
+
+    window.submitFine = function() {
+        const target = document.getElementById('fine-target').value;
+        const amount = parseInt(document.getElementById('fine-amount').value) || 0;
+        const reason = document.getElementById('fine-reason').value || "بدون سبب";
+
+        if(amount <= 0) return alert('اكتب مبلغ صحيح!');
+
+        let victimRole = target === 'me' ? myRole : (myRole === 'mahmoud' ? 'nagham' : 'mahmoud');
+        let victimName = victimRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
+
+        // Deduct
+        runTransaction(ref(db, `bank_coins/${victimRole}`), c => Math.max(0, (c||0) - amount));
+
+        // Log as FINE
+        addLog(`⚖️ <b>${victimName}</b> غرامة: -${amount} نقطة. (${reason})`, 'fine');
+
+        closeFineModal();
+    };
 </script>
 </body>
 </html>
