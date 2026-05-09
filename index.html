@@ -2,20 +2,19 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mahmoud & Nagham - Judge Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mahmoud & Nagham - 3D Love Race</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- CSS: التصميم --- */
         :root {
-            --bg-grad: linear-gradient(135deg, #a29bfe 0%, #ff7675 100%);
-            --glass: rgba(255, 255, 255, 0.2);
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --mahmoud: #0984e3;
-            --nagham: #e84393;
-            --primary: #ff4757;
+            --bg-grad: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --glass: rgba(255, 255, 255, 0.1);
+            --mahmoud: #00d2ff;
+            --nagham: #ff4b1f;
+            --gold: #ffd700;
+            --text: #fff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -24,401 +23,615 @@
             font-family: 'Tajawal', sans-serif;
             background: var(--bg-grad);
             min-height: 100vh;
-            color: #2d3436;
-            padding: 10px;
+            color: var(--text);
             overflow-x: hidden;
+            display: flex; flex-direction: column; gap: 10px;
+            padding-bottom: 80px; /* Space for controls */
         }
 
-        header { text-align: center; padding: 20px 10px; position: relative; }
-        h1 { font-size: 2rem; color: #fff; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); margin-bottom: 5px; }
-        .subtitle { color: #fff; font-size: 0.9rem; opacity: 0.9; }
-        
-        /* زر تعديل المفاجأة */
-        .edit-btn {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(255,255,255,0.3); border: 1px solid #fff;
-            padding: 8px 12px; border-radius: 20px; color: #fff; font-size: 0.8rem;
-            cursor: pointer; transition: 0.3s;
+        /* --- Anniversary Counter --- */
+        #love-counter {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
         }
-        .edit-btn:hover { background: #fff; color: var(--primary); }
+        .love-title { font-size: 0.9rem; color: #fab1a0; margin-bottom: 5px; }
+        .timer-display { font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; }
+        .timer-unit { font-size: 0.8rem; color: #aaa; display: block; margin-top: 2px;}
 
-        /* الكروت */
+        /* --- UI Cards --- */
         .card {
             background: var(--glass);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 15px auto;
-            max-width: 600px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; padding: 10px; margin: 5px;
         }
 
-        h2 { color: #2d3436; font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-
-        /* العداد */
-        #timer { font-size: 1.8rem; font-weight: 900; text-align: center; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); direction: ltr; }
-
-        /* اللعبة */
-        #game-box {
+        /* --- Header / Bank --- */
+        .bank-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .player-score-box { display: flex; align-items: center; gap: 8px; font-weight: bold; }
+        .avatar-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+        .score-val { font-size: 1.2rem; font-family: sans-serif; }
+        
+        /* --- 3D Game Container --- */
+        #game-container {
             position: relative;
             width: 100%;
-            height: 280px;
-            background: rgba(255,255,255,0.8);
+            height: 350px; /* Taller for 3D view */
+            background: #000;
             border-radius: 15px;
             overflow: hidden;
-            border: 3px solid #fff;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid #444;
         }
+        canvas { display: block; width: 100%; height: 100%; outline: none; }
 
-        canvas { display: block; width: 100%; height: 100%; }
+        /* HUD Overlay */
+        #game-hud {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 10px;
+            display: flex; justify-content: space-between; pointer-events: none;
+            text-shadow: 0 2px 4px #000; font-weight: bold;
+        }
+        .hud-target { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; border: 1px solid #fff; }
 
-        /* شاشة النتائج */
-        #overlay {
+        /* Start/Result Overlay */
+        #game-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
-            color: white;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; z-index: 100; padding: 20px;
-        }
-
-        .winner-card {
-            background: #fff; color: #333;
-            width: 90%; padding: 20px; border-radius: 15px;
-            margin-top: 15px; border: 3px solid #ffd700;
-            animation: pop 0.4s ease-out;
-            display: flex; flex-direction: column; gap: 10px;
+            z-index: 10; text-align: center;
         }
         
-        .score-display {
-            background: #f1f2f6; padding: 10px; border-radius: 10px; 
-            font-size: 1.2rem; font-weight: bold; color: #2d3436;
-            border: 1px dashed #b2bec3;
+        .btn-3d {
+            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+            border: none; padding: 12px 30px; border-radius: 30px; color: #fff;
+            font-weight: bold; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+            transition: transform 0.1s; width: 80%;
         }
+        .btn-3d:active { transform: scale(0.95); }
 
-        .judge-text { font-size: 1.3rem; font-weight: 900; color: var(--primary); margin-top: 5px; line-height: 1.4; }
-        .winner-badge { background: #ffd700; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+        /* Controls */
+        #controls-area {
+            position: fixed; bottom: 20px; left: 0; width: 100%;
+            display: flex; justify-content: center; z-index: 100; pointer-events: none;
+        }
+        #jump-btn-large {
+            pointer-events: all;
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(255,255,255,0.2); border: 2px solid #fff;
+            backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; color: #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        #jump-btn-large:active { background: rgba(255,255,255,0.4); transform: scale(0.9); }
 
-        /* الأزرار */
-        .btn { background: var(--primary); color: #fff; border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.1rem; font-family: 'Tajawal'; cursor: pointer; margin-top: 15px; box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); }
-        
-        .controls { display: flex; gap: 10px; margin-top: 15px; }
-        .ctrl-btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; color: #fff; font-family: 'Tajawal'; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
-        .btn-m { background: var(--mahmoud); }
-        .btn-n { background: var(--nagham); }
-        .ctrl-btn:active { transform: translateY(4px); box-shadow: none; }
+        /* Logs */
+        #log-container {
+            height: 120px; overflow-y: auto; font-size: 0.85rem;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .log-item {
+            background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 8px;
+            border-right: 3px solid #555;
+        }
+        .log-win { border-color: var(--gold); color: #fff; background: rgba(255, 215, 0, 0.1); }
+        .log-loss { border-color: var(--nagham); color: #ffcccc; background: rgba(255, 75, 31, 0.1); }
 
-        /* كرت الخدش */
-        #scratch-box { position: relative; width: 100%; max-width: 350px; height: 180px; margin: 0 auto; border-radius: 10px; overflow: hidden; border: 2px solid #fff; }
-        #scratch-txt { position: absolute; top:0; left:0; width:100%; height:100%; background:#fff0f5; display: flex; justify-content: center; align-items: center; font-weight:bold; color:var(--nagham); font-size:1.2rem; z-index: 1; }
-        #scratch-canvas { position: absolute; top:0; left:0; z-index: 2; cursor: pointer; }
+        /* Selection Screen */
+        #select-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #111; z-index: 5000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;
+        }
+        .char-select-btn {
+            width: 200px; padding: 20px; border-radius: 15px; border: 2px solid #fff;
+            background: transparent; color: #fff; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; transition: 0.3s;
+        }
+        .char-select-btn.m-btn:hover { background: var(--mahmoud); border-color: var(--mahmoud); box-shadow: 0 0 20px var(--mahmoud); }
+        .char-select-btn.n-btn:hover { background: var(--nagham); border-color: var(--nagham); box-shadow: 0 0 20px var(--nagham); }
 
-        /* الرسائل */
-        .lock-msg { background: #ff7675; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 10px; font-weight: bold; display: none; }
-        .hidden { display: none !important; }
+        /* Modals */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 6000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #222; border: 1px solid #444; padding: 25px; border-radius: 20px;
+            width: 85%; text-align: center; color: #fff;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from{transform:scale(0.5); opacity:0;} to{transform:scale(1); opacity:1;} }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
+        .result-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
+        .win-text { color: var(--gold); }
+        .lose-text { color: var(--nagham); }
+        .money-change { font-size: 2rem; margin: 15px 0; font-family: monospace; }
+        .btn-close { background: #555; color: #fff; border: none; padding: 10px 30px; border-radius: 10px; margin-top: 15px; cursor: pointer;}
     </style>
+    <!-- Import Three.js as module -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
 </head>
 <body>
 
-<header>
-    <button class="edit-btn" onclick="editSurprise()">✏️ تعديل المفاجأة</button>
-    <h1>Mahmoud ❤️ Nagham</h1>
-    <p class="subtitle">الفائز يحكم والخاسر ينفذ!</p>
-</header>
+<!-- Selection Screen -->
+<div id="select-screen">
+    <h1 style="color:white; margin-bottom:30px;">من يلعب؟</h1>
+    <button class="char-select-btn m-btn" onclick="selectChar('mahmoud')">🔵 Mahmoud</button>
+    <button class="char-select-btn n-btn" onclick="selectChar('nagham')">🔴 Nagham</button>
+</div>
 
-<main style="max-width: 650px; margin: 0 auto;">
+<!-- Anniversary Counter -->
+<div id="love-counter">
+    <div class="love-title">❤️ ده يوم حبنا (من 20/11/2024)</div>
+    <div class="timer-display" id="timer">Loading...</div>
+</div>
 
-    <!-- العداد -->
-    <div class="card" style="text-align: center;">
-        <h2><i class="fas fa-clock"></i> عداد العمر</h2>
-        <div id="timer">Loading...</div>
-    </div>
-
-    <!-- اللعبة -->
-    <div class="card">
-        <div id="game-lock-msg" class="lock-msg">لقد لعبتما اليوم! انتظروا غداً.</div>
-        
-        <div id="game-box">
-            <canvas id="gameCanvas"></canvas>
-            
-            <!-- أزرار اللمس الخفية -->
-            <div style="position:absolute; top:0; height:100%; width:50%; left:0; z-index:50;" id="touch-m"></div>
-            <div style="position:absolute; top:0; height:100%; width:50%; right:0; z-index:50;" id="touch-n"></div>
-
-            <!-- شاشة البداية/النهاية -->
-            <div id="overlay">
-                <h2 id="overlay-title">مرحباً!</h2>
-                <p id="overlay-desc" style="opacity:0.8;">اجمعوا العملات ووصلوا لـ 100 نقطة</p>
-                
-                <!-- كرت الفوز -->
-                <div id="win-card" class="winner-card hidden">
-                    <span class="winner-badge">👑 الحاكم</span>
-                    <h3 id="winner-name" style="font-size:1.4rem; margin:5px 0;">Name</h3>
-                    <div class="score-display">النتيجة النهائية: <span id="final-score">0</span> / 100</div>
-                    <div>الحكم اليومي:</div>
-                    <div class="judge-text" id="judge-rule">...</div>
-                </div>
-
-                <button class="btn" id="start-btn" onclick="startGame()">ابدأ اللعب</button>
-            </div>
+<!-- Bank Section -->
+<div class="card">
+    <div class="bank-header">
+        <div class="player-score-box">
+            <div class="avatar-dot" style="background:var(--mahmoud)"></div>
+            <span style="color:#ccc">Mahmoud</span>
+            <span class="score-val" id="score-m">0</span>
         </div>
-
-        <div class="controls">
-            <button class="ctrl-btn btn-m" id="btn-m">Mahmoud (قفز)</button>
-            <button class="ctrl-btn btn-n" id="btn-n">Nagham (قفز)</button>
+        <div style="font-size:0.9rem; color:#888;">المحفظة المشتركة</div>
+        <div class="player-score-box">
+            <span class="score-val" id="score-n">0</span>
+            <span style="color:#ccc">Nagham</span>
+            <div class="avatar-dot" style="background:var(--nagham)"></div>
         </div>
     </div>
+</div>
 
-    <!-- كرت المفاجأة -->
-    <div class="card" style="text-align: center;">
-        <h2>🎫 كرت المفاجأة</h2>
-        <div id="scratch-lock-msg" class="lock-msg">تم فتح الكرت اليوم!</div>
-        <div id="scratch-box">
-            <div id="scratch-txt">???</div>
-            <canvas id="scratch-canvas"></canvas>
-        </div>
+<!-- 3D Game Area -->
+<div id="game-container">
+    <div id="game-hud">
+        <div>هدف الفوز: <span id="target-val">50</span></div>
+        <div>مستواي: <span id="my-score-val" style="color:var(--gold)">0</span></div>
     </div>
-
-</main>
-
-<!-- =========================================
-     JavaScript: الكود كامل
-     ========================================= -->
-<script>
-    // --- تعديل المفاجأة (Admin) ---
-    function editSurprise() {
-        let current = localStorage.getItem('custom_surprise') || "عشاء رومانسي 🌹";
-        let input = prompt("اكتب الحكم أو المفاجأة اللي عايزها تطلع لما حد يكسب:", current);
-        if(input && input.trim() !== "") {
-            localStorage.setItem('custom_surprise', input.trim());
-            alert("تم حفظ الحكم! 🎉");
-        }
-    }
-
-    // --- البيانات ---
-    const surprises = ["🌹 وردة", "🎬 سينما", "📸 صورة جديدة", "🥗 سلطة", "🎮 لعبة مرة أخرى"];
-    const defaultJudge = "عشاء فاخر على حساب الفائز 🍽️";
-
-    // --- نظام اليوم الواحد (LocalStorage) ---
-    function checkDaily() {
-        const today = new Date().toDateString();
-        if(localStorage.getItem('lastGameDate') === today) {
-            document.getElementById('game-lock-msg').style.display = 'block';
-            document.getElementById('game-box').style.pointerEvents = 'none';
-            document.getElementById('game-box').style.opacity = '0.5';
-        }
-        if(localStorage.getItem('lastScratchDate') === today) {
-            document.getElementById('scratch-lock-msg').style.display = 'block';
-            document.getElementById('scratch-box').style.display = 'none';
-        }
-    }
-
-    function setGameDone() {
-        localStorage.setItem('lastGameDate', new Date().toDateString());
-        checkDaily();
-    }
-    function setScratchDone() {
-        localStorage.setItem('lastScratchDate', new Date().toDateString());
-        checkDaily();
-    }
-
-    // --- عداد الحب ---
-    const startDate = new Date("2023-01-01T00:00:00");
-    setInterval(() => {
-        const diff = new Date() - startDate;
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((diff / (1000 * 60)) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-        document.getElementById('timer').innerText = `${d}d ${h}h ${m}m ${s}s`;
-    }, 1000);
-
-    // --- منطق اللعبة ---
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const overlay = document.getElementById('overlay');
     
-    function resizeCanvas() {
-        canvas.width = canvas.parentElement.offsetWidth;
-        canvas.height = canvas.parentElement.offsetHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    setTimeout(resizeCanvas, 100);
+    <div id="game-overlay">
+        <h2 id="overlay-msg" style="color:#fff; margin-bottom:20px;">انتظار الشريك...</h2>
+        <p id="sub-msg" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">ابدأ السباق أول ما يتجهز الاثنين</p>
+        <button id="start-btn" class="btn-3d" onclick="requestStart()" disabled>جاري التجهيز...</button>
+    </div>
+    <!-- Canvas injected by Three.js here -->
+</div>
 
+<!-- Logs -->
+<div class="card" id="log-container">
+    <div class="log-item">أهلاً بكما في السباق ثلاثي الأبعاد!</div>
+</div>
+
+<!-- Controls -->
+<div id="controls-area">
+    <div id="jump-btn-large"><i class="fas fa-plane"></i></div>
+</div>
+
+<!-- Result Modal -->
+<div id="result-modal" class="modal">
+    <div class="modal-content">
+        <div id="res-icon" style="font-size:3rem; margin-bottom:10px;"></div>
+        <div id="res-title" class="result-title"></div>
+        <div id="res-desc" style="color:#bbb; margin-bottom:10px;"></div>
+        <div id="res-money" class="money-change"></div>
+        <button class="btn-close" onclick="closeResult()">تم</button>
+    </div>
+</div>
+
+<script type="module">
+    import * as THREE from 'three';
+
+    // --- 1. Anniversary Logic ---
+    const START_DATE = new Date('2024-11-20T00:00:00');
+    function updateTimer() {
+        const now = new Date();
+        const diff = now - START_DATE;
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        
+        document.getElementById('timer').innerHTML = `
+            ${days} يوم  <span style="font-size:0.8em; color:#666">|</span>  
+            ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}
+        `;
+    }
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // --- 2. Firebase Setup ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, runTransaction, push, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",
+        authDomain: "nagam-12f98.firebaseapp.com",
+        projectId: "nagam-12f98",
+        storageBucket: "nagam-12f98.firebasestorage.app",
+        messagingSenderId: "489197943984",
+        appId: "1:489197943984:web:2b1823691e8e525b288f75",
+        measurementId: "G-LB7V0QWTYP"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Global State
+    let myRole = localStorage.getItem('role');
     let gameRunning = false;
-    let score = 0;
+    let myScore = 0;
+    const WIN_SCORE = 50; // The target to reach
+    const STAKE_AMOUNT = 20; // Money transferred on win/loss
+
+    // DOM Elements
+    const scoreMEl = document.getElementById('score-m');
+    const scoreNEl = document.getElementById('score-n');
+    const myScoreValEl = document.getElementById('my-score-val');
+    const overlay = document.getElementById('game-overlay');
+    const overlayMsg = document.getElementById('overlay-msg');
+    const subMsg = document.getElementById('sub-msg');
+    const startBtn = document.getElementById('start-btn');
+    const logContainer = document.getElementById('log-container');
+
+    // --- Auth & Listeners ---
+    window.selectChar = function(role) {
+        myRole = role;
+        localStorage.setItem('role', role);
+        document.getElementById('select-screen').style.display = 'none';
+        initGame();
+        listenToDB();
+    };
+
+    if(myRole) {
+        document.getElementById('select-screen').style.display = 'none';
+        initGame();
+        listenToDB();
+    }
+
+    function addLog(html, type) {
+        const div = document.createElement('div');
+        div.className = 'log-item ' + (type === 'win' ? 'log-win' : (type === 'loss' ? 'log-loss' : ''));
+        div.innerHTML = html;
+        logContainer.prepend(div);
+    }
+
+    // --- 3. Three.js 3D Game Engine ---
+    let scene, camera, renderer;
+    let playerMesh, partnerMesh;
     let obstacles = [];
-    let coins = [];
-    let frame = 0;
-    let speed = 4;
+    let ground;
+    let animationId;
+    
+    // Game Physics
+    let speed = 0.4;
+    let playerY = 0;
+    let playerVelY = 0;
+    let isJumping = false;
+    let frameCount = 0;
+    let gameSeed = 0;
 
-    const players = [
-        { x: 40, y: 200, w: 30, h: 30, dy: 0, color: '#0984e3', coins: 0, ground: true }, // M
-        { x: 80, y: 200, w: 30, h: 30, dy: 0, color: '#e84393', coins: 0, ground: true }  // N
-    ];
+    function initGame() {
+        const container = document.getElementById('game-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
 
-    function jump(idx) {
-        const p = players[idx];
-        if(p.ground && gameRunning) {
-            p.dy = -12;
-            p.ground = false;
-        }
-    }
+        // Scene Setup
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111111);
+        scene.fog = new THREE.Fog(0x111111, 10, 50);
 
-    ['touch-m', 'btn-m'].forEach(id => {
-        const el = document.getElementById(id);
-        el.addEventListener('touchstart', (e) => { e.preventDefault(); jump(0); });
-        el.addEventListener('mousedown', (e) => { e.preventDefault(); jump(0); });
-    });
-    ['touch-n', 'btn-n'].forEach(id => {
-        const el = document.getElementById(id);
-        el.addEventListener('touchstart', (e) => { e.preventDefault(); jump(1); });
-        el.addEventListener('mousedown', (e) => { e.preventDefault(); jump(1); });
-    });
+        // Camera (Behind player view)
+        camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
+        camera.position.set(0, 3, 6);
+        camera.lookAt(0, 0, -5);
 
-    function startGame() {
-        if(document.getElementById('game-lock-msg').style.display === 'block') return;
-        gameRunning = true;
-        overlay.classList.add('hidden');
-        document.getElementById('win-card').classList.add('hidden');
-        score = 0; frame = 0; speed = 4;
-        obstacles = []; coins = [];
-        players.forEach(p => { p.y = 200; p.dy = 0; p.coins = 0; });
-        gameLoop();
-    }
+        // Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(width, height);
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
 
-    function win() {
-        gameRunning = false;
-        overlay.classList.remove('hidden');
-        document.getElementById('overlay-title').innerText = "مبروك الفوز!";
-        document.getElementById('overlay-desc').innerText = `تم إكمال الهدف`;
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(5, 10, 5);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // Ground (Infinite Grid effect)
+        const gridHelper = new THREE.GridHelper(200, 200, 0x444444, 0x222222);
+        scene.add(gridHelper);
         
-        // تحديد الفائز
-        let wIdx = players[0].coins >= players[1].coins ? 0 : 1;
-        if(players[0].coins === players[1].coins) wIdx = Math.random()>0.5?1:0;
+        // Player (Me)
+        const color = myRole === 'mahmoud' ? 0x00d2ff : 0xff4b1f;
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.5 });
+        playerMesh = new THREE.Mesh(geometry, material);
+        playerMesh.position.set(-1.5, 0.5, 0); // Left lane
+        playerMesh.castShadow = true;
+        scene.add(playerMesh);
 
-        const wName = wIdx === 0 ? "Mahmoud" : "Nagham";
-        
-        // قراءة الحكم المخصص من التخزين
-        const judgeRule = localStorage.getItem('custom_surprise') || defaultJudge;
+        // Partner (Visual Only)
+        const partnerColor = myRole === 'mahmoud' ? 0xff4b1f : 0x00d2ff;
+        const partnerMat = new THREE.MeshStandardMaterial({ color: partnerColor, emissive: partnerColor, emissiveIntensity: 0.5 });
+        partnerMesh = new THREE.Mesh(geometry, partnerMat);
+        partnerMesh.position.set(1.5, 0.5, -5); // Right lane (start behind)
+        scene.add(partnerMesh);
 
-        document.getElementById('winner-name').innerText = wName;
-        document.getElementById('winner-name').style.color = wIdx === 0 ? "var(--mahmoud)" : "var(--nagham)";
-        
-        // تسجيل وعرض النتيجة
-        document.getElementById('final-score').innerText = score;
-        document.getElementById('judge-rule').innerText = judgeRule;
-        
-        document.getElementById('win-card').classList.remove('hidden');
-        const btn = document.getElementById('start-btn');
-        btn.innerText = "تم";
-        btn.onclick = setGameDone;
-    }
-
-    function lose() {
-        gameRunning = false;
-        overlay.classList.remove('hidden');
-        document.getElementById('overlay-title').innerText = "خسرتما!";
-        document.getElementById('overlay-desc').innerText = `النتيجة: ${score} - حاولوا تاني`;
-        document.getElementById('win-card').classList.add('hidden');
-        const btn = document.getElementById('start-btn');
-        btn.innerText = "إعادة المحاولة";
-        btn.onclick = startGame;
-    }
-
-    function gameLoop() {
-        if(!gameRunning) return;
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        frame++;
-
-        if(frame % 500 === 0) speed += 0.5;
-        if(frame % 10 === 0) score++;
-
-        if(score >= 100) { win(); return; }
-
-        // رسم النقاط الحالية
-        ctx.font = "bold 16px Tajawal";
-        ctx.fillStyle = "#333";
-        ctx.fillText("Score: " + score, 10, 25);
-        ctx.fillStyle = players[0].color; ctx.fillText("M: " + players[0].coins, 10, 45);
-        ctx.fillStyle = players[1].color; ctx.fillText("N: " + players[1].coins, 80, 45);
-
-        players.forEach(p => {
-            p.dy += 0.6; p.y += p.dy;
-            if(p.y + p.h > canvas.height) { p.y = canvas.height - p.h; p.dy = 0; p.ground = true; }
-            ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.w, p.h);
+        // Resize Listener
+        window.addEventListener('resize', () => {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
         });
 
-        if(frame % 90 === 0) {
-            obstacles.push({ x: canvas.width, y: canvas.height - (Math.random()>0.5?50:90), w: 30, h: Math.random()>0.5?50:90 });
-        }
-        obstacles.forEach((obs, i) => {
-            obs.x -= speed;
-            ctx.fillStyle = '#636e72'; ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-            players.forEach(p => {
-                if(p.x < obs.x + obs.w && p.x + p.w > obs.x && p.y < obs.y + obs.h && p.y + p.h > obs.y) { lose(); }
-            });
-            if(obs.x + obs.w < 0) obstacles.splice(i, 1);
-        });
+        // Start Loop
+        animate();
+    }
 
-        if(frame % 70 === 0) {
-            coins.push({ x: canvas.width, y: canvas.height - 50 - Math.random()*100, w: 20, h: 20, type: Math.random()>0.5?0:1 });
-        }
-        coins.forEach((c, i) => {
-            c.x -= speed;
-            ctx.fillStyle = c.type === 0 ? '#0984e3' : '#e84393';
-            ctx.beginPath(); ctx.arc(c.x + c.w/2, c.y + c.h/2, c.w/2, 0, Math.PI*2); ctx.fill();
-            players.forEach(p => {
-                if(p.x < c.x + c.w && p.x + p.w > c.x && p.y < c.y + c.h && p.y + p.h > c.y) {
-                    if(c.type === 0) players[0].coins++; else players[1].coins++;
-                    coins.splice(i, 1);
+    // Pseudo Random for Synced Obstacles
+    function seededRandom(seed) {
+        var x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        if (gameRunning) {
+            frameCount++;
+            myScore++;
+            myScoreValEl.innerText = myScore;
+            
+            // Ground movement simulation
+            // We actually move objects towards camera
+            
+            // Obstacle Spawning (Synced)
+            // We spawn based on score/frames so both see same obstacle pattern
+            // Example: Spawn obstacle every 50 units of score
+            if (myScore % 40 === 0) {
+                createObstacle(myScore);
+            }
+
+            // Move Obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+                obs.mesh.position.z += speed; // Move towards camera
+                
+                // Collision Detection
+                if (Math.abs(obs.mesh.position.z - playerMesh.position.z) < 0.8) {
+                    if (isJumping && playerY < 0.5) { // If jump too low
+                        crash();
+                    } else if (!isJumping) {
+                        crash();
+                    }
                 }
-            });
-            if(c.x + c.w < 0) coins.splice(i, 1);
+
+                // Remove if passed camera
+                if (obs.mesh.position.z > 10) {
+                    scene.remove(obs.mesh);
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            // Jump Physics
+            if (isJumping) {
+                playerVelY -= 0.015; // Gravity
+                playerY += playerVelY;
+                if (playerY <= 0) {
+                    playerY = 0;
+                    isJumping = false;
+                }
+                playerMesh.position.y = 0.5 + playerY;
+            }
+        }
+
+        // Render
+        renderer.render(scene, camera);
+    }
+
+    function createObstacle(currentScore) {
+        // Use score as seed base to ensure sync
+        const seedBase = currentScore;
+        const type = seededRandom(seedBase) > 0.5 ? 1 : 0; // 0 = low, 1 = high
+        
+        const height = type === 0 ? 1 : 2;
+        const geometry = new THREE.BoxGeometry(1.5, height, 1);
+        const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        const mesh = new THREE.Mesh(geometry, material);
+        
+        mesh.position.set(-1.5, height/2, -50); // Spawn far away in my lane
+        scene.add(mesh);
+        obstacles.push({ mesh: mesh });
+    }
+
+    window.jump = function() {
+        if (!isJumping && gameRunning) {
+            isJumping = true;
+            playerVelY = 0.35; // Jump force
+        }
+    };
+
+    // Controls
+    document.getElementById('jump-btn-large').addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+    document.getElementById('jump-btn-large').addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
+    window.addEventListener('keydown', (e) => { if(e.code === 'Space') jump(); });
+
+    // --- 4. Firebase Sync & Game Logic ---
+
+    const gameRef = ref(db, 'race_room');
+    const scoresRef = ref(db, 'bank_coins');
+
+    function listenToDB() {
+        // Sync Scores
+        onValue(scoresRef, (snap) => {
+            const data = snap.val() || { mahmoud: 0, nagham: 0 };
+            scoreMEl.innerText = data.mahmoud || 0;
+            scoreNEl.innerText = data.nagham || 0;
         });
 
-        requestAnimationFrame(gameLoop);
+        // Sync Game State
+        onValue(gameRef, (snap) => {
+            const data = snap.val();
+            if (!data) return;
+
+            // Update Partner Visuals
+            // We map partner's score to a Z position relative to ours or absolute
+            // To keep it simple: Show partner running if data.p_status === 'playing'
+            if (data.p_status === 'playing') {
+                // Simple visual feedback that partner is running
+                partnerMesh.position.x = 1.5;
+                // Shake effect or something could be added here
+            } else if (data.p_status === 'crashed') {
+                partnerMesh.rotation.x = 1.5; // Fall over
+                partnerMesh.position.y = 0;
+            } else {
+                partnerMesh.rotation.x = 0; // Reset
+            }
+
+            // Game Flow
+            if (data.state === 'waiting') {
+                gameRunning = false;
+                overlay.style.display = 'flex';
+                startBtn.disabled = false;
+                startBtn.innerText = "ابدأ السباق!";
+                overlayMsg.innerText = data.requester ? `${data.requester} مستعد...` : "في انتظار البداية";
+                subMsg.innerText = "أول شخص يوصل 50 ياخد 20 نقطة!";
+            } else if (data.state === 'playing') {
+                if (!gameRunning && data.status !== 'crashed') {
+                    startGame(data.seed);
+                }
+            } else if (data.state === 'finished') {
+                gameRunning = false;
+                handleFinish(data);
+            }
+        });
     }
 
-    // --- كرت الخدش ---
-    const sCanvas = document.getElementById('scratch-canvas');
-    const sCtx = sCanvas.getContext('2d');
-    const sBox = document.getElementById('scratch-box');
+    window.requestStart = function() {
+        const myName = myRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
+        const randomSeed = Math.floor(Math.random() * 10000);
+        
+        // Reset state
+        set(gameRef, {
+            state: 'waiting',
+            requester: myName,
+            seed: randomSeed
+        });
 
-    function initScratch() {
-        sCanvas.width = sBox.offsetWidth;
-        sCanvas.height = sBox.offsetHeight;
-        sCtx.globalCompositeOperation = 'source-over';
-        sCtx.fillStyle = '#b2bec3'; sCtx.fillRect(0,0,sCanvas.width,sCanvas.height);
-        sCtx.fillStyle = '#636e72'; sCtx.textAlign = 'center'; sCtx.fillText("خشني 👈", sCanvas.width/2, sCanvas.height/2);
-        document.getElementById('scratch-txt').innerText = surprises[Math.floor(Math.random()*surprises.length)];
+        // Auto start after 2 seconds if both are "ready" (simulated by delay here for simplicity)
+        setTimeout(() => {
+            set(gameRef, { 
+                state: 'playing', 
+                seed: randomSeed,
+                status: 'playing',
+                p_status: 'waiting' // Reset partner status
+            });
+        }, 2000);
+    };
+
+    function startGame(seed) {
+        gameRunning = true;
+        myScore = 0;
+        gameSeed = seed;
+        frameCount = 0;
+        obstacles.forEach(o => scene.remove(o.mesh));
+        obstacles = [];
+        
+        playerMesh.position.y = 0.5;
+        playerY = 0;
+        isJumping = false;
+        partnerMesh.rotation.x = 0;
+
+        overlay.style.display = 'none';
+
+        // Write "I am playing" to DB
+        const update = {};
+        update[`status`] = 'playing';
+        if (myRole === 'mahmoud') update['m_status'] = 'playing';
+        else update['n_status'] = 'playing';
+        
+        set(gameRef, update);
     }
 
-    let scr = false;
-    function scratch(e) {
-        if(!scr) return;
-        e.preventDefault();
-        const rect = sCanvas.getBoundingClientRect();
-        const x = (e.clientX || e.touches[0].clientX) - rect.left;
-        const y = (e.clientY || e.touches[0].clientY) - rect.top;
-        sCtx.globalCompositeOperation = 'destination-out';
-        sCtx.beginPath(); sCtx.arc(x, y, 20, 0, Math.PI*2); sCtx.fill();
+    function crash() {
+        if (!gameRunning) return;
+        gameRunning = false;
+        
+        // Visual crash
+        playerMesh.rotation.x = 1.5;
+        playerMesh.position.y = 0.5;
+
+        // Update DB: I crashed
+        const update = {};
+        update[`status`] = 'crashed';
+        update[`winner`] = (myRole === 'mahmoud') ? 'nagham' : 'mahmoud'; // Partner wins
+        
+        set(gameRef, update);
     }
 
-    sCanvas.addEventListener('mousedown', () => scr = true);
-    sCanvas.addEventListener('mouseup', () => { scr=false; setTimeout(setScratchDone, 1000); });
-    sCanvas.addEventListener('mousemove', scratch);
-    sCanvas.addEventListener('touchstart', () => scr = true);
-    sCanvas.addEventListener('touchend', () => { scr=false; setTimeout(setScratchDone, 1000); });
-    sCanvas.addEventListener('touchmove', scratch);
+    function handleFinish(data) {
+        overlay.style.display = 'flex';
+        
+        // Determine Result
+        const amIWinner = data.winner === myRole;
+        const opponentName = (myRole === 'mahmoud') ? 'Nagham' : 'Mahmoud';
 
-    checkDaily();
-    setTimeout(initScratch, 200);
+        if (amIWinner) {
+            // Win Modal
+            showResultModal(true, `فزت على ${opponentName}!`, `أنت أسرع ووصلت للهدف.`, `+${STAKE_AMOUNT}`);
+            addLog(`🏆 ${myRole} فاز السباق وحصل على ${STAKE_AMOUNT} نقطة.`, 'win');
+            
+            // Transfer Money
+            runTransaction(ref(db, `bank_coins/${myRole}`), c => (c||0) + STAKE_AMOUNT);
+        } else {
+            // Lose Modal
+            showResultModal(false, `خسرت أمام ${opponentName}`, `أنت اصطدمت أو تأخرت.`, `-${STAKE_AMOUNT}`);
+            addLog(`💥 ${myRole} خسر السباق وتم خصم ${STAKE_AMOUNT} نقطة.`, 'loss');
+            
+            // Transfer Money (Deduct)
+            runTransaction(ref(db, `bank_coins/${myRole}`), c => Math.max(0, (c||0) - STAKE_AMOUNT));
+        }
+    }
+
+    function showResultModal(win, title, desc, money) {
+        const modal = document.getElementById('result-modal');
+        const icon = document.getElementById('res-icon');
+        const t = document.getElementById('res-title');
+        const d = document.getElementById('res-desc');
+        const m = document.getElementById('res-money');
+
+        modal.style.display = 'flex';
+        icon.innerHTML = win ? '🏆' : '💥';
+        t.innerText = title;
+        t.className = 'result-title ' + (win ? 'win-text' : 'lose-text');
+        d.innerText = desc;
+        m.innerText = money;
+        m.style.color = win ? '#00b894' : '#ff7675';
+    }
+
+    window.closeResult = function() {
+        document.getElementById('result-modal').style.display = 'none';
+        set(gameRef, { state: 'waiting' }); // Reset to waiting for next round
+    };
+
 </script>
 </body>
 </html>
