@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mahmoud & Nagham - Full System</title>
-    <!-- استيراد الخطوط والأيقونات -->
+    <title>Mahmoud & Nagham - Ultimate System</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -16,6 +15,8 @@
             --text: #fff;
             --points-color: #ffd700;
             --money-color: #00b894;
+            --notebook-bg: #fdfbf7;
+            --notebook-lines: #a4b0be;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -30,7 +31,7 @@
             padding: 10px; padding-bottom: 90px;
         }
 
-        /* --- Toast Notification (Custom Alert) --- */
+        /* --- Toast Notification --- */
         #toast-container {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             z-index: 10000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 350px;
@@ -63,7 +64,27 @@
         .btn-m { background: var(--mahmoud); }
         .btn-n { background: var(--nagham); }
 
-        /* --- Anniversary Counter --- */
+        /* --- Top Navigation --- */
+        .top-nav {
+            display: flex; justify-content: center; gap: 5px; background: rgba(0,0,0,0.3);
+            padding: 5px; border-radius: 15px; margin-bottom: 10px;
+        }
+        .nav-tab {
+            background: transparent; border: 1px solid rgba(255,255,255,0.2);
+            color: #aaa; padding: 6px 10px; border-radius: 15px; cursor: pointer;
+            font-family: 'Tajawal'; font-weight: bold; transition: 0.3s; flex: 1;
+            font-size: 0.9rem; text-align: center;
+        }
+        .nav-tab.active {
+            background: var(--text); color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            border-color: #fff;
+        }
+
+        /* --- Views --- */
+        .view-section { display: none; width: 100%; animation: fadeIn 0.4s ease; }
+        .view-section.active { display: block; }
+
+        /* --- Timer --- */
         #love-counter {
             background: rgba(0, 0, 0, 0.3); padding: 10px 15px; border-radius: 15px;
             text-align: center; border: 1px solid rgba(255,255,255,0.1);
@@ -72,7 +93,7 @@
         .love-title { font-size: 0.8rem; color: #fab1a0; margin-bottom: 2px; }
         .timer-display { font-family: 'Courier New', monospace; font-size: 1rem; font-weight: bold; letter-spacing: 1px; }
 
-        /* --- Wallets Section --- */
+        /* --- Wallets --- */
         .wallets-container {
             display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
             position: relative; margin-bottom: 5px;
@@ -82,14 +103,11 @@
             border-radius: 20px; padding: 15px; text-align: center;
             border: 2px solid transparent; backdrop-filter: blur(10px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
         }
         .w-mahmoud { border-color: var(--mahmoud); }
         .w-nagham { border-color: var(--nagham); }
         .wallet-name { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
         .wallet-balance { font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); font-family: sans-serif; }
-        
-        /* --- Floating Fine Button --- */
         .fine-float-btn {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             width: 50px; height: 50px; border-radius: 50%;
@@ -99,22 +117,18 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10; cursor: pointer;
         }
         .fine-float-btn:active { transform: translateX(-50%) scale(0.9); }
-
-        /* Wallet Animation */
         @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         .balance-update { animation: pop 0.4s ease; color: var(--money-color) !important; }
         .balance-deduct { animation: pop 0.4s ease; color: #e74c3c !important; }
 
-        /* --- LOGS SECTION --- */
+        /* --- Logs --- */
         #log-container {
             background: rgba(0,0,0,0.3); border-radius: 15px; padding: 10px;
             height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
             border: 1px solid rgba(255,255,255,0.05);
         }
-        /* Scrollbar styling */
         #log-container::-webkit-scrollbar { width: 4px; }
         #log-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-
         .log-header { font-size: 0.9rem; color: #888; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
         .log-item {
             background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px;
@@ -128,24 +142,7 @@
         .tag-fine { background: #e74c3c; color: #fff; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* --- Modals --- */
-        #setup-modal, #fine-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 5000;
-            display: none; justify-content: center; align-items: center;
-        }
-        .setup-content, .fine-content {
-            background: #1e1e1e; border: 1px solid #444; padding: 25px; border-radius: 20px;
-            width: 85%; text-align: center; color: #fff;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-        }
-        .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; font-family: 'Tajawal'; text-align: center; font-size: 1.1rem; }
-        .money-input { border-color: var(--money-color); color: var(--money-color); font-weight: bold; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { background: #555; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; }
-        .btn-confirm { background: #e74c3c; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-
-        /* --- 3D Game Area --- */
+        /* --- Game Area (3D Race) --- */
         #game-container {
             position: relative; width: 100%; height: 300px;
             background: #000; border-radius: 20px; overflow: hidden;
@@ -172,7 +169,6 @@
             margin-top: 15px; width: 80%;
         }
         .btn-game:active { transform: scale(0.95); }
-        .btn-game:disabled { background: #555; cursor: not-allowed; opacity: 0.7; }
 
         /* Controls */
         #controls-area {
@@ -184,9 +180,119 @@
             background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center;
             font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5); cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
         }
         #jump-btn-large:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
+
+        /* --- Notebook --- */
+        .notebook-container {
+            background: var(--notebook-bg); color: #333; border-radius: 10px;
+            padding: 15px; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            min-height: 400px;
+            background-image: linear-gradient(var(--notebook-lines) 1px, transparent 1px);
+            background-size: 100% 30px;
+        }
+        .notebook-title {
+            background: #e74c3c; color: #fff; padding: 5px 15px;
+            display: inline-block; border-radius: 0 0 10px 10px; font-weight: bold;
+            margin-bottom: 10px; font-size: 1.1rem; text-align: center; width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .score-row {
+            display: flex; justify-content: space-around; margin-bottom: 20px;
+            background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; border: 1px dashed #888;
+        }
+        .score-box { text-align: center; }
+        .score-val { font-size: 1.5rem; font-weight: 900; }
+        .s-mahmoud { color: var(--mahmoud); }
+        .s-nagham { color: var(--nagham); }
+        .input-group {
+            display: flex; gap: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.8);
+            padding: 5px; border-radius: 8px;
+        }
+        .goal-input {
+            flex: 2; border: none; background: transparent; padding: 8px; font-family: 'Tajawal'; font-size: 1rem; outline: none;
+            border-bottom: 2px solid #ccc;
+        }
+        .points-input {
+            flex: 1; border: none; background: transparent; padding: 8px; font-family: 'Tajawal'; font-size: 1rem; text-align: center; font-weight: bold; outline: none;
+            border-bottom: 2px solid var(--points-color); width: 60px;
+        }
+        .add-btn {
+            background: var(--money-color); color: #fff; border: none; padding: 0 15px; border-radius: 5px; font-size: 1.2rem; cursor: pointer;
+        }
+        .tasks-list { list-style: none; padding-bottom: 50px; }
+        .task-item {
+            background: #fff; padding: 10px; margin-bottom: 8px; border-radius: 5px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-right: 4px solid #ccc;
+            animation: fadeIn 0.3s;
+        }
+        .task-item.done-m { border-right-color: var(--mahmoud); opacity: 0.6; text-decoration: line-through; background: #f0faff; }
+        .task-item.done-n { border-right-color: var(--nagham); opacity: 0.6; text-decoration: line-through; background: #fff0f0; }
+        .task-text { flex: 1; padding-left: 10px; font-weight: 500; font-size: 1.05rem; line-height: 30px;}
+        .task-points { color: var(--points-color); font-weight: bold; font-size: 0.9rem; margin-left: 5px; }
+        .check-btn {
+            width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%;
+            background: #fff; color: #ccc; cursor: pointer; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .check-btn:hover { border-color: var(--money-color); color: var(--money-color); }
+        .winner-banner {
+            display: none; text-align: center; padding: 15px;
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: #000; border-radius: 10px; margin-bottom: 15px;
+            font-weight: bold; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        /* --- TIC TAC TOE GAME --- */
+        .ttt-container {
+            background: rgba(0,0,0,0.3); border-radius: 20px; padding: 20px;
+            text-align: center;
+        }
+        .ttt-stats {
+            display: flex; justify-content: space-between; margin-bottom: 15px;
+            background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;
+        }
+        .ttt-stat-box { font-weight: bold; }
+        .ttt-stat-box span { display: block; font-size: 0.8rem; color: #aaa; }
+        .ttt-stat-box strong { font-size: 1.2rem; }
+        
+        .ttt-board {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            margin-bottom: 20px; max-width: 300px; margin-left: auto; margin-right: auto;
+        }
+        .ttt-cell {
+            background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);
+            aspect-ratio: 1/1; border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2.5rem; font-weight: 900; cursor: pointer;
+            transition: 0.2s;
+        }
+        .ttt-cell:hover { background: rgba(255,255,255,0.2); }
+        .ttt-cell.mahmoud { color: var(--mahmoud); text-shadow: 0 0 10px var(--mahmoud); }
+        .ttt-cell.nagham { color: var(--nagham); text-shadow: 0 0 10px var(--nagham); }
+        .ttt-cell.win { background: rgba(255, 215, 0, 0.2); border-color: #ffd700; }
+
+        .ttt-status { margin-bottom: 15px; font-weight: bold; min-height: 1.5rem; }
+
+        /* --- Modals --- */
+        #setup-modal, #setup-ttt-modal, #fine-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 5000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .setup-content, .fine-content {
+            background: #1e1e1e; border: 1px solid #444; padding: 25px; border-radius: 20px;
+            width: 85%; text-align: center; color: #fff;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+        .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; font-family: 'Tajawal'; text-align: center; font-size: 1.1rem; }
+        .money-input { border-color: var(--money-color); color: var(--money-color); font-weight: bold; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { background: #555; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; }
+        .btn-confirm { background: #e74c3c; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
 
         /* Result Modal */
         #result-modal {
@@ -200,113 +306,142 @@
         }
         .money-change { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--money-color); }
         .money-change.negative { color: #e74c3c; }
+
     </style>
 
-    <!-- تحديد مكتبات الجافاسكريبت -->
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
 </head>
 <body>
 
-<!-- Custom Toast Container -->
 <div id="toast-container"></div>
 
-<!-- Selection Screen -->
 <div id="select-screen">
     <h1>النظام الشامل</h1>
     <button onclick="selectChar('mahmoud')" class="role-btn btn-m">أنا محمود</button>
     <button onclick="selectChar('nagham')" class="role-btn btn-n">أنا نجوم</button>
 </div>
 
-<!-- Main Content -->
 <div id="main-app" style="display:none;">
     
-    <!-- Timer -->
     <div id="love-counter">
         <div class="love-title">❤️ ده يوم حبنا (من 20/11/2024)</div>
         <div class="timer-display" id="timer">Loading...</div>
     </div>
 
-    <!-- Wallets (Money) -->
-    <div class="wallets-container">
-        <button class="fine-float-btn" onclick="window.openFineModal()"><i class="fas fa-gavel"></i></button>
-        
-        <div class="wallet-card w-mahmoud">
-            <div class="wallet-name">Mahmoud</div>
-            <div class="wallet-balance" id="score-m">0</div>
+    <!-- Navigation with 3 Tabs -->
+    <div class="top-nav" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div class="nav-tab active" id="tab-game" onclick="switchTab('game')">
+            <i class="fas fa-gamepad"></i> سباق
         </div>
-        <div class="wallet-card w-nagham">
-            <div class="wallet-name">Nagham</div>
-            <div class="wallet-balance" id="score-n">0</div>
+        <div class="nav-tab" id="tab-notebook" onclick="switchTab('notebook')">
+            <i class="fas fa-book-open"></i> أهداف
         </div>
-    </div>
-
-    <!-- Game Area -->
-    <div id="game-container">
-        <div id="game-hud">
-            <div>🎯 الهدف: <span id="target-val">50</span></div>
-            <div>نقاطي: <span id="my-score-val">0</span></div>
-        </div>
-        
-        <div id="game-overlay">
-            <h2 id="overlay-msg" style="color:#fff; margin-bottom:10px;">انتظار التحضير...</h2>
-            <p id="sub-msg" style="color:#aaa; font-size:0.8rem;">لعبة الرهان أو الغرامة اليدوية</p>
-            <button id="start-btn" class="btn-game" onclick="window.openSetup()" disabled>ضبط الرهان</button>
+        <div class="nav-tab" id="tab-tictactoe" onclick="switchTab('tictactoe')">
+            <i class="fas fa-chess-board"></i> إكس أو
         </div>
     </div>
 
-    <!-- Activity Log -->
-    <div id="log-container">
-        <div class="log-header">
-            <span><i class="fas fa-scroll"></i> السجل المالي</span>
-            <span style="font-size:0.7rem; color:#666;">Live</span>
+    <!-- VIEW 1: RACING GAME -->
+    <div id="view-game" class="view-section active">
+        <div class="wallets-container">
+            <button class="fine-float-btn" onclick="window.openFineModal()"><i class="fas fa-gavel"></i></button>
+            <div class="wallet-card w-mahmoud"><div class="wallet-name">Mahmoud</div><div class="wallet-balance" id="score-m">0</div></div>
+            <div class="wallet-card w-nagham"><div class="wallet-name">Nagham</div><div class="wallet-balance" id="score-n">0</div></div>
+        </div>
+
+        <div id="game-container">
+            <div id="game-hud">
+                <div>🎯 الهدف: <span id="target-val">50</span></div>
+                <div>نقاطي: <span id="my-score-val">0</span></div>
+            </div>
+            <div id="game-overlay">
+                <h2 id="overlay-msg" style="color:#fff; margin-bottom:10px;">انتظار التحضير...</h2>
+                <p id="sub-msg" style="color:#aaa; font-size:0.8rem;">لعبة الرهان</p>
+                <button id="start-btn" class="btn-game" onclick="window.openSetup()">ضبط الرهان</button>
+            </div>
+        </div>
+        <div id="log-container">
+            <div class="log-header"><span><i class="fas fa-scroll"></i> السجل المالي</span><span style="font-size:0.7rem; color:#666;">Live</span></div>
         </div>
     </div>
+
+    <!-- VIEW 2: NOTEBOOK / KASHKUL -->
+    <div id="view-notebook" class="view-section">
+        <div class="notebook-container">
+            <div class="notebook-title">📓 كشكول المهام والعقوبات</div>
+            <div id="goal-winner-banner" class="winner-banner">
+                🏆 مبروك! أنت الفائز.. <br>
+                <span style="font-size:0.9rem; font-weight:normal;">اذهب لكتابة العقاب الآن</span>
+                <button class="add-btn" style="margin-top:10px; width:100%; border-radius:5px;" onclick="window.openFineModal()">تنفيذ العقاب ⚖️</button>
+            </div>
+            <div class="score-row">
+                <div class="score-box"><div style="font-size:0.8rem;">Mahmoud</div><div id="k-score-m" class="score-val s-mahmoud">0</div></div>
+                <div style="display:flex; align-items:center; font-weight:bold; color:#888;">VS</div>
+                <div class="score-box"><div style="font-size:0.8rem;">Nagham</div><div id="k-score-n" class="score-val s-nagham">0</div></div>
+            </div>
+            <div style="text-align:center; margin-bottom:10px; font-size:0.8rem; color:#555;">الهدف: أول من يجمع <span id="kashkul-target-display" style="font-weight:bold; color:#000;">500</span> نقطة يفوز!</div>
+            <div class="input-group">
+                <button class="add-btn" onclick="window.addGoal()"><i class="fas fa-plus"></i></button>
+                <input type="number" id="goal-points" class="points-input" placeholder="نقاط" value="10">
+                <input type="text" id="goal-text" class="goal-input" placeholder="اكتب المهمة هنا...">
+            </div>
+            <ul id="tasks-list" class="tasks-list"></ul>
+        </div>
+    </div>
+
+    <!-- VIEW 3: TIC TAC TOE (NEW GAME) -->
+    <div id="view-tictactoe" class="view-section">
+        <div class="ttt-container">
+            <h2 style="margin-bottom:15px; text-shadow: 0 0 10px rgba(255,255,255,0.2);">إكس أو (X & O)</h2>
+            
+            <!-- Wins Counter (Points) -->
+            <div class="ttt-stats">
+                <div class="ttt-stat-box s-mahmoud"><span>Mahmoud Wins</span><strong id="ttt-wins-m">0</strong></div>
+                <div class="ttt-stat-box s-nagham"><span>Nagham Wins</span><strong id="ttt-wins-n">0</strong></div>
+            </div>
+
+            <div class="ttt-status" id="ttt-msg">في انتظار ضبط الرهان...</div>
+
+            <!-- Game Board -->
+            <div class="ttt-board" id="ttt-board">
+                <!-- Generated by JS -->
+            </div>
+
+            <button id="ttt-action-btn" class="btn-game" onclick="window.openTTTSetup()">ضبط الرهان</button>
+        </div>
+    </div>
+
 </div>
 
-<!-- Setup Modal (Wager) -->
+<!-- Modal: Race Setup -->
 <div id="setup-modal">
     <div class="setup-content">
-        <h3 style="color:var(--mahmoud); margin-bottom:15px;">💰 شروط الرهان</h3>
-        
-        <div style="text-align:right;">
-            <label style="color:#aaa; font-size:0.8rem;">هدف النقاط</label>
-            <input type="number" id="input-target" class="form-input" value="50">
-        </div>
-
-        <div style="text-align:right; margin-top:15px;">
-            <label style="color:var(--money-color); font-size:0.9rem; font-weight:bold;">الرهان (جنيه)</label>
-            <input type="number" id="input-wager" class="form-input money-input" value="20">
-        </div>
-
+        <h3 style="color:var(--mahmoud); margin-bottom:15px;">💰 شروط الرهان (سباق)</h3>
+        <div style="text-align:right;"><label style="color:#aaa; font-size:0.8rem;">هدف النقاط</label><input type="number" id="input-target" class="form-input" value="50"></div>
+        <div style="text-align:right; margin-top:15px;"><label style="color:var(--money-color); font-size:0.9rem; font-weight:bold;">الرهان (جنيه)</label><input type="number" id="input-wager" class="form-input money-input" value="20"></div>
         <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="window.submitSetup()">حفظ وانتظار</button>
     </div>
 </div>
 
-<!-- Fine Modal -->
+<!-- Modal: TTT Setup -->
+<div id="setup-ttt-modal">
+    <div class="setup-content">
+        <h3 style="color:#ff9f43; margin-bottom:15px;">🏆 رهان إكس أو</h3>
+        <div style="text-align:right; margin-top:15px;"><label style="color:var(--money-color); font-size:0.9rem; font-weight:bold;">الرهان (جنيه)</label><input type="number" id="ttt-input-wager" class="form-input money-input" value="10"></div>
+        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #ff9f43, #f0932b);" onclick="window.submitTTTSetup()">حفظ الرهان</button>
+    </div>
+</div>
+
+<!-- Modal: Fine -->
 <div id="fine-modal">
     <div class="fine-content">
-        <h3 style="margin-bottom:20px; color:#e74c3c;">⚖️ غرامة يدوية (تحويل)</h3>
-        <div style="margin-bottom:15px; text-align:right;">
-            <label style="color:#aaa; font-size:0.9rem;">مين اللي هيدفع؟</label>
-            <select id="fine-target" class="form-input">
-                <option value="partner">الشريك (عقاب)</option>
-                <option value="me">أنا (اعتذار)</option>
-            </select>
-        </div>
-        <div style="margin-bottom:15px; text-align:right;">
-            <label style="color:#aaa; font-size:0.9rem;">المبلغ (جنيه)</label>
-            <input type="number" id="fine-amount" class="form-input" value="10">
-        </div>
-        <div style="margin-bottom:15px; text-align:right;">
-            <label style="color:#aaa; font-size:0.9rem;">السبب</label>
-            <input type="text" id="fine-reason" class="form-input" placeholder="مثلاً: إزعاج...">
-        </div>
-        <div class="modal-btns">
-            <button class="btn-cancel" onclick="window.closeFineModal()">إلغاء</button>
-            <button class="btn-confirm" onclick="window.submitFine()">تنفيذ التحويل</button>
-        </div>
+        <h3 style="margin-bottom:20px; color:#e74c3c;">⚖️ العقاب والغرامة</h3>
+        <div style="margin-bottom:15px; text-align:right;"><label style="color:#aaa; font-size:0.9rem;">مين اللي هيدفع؟</label><select id="fine-target" class="form-input"><option value="partner">الشريك (عقاب)</option><option value="me">أنا (اعتذار)</option></select></div>
+        <div style="margin-bottom:15px; text-align:right;"><label style="color:#aaa; font-size:0.9rem;">المبلغ (جنيه)</label><input type="number" id="fine-amount" class="form-input" value="10"></div>
+        <div style="margin-bottom:15px; text-align:right;"><label style="color:#aaa; font-size:0.9rem;">السبب</label><input type="text" id="fine-reason" class="form-input" placeholder="مثلاً: خسر الرهان..."></div>
+        <div class="modal-btns"><button class="btn-cancel" onclick="window.closeFineModal()">إلغاء</button><button class="btn-confirm" onclick="window.submitFine()">تنفيذ التحويل</button></div>
     </div>
 </div>
 
@@ -316,22 +451,17 @@
         <div id="res-icon" style="font-size:4rem; margin-bottom:10px;"></div>
         <h2 id="res-title" style="font-size:1.5rem;"></h2>
         <div id="res-money" class="money-change"></div>
-        <button class="btn-game" style="background:#444;" onclick="window.resetGame()">تم</button>
+        <button class="btn-game" style="background:#444;" onclick="window.resetCurrentGame()">تم</button>
     </div>
 </div>
 
-<!-- Controls -->
-<div id="controls-area">
-    <div id="jump-btn-large"><i class="fas fa-plane"></i></div>
-</div>
+<div id="controls-area"><div id="jump-btn-large"><i class="fas fa-plane"></i></div></div>
 
 <script type="module">
-    // استيراد المكتبات المطلوبة
     import * as THREE from 'three';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, runTransaction, push } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // إعدادات Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",
         authDomain: "nagam-12f98.firebaseapp.com",
@@ -342,59 +472,69 @@
         measurementId: "G-LB7V0QWTYP"
     };
     
-    // تهيئة التطبيق
     let app, db;
     try {
         app = initializeApp(firebaseConfig);
         db = getDatabase(app);
-        console.log("Firebase connected successfully");
-    } catch (e) {
-        console.error("Firebase Error:", e);
-        window.showToast("خطأ في الاتصال بقاعدة البيانات", 'error');
-    }
+    } catch (e) { console.error("Firebase Error:", e); }
 
+    // Global Vars
     let myRole = null;
-    let gameRunning = false;
-    let myScore = 0;
+    let currentMode = 'game';
     
-    const gameRef = ref(db, 'race_room');
+    // Refs
     const walletRef = ref(db, 'bank_coins');
     const logsRef = ref(db, 'activity_logs');
+    
+    // Game 1: Race
+    const gameRef = ref(db, 'race_room');
+    let gameRunning = false, myScore = 0;
+    
+    // Game 2: Kashkul
+    const goalsRef = ref(db, 'kashkul_tasks');
+    const kashkulScoreRef = ref(db, 'kashkul_scores');
+    const kashkulSettingsRef = ref(db, 'kashkul_settings');
+    let currentKashkulScores = { mahmoud: 0, nagham: 0 };
+    let kashkulTarget = 500;
 
-    // --- UTILS: Toast Notification ---
+    // Game 3: Tic Tac Toe
+    const tttRef = ref(db, 'tictactoe_room');
+    let tttBoard = Array(9).fill(null);
+
+    // --- Toast ---
     window.showToast = function(msg, type = 'normal') {
         const container = document.getElementById('toast-container');
-        const div = document.createElement('div');
-        div.className = `toast ${type}`;
-        
-        let icon = type === 'error' ? '<i class="fas fa-circle-exclamation"></i>' : 
-                   type === 'success' ? '<i class="fas fa-check-circle"></i>' : 
-                   '<i class="fas fa-info-circle"></i>';
-        
-        div.innerHTML = `${icon} <span>${msg}</span>`;
-        container.appendChild(div);
-        
-        setTimeout(() => {
-            div.style.opacity = '0';
-            div.style.transform = 'translateY(-20px)';
-            setTimeout(() => div.remove(), 300);
-        }, 3000);
+        const div = document.createElement('div'); div.className = `toast ${type}`;
+        let icon = type === 'error' ? '<i class="fas fa-circle-exclamation"></i>' : type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-info-circle"></i>';
+        div.innerHTML = `${icon} <span>${msg}</span>`; container.appendChild(div);
+        setTimeout(() => { div.style.opacity = '0'; div.style.transform = 'translateY(-20px)'; setTimeout(() => div.remove(), 300); }, 3000);
     };
 
-    // --- 1. Selection ---
+    // --- Tab Switching ---
+    window.switchTab = function(tab) {
+        currentMode = tab;
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        document.getElementById(`view-${tab}`).classList.add('active');
+        
+        document.getElementById('controls-area').style.display = (tab === 'game') ? 'flex' : 'none';
+    };
+
     window.selectChar = function(role) {
         myRole = role;
         document.getElementById('select-screen').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
-        initGame();
+        initGame(); // Init 3D
         listenToDB();
+        listenToKashkul();
+        listenToTTT();
     };
 
-    // --- 2. Timer ---
+    // --- Timer ---
     const START_DATE = new Date('2024-11-20T00:00:00');
     function updateTimer() {
-        const now = new Date();
-        const diff = now - START_DATE;
+        const now = new Date(); const diff = now - START_DATE;
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / 1000 / 60) % 60);
@@ -403,7 +543,7 @@
     }
     setInterval(updateTimer, 1000); updateTimer();
 
-    // --- 3. Three.js ---
+    // ================= GAME 1: RACE (3D) =================
     let scene, camera, renderer, playerMesh;
     let obstacles = [], speed = 0.4;
     let playerY = 0, playerVelY = 0, isJumping = false;
@@ -411,66 +551,36 @@
     function initGame() {
         const container = document.getElementById('game-container');
         const width = container.clientWidth; const height = container.clientHeight;
-
         scene = new THREE.Scene(); scene.background = new THREE.Color(0x111111); scene.fog = new THREE.Fog(0x111111, 10, 50);
-        camera = new THREE.PerspectiveCamera(60, width/height, 0.1, 100);
-        camera.position.set(0, 3, 6); camera.lookAt(0, 0, -5);
-        
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(width, height); renderer.shadowMap.enabled = true;
+        camera = new THREE.PerspectiveCamera(60, width/height, 0.1, 100); camera.position.set(0, 3, 6); camera.lookAt(0, 0, -5);
+        renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(width, height); renderer.shadowMap.enabled = true;
         container.appendChild(renderer.domElement);
-
         scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(5, 10, 5); scene.add(dirLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8); dirLight.position.set(5, 10, 5); scene.add(dirLight);
         scene.add(new THREE.GridHelper(200, 200, 0x444444, 0x222222));
-
         const pColor = myRole === 'mahmoud' ? 0x00d2ff : 0xff4b1f;
         const pGeo = new THREE.BoxGeometry(1, 1, 1);
         const pMat = new THREE.MeshStandardMaterial({ color: pColor, emissive: pColor, emissiveIntensity: 0.5 });
-        playerMesh = new THREE.Mesh(pGeo, pMat);
-        playerMesh.position.set(-1.5, 0.5, 0); scene.add(playerMesh);
-
-        window.addEventListener('resize', () => {
-            const cWidth = container.clientWidth;
-            const cHeight = container.clientHeight;
-            camera.aspect = cWidth/cHeight; 
-            camera.updateProjectionMatrix(); 
-            renderer.setSize(cWidth, cHeight);
-        });
+        playerMesh = new THREE.Mesh(pGeo, pMat); playerMesh.position.set(-1.5, 0.5, 0); scene.add(playerMesh);
+        window.addEventListener('resize', () => { if(currentMode !== 'game') return; const cWidth = container.clientWidth; const cHeight = container.clientHeight; camera.aspect = cWidth/cHeight; camera.updateProjectionMatrix(); renderer.setSize(cWidth, cHeight); });
         animate();
     }
 
     function animate() {
-        requestAnimationFrame(animate);
-        if (gameRunning) {
-            myScore++;
-            document.getElementById('my-score-val').innerText = myScore;
-
+        if(currentMode !== 'game') requestAnimationFrame(animate); else requestAnimationFrame(animate);
+        if (gameRunning && currentMode === 'game') {
+            myScore++; document.getElementById('my-score-val').innerText = myScore;
             const target = parseInt(document.getElementById('target-val').innerText);
-            if (myScore >= target) {
-                iWon();
-                return;
-            }
-
+            if (myScore >= target) { iWonRace(); return; }
             if (myScore % 40 === 0) createObstacle(myScore);
-
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                const obs = obstacles[i];
-                obs.mesh.position.z += speed;
-                if (Math.abs(obs.mesh.position.z - playerMesh.position.z) < 0.8) {
-                    if ((isJumping && playerY < 0.5) || !isJumping) crash();
-                }
+                const obs = obstacles[i]; obs.mesh.position.z += speed;
+                if (Math.abs(obs.mesh.position.z - playerMesh.position.z) < 0.8) { if ((isJumping && playerY < 0.5) || !isJumping) crashRace(); }
                 if (obs.mesh.position.z > 10) { scene.remove(obs.mesh); obstacles.splice(i, 1); }
             }
-
-            if (isJumping) {
-                playerVelY -= 0.015; playerY += playerVelY;
-                if (playerY <= 0) { playerY = 0; isJumping = false; }
-                playerMesh.position.y = 0.5 + playerY;
-            }
+            if (isJumping) { playerVelY -= 0.015; playerY += playerVelY; if (playerY <= 0) { playerY = 0; isJumping = false; } playerMesh.position.y = 0.5 + playerY; }
         }
-        renderer.render(scene, camera);
+        if(currentMode === 'game') renderer.render(scene, camera);
     }
 
     function createObstacle(seed) {
@@ -480,230 +590,272 @@
         mesh.position.set(-1.5, h/2, -50); scene.add(mesh); obstacles.push({mesh});
     }
 
-    // تعريف دالة القفز في النافذة لتكون متاحة للأحداث
-    window.jumpAction = function() {
-        if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.35; }
-    };
-    
+    window.jumpAction = function() { if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.35; } };
     document.getElementById('jump-btn-large').addEventListener('touchstart', e => { e.preventDefault(); window.jumpAction(); });
     document.getElementById('jump-btn-large').addEventListener('mousedown', e => { e.preventDefault(); window.jumpAction(); });
-    window.addEventListener('keydown', e => { if(e.code === 'Space') window.jumpAction(); });
+    window.addEventListener('keydown', e => { if(e.code === 'Space' && currentMode === 'game') window.jumpAction(); });
 
-    // --- 4. Setup & Logic ---
-    
-    window.openSetup = function() {
-        document.getElementById('setup-modal').style.display = 'flex';
-    };
-
+    window.openSetup = function() { document.getElementById('setup-modal').style.display = 'flex'; };
     window.submitSetup = function() {
-        const target = document.getElementById('input-target').value;
-        const wager = document.getElementById('input-wager').value;
-        
-        if(!wager || wager <= 0) {
-            window.showToast('اكتب قيمة الرهان صح!', 'error');
-            return;
-        }
-
-        const updates = {};
-        updates[`race_room/target`] = target;
-        updates[`race_room/wager`] = wager; 
-        
-        update(ref(db), updates);
-        document.getElementById('setup-modal').style.display = 'none';
-        document.getElementById('overlay-msg').innerText = "تم الاتفاق.. بانتظار البدء";
-        window.showToast('تم حفظ شروط الرهان', 'success');
+        const target = document.getElementById('input-target').value; const wager = document.getElementById('input-wager').value;
+        if(!wager || wager <= 0) { window.showToast('اكتب قيمة الرهان صح!', 'error'); return; }
+        update(ref(db), { 'race_room/target': target, 'race_room/wager': wager });
+        document.getElementById('setup-modal').style.display = 'none'; document.getElementById('overlay-msg').innerText = "تم الاتفاق.. اضغط للبدء"; window.showToast('تم حفظ شروط الرهان', 'success');
     };
 
-    // --- 5. Fine System (Manual Transfer) ---
-    window.openFineModal = () => document.getElementById('fine-modal').style.display = 'flex';
+    function iWonRace() { gameRunning = false; update(ref(db), { 'race_room/winner': myRole, 'race_room/state': 'finished' }); }
+    function crashRace() { if(!gameRunning) return; gameRunning = false; playerMesh.rotation.x = 1.5; const winner = myRole === 'mahmoud' ? 'nagham' : 'mahmoud'; update(ref(db), { 'race_room/winner': winner, 'race_room/state': 'finished' }); }
+
+    // ================= GAME 2: KASHKUL =================
+    window.addGoal = function() {
+        const text = document.getElementById('goal-text').value; const points = parseInt(document.getElementById('goal-points').value) || 0;
+        if(!text || points <= 0) { window.showToast("اكتب المهمة ونقاطها بشكل صحيح", 'error'); return; }
+        push(goalsRef, { text: text, points: points, addedBy: myRole, done: false, doneBy: null, timestamp: Date.now() });
+        document.getElementById('goal-text').value = ''; window.showToast("تمت إضافة المهمة للدفتر", 'success');
+    };
+
+    window.completeGoal = function(key, points) {
+        const updates = {}; updates[`kashkul_tasks/${key}/done`] = true; updates[`kashkul_tasks/${key}/doneBy`] = myRole;
+        updates[`kashkul_scores/${myRole}`] = (currentKashkulScores[myRole] || 0) + points;
+        update(ref(db), updates); window.showToast(`أحسنت! حصلت على ${points} نقطة`, 'success');
+    };
+
+    function listenToKashkul() {
+        onValue(kashkulSettingsRef, snap => { const data = snap.val(); if(data && data.target) { kashkulTarget = data.target; document.getElementById('kashkul-target-display').innerText = kashkulTarget; } });
+        onValue(kashkulScoreRef, snap => {
+            const data = snap.val() || { mahmoud: 0, nagham: 0 }; currentKashkulScores = data;
+            document.getElementById('k-score-m').innerText = data.mahmoud; document.getElementById('k-score-n').innerText = data.nagham;
+            const banner = document.getElementById('goal-winner-banner');
+            const iWon = (myRole === 'mahmoud' && data.mahmoud >= kashkulTarget) || (myRole === 'nagham' && data.nagham >= kashkulTarget);
+            const partnerWon = (myRole !== 'mahmoud' && data.mahmoud >= kashkulTarget) || (myRole !== 'nagham' && data.nagham >= kashkulTarget);
+            if(iWon) {
+                banner.style.display = 'block'; banner.style.background = 'linear-gradient(45deg, #ffd700, #ffaa00)';
+                banner.innerHTML = `🏆 مبروك! أنت جمعت ${kashkulTarget} نقطة أولاً!<br><button class="add-btn" style="margin-top:10px; width:100%; border-radius:5px; color:#000; font-weight:bold;" onclick="window.openFineModal()">🖊️ اكتب العقاب الآن</button>`;
+            } else if (partnerWon) {
+                banner.style.display = 'block'; banner.style.background = '#555'; banner.innerHTML = `😞 للأسف، الشريك وصل للهدف أولاً.<br>انتظر العقاب.`;
+            } else { banner.style.display = 'none'; }
+        });
+        onValue(goalsRef, snap => {
+            const data = snap.val(); const list = document.getElementById('tasks-list'); list.innerHTML = '';
+            if(!data) return;
+            const tasks = Object.entries(data).sort((a,b) => b[1].timestamp - a[1].timestamp);
+            tasks.forEach(([key, task]) => {
+                if(task.done) {
+                    const li = document.createElement('li'); const doneClass = task.doneBy === 'mahmoud' ? 'done-m' : 'done-n';
+                    li.className = `task-item ${doneClass}`; li.innerHTML = `<span class="task-text">${task.text} (${task.points} pts)</span> <i class="fas fa-check"></i>`; list.appendChild(li);
+                } else {
+                    const li = document.createElement('li'); li.className = 'task-item';
+                    li.innerHTML = `<div style="display:flex; align-items:center; flex:1;"><span class="task-text">${task.text}</span><span class="task-points">+${task.points}</span></div><button class="check-btn" onclick="window.completeGoal('${key}', ${task.points})"><i class="fas fa-check"></i></button>`; list.appendChild(li);
+                }
+            });
+        });
+    }
+
+    // ================= GAME 3: TIC TAC TOE =================
+    window.openTTTSetup = function() { document.getElementById('setup-ttt-modal').style.display = 'flex'; };
+    window.submitTTTSetup = function() {
+        const wager = document.getElementById('ttt-input-wager').value;
+        if(!wager || wager <= 0) { window.showToast('اكتب قيمة الرهان صح!', 'error'); return; }
+        update(tttRef, { wager: wager, state: 'ready', board: Array(9).fill(null), currentTurn: 'mahmoud', winner: null, wins: {mahmoud: 0, nagham: 0} });
+        document.getElementById('setup-ttt-modal').style.display = 'none'; window.showToast('تم ضبط الرهان', 'success');
+    };
+
+    window.makeTTTMove = function(index) {
+        onValue(tttRef, snap => {
+            const data = snap.val();
+            // Validations
+            if(!data || data.state !== 'playing') return;
+            if(data.currentTurn !== myRole) { window.showToast("مش دورك!", "error"); return; }
+            if(data.board[index] !== null) return;
+
+            // Update Board
+            const newBoard = [...data.board];
+            newBoard[index] = myRole === 'mahmoud' ? 'mahmoud' : 'nagham';
+            let nextTurn = data.currentTurn === 'mahmoud' ? 'nagham' : 'mahmoud';
+            
+            // Check Win
+            const winner = checkTTTWinner(newBoard);
+            
+            const updates = { board: newBoard, currentTurn: nextTurn };
+            if(winner) {
+                updates.winner = winner;
+                updates.state = 'finished';
+                const currentWins = data.wins || {mahmoud:0, nagham:0};
+                updates.wins = { ...currentWins, [winner]: (currentWins[winner] || 0) + 1 };
+            } else if(!newBoard.includes(null)) {
+                updates.state = 'finished';
+                updates.winner = 'draw';
+            }
+
+            update(tttRef, updates);
+        }, {onlyOnce: true}); // Listen once to avoid loops
+    };
+
+    function checkTTTWinner(board) {
+        const wins = [
+            [0,1,2], [3,4,5], [6,7,8], // Rows
+            [0,3,6], [1,4,7], [2,5,8], // Cols
+            [0,4,8], [2,4,6]           // Diagonals
+        ];
+        for(let combo of wins) {
+            const [a,b,c] = combo;
+            if(board[a] && board[a] === board[b] && board[a] === board[c]) {
+                return board[a];
+            }
+        }
+        return null;
+    }
+
+    function listenToTTT() {
+        onValue(tttRef, snap => {
+            const data = snap.val();
+            const boardEl = document.getElementById('ttt-board');
+            const msgEl = document.getElementById('ttt-msg');
+            const actionBtn = document.getElementById('ttt-action-btn');
+
+            if(!data) return;
+
+            // Render Stats
+            const wins = data.wins || {mahmoud: 0, nagham: 0};
+            document.getElementById('ttt-wins-m').innerText = wins.mahmoud;
+            document.getElementById('ttt-wins-n').innerText = wins.nagham;
+
+            // Render Board
+            boardEl.innerHTML = '';
+            (data.board || Array(9).fill(null)).forEach((cell, idx) => {
+                const div = document.createElement('div');
+                div.className = 'ttt-cell';
+                if(cell === 'mahmoud') { div.classList.add('mahmoud'); div.innerText = 'X'; }
+                if(cell === 'nagham') { div.classList.add('nagham'); div.innerText = 'O'; }
+                div.onclick = () => window.makeTTTMove(idx);
+                boardEl.appendChild(div);
+            });
+
+            // UI Logic
+            if(!data.wager) {
+                msgEl.innerText = "في انتظار ضبط الرهان...";
+                actionBtn.innerText = "ضبط الرهان";
+                actionBtn.onclick = window.openTTTSetup;
+                actionBtn.disabled = false;
+            } else if(data.state === 'ready') {
+                msgEl.innerText = "الرهان محدد.. بانتظار البدء";
+                actionBtn.innerText = "ابدأ اللعبة";
+                actionBtn.onclick = () => update(tttRef, { state: 'playing' });
+                actionBtn.disabled = false;
+            } else if(data.state === 'playing') {
+                msgEl.innerText = `الدور: ${data.currentTurn === 'mahmoud' ? 'Mahmoud (X)' : 'Nagham (O)'}`;
+                actionBtn.innerText = "جاري اللعب...";
+                actionBtn.disabled = true;
+            } else if(data.state === 'finished') {
+                // Handle Result
+                const iWon = data.winner === myRole;
+                const isDraw = data.winner === 'draw';
+                const wager = parseInt(data.wager);
+
+                if(wager > 0 && !isDraw) {
+                    const loser = data.winner === 'mahmoud' ? 'nagham' : 'mahmoud';
+                    runTransaction(ref(db, `bank_coins/${data.winner}`), c => (c||0) + wager);
+                    runTransaction(ref(db, `bank_coins/${loser}`), c => Math.max(0, (c||0) - wager));
+                    push(logsRef, {
+                        text: `لعبة إكس أو: ${data.winner} كسب +${wager} جنيه`,
+                        type: 'win', role: 'system', time: Date.now()
+                    });
+                }
+
+                // Show Result Modal
+                const resModal = document.getElementById('result-modal');
+                document.getElementById('res-icon').innerText = isDraw ? "🤝" : iWon ? "🏆" : "😭";
+                document.getElementById('res-title').innerText = isDraw ? "تعادل!" : iWon ? "مبروك كسبت!" : "خسرت!";
+                document.getElementById('res-money').innerHTML = isDraw ? "No Money Transfer" : iWon ? `+${wager} جنيه` : `-${wager} جنيه`;
+                document.getElementById('res-money').className = `money-change ${iWon ? '' : 'negative'}`;
+                resModal.style.display = 'flex';
+
+                msgEl.innerText = isDraw ? "تعادل!" : `الفائز: ${data.winner}`;
+                actionBtn.innerText = "لعبة جديدة";
+                actionBtn.disabled = false;
+                actionBtn.onclick = () => {
+                    // Reset board but keep wager
+                    update(tttRef, { state: 'ready', board: Array(9).fill(null), currentTurn: 'mahmoud', winner: null });
+                };
+            }
+        });
+    }
+
+    // ================= SHARED: WALLET, FINES, LOGS =================
+    window.openFineModal = () => { document.getElementById('fine-modal').style.display = 'flex'; };
     window.closeFineModal = () => document.getElementById('fine-modal').style.display = 'none';
 
     window.submitFine = function() {
-        const target = document.getElementById('fine-target').value;
-        const amount = parseInt(document.getElementById('fine-amount').value) || 0;
-        const reason = document.getElementById('fine-reason').value || "بدون سبب";
-
-        if(amount <= 0) {
-            window.showToast('اكتب مبلغ صحيح!', 'error');
-            return;
-        }
-
-        // تحديد الأدوار: الضحية والشريك
-        let victimRole = target === 'me' ? myRole : (myRole === 'mahmoud' ? 'nagham' : 'mahmoud');
-        let receiverRole = victimRole === 'mahmoud' ? 'nagham' : 'mahmoud';
-        
-        let victimName = victimRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
-        let receiverName = receiverRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
-
-        // 1. خصم من الضحية
+        const target = document.getElementById('fine-target').value; const amount = parseInt(document.getElementById('fine-amount').value) || 0; const reason = document.getElementById('fine-reason').value || "بدون سبب";
+        if(amount <= 0) { window.showToast('اكتب مبلغ صحيح!', 'error'); return; }
+        let victimRole = target === 'me' ? myRole : (myRole === 'mahmoud' ? 'nagham' : 'mahmoud'); let receiverRole = victimRole === 'mahmoud' ? 'nagham' : 'mahmoud';
+        let victimName = victimRole === 'mahmoud' ? 'Mahmoud' : 'Nagham'; let receiverName = receiverRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
         runTransaction(ref(db, `bank_coins/${victimRole}`), c => Math.max(0, (c||0) - amount));
-        
-        // 2. إضافة للمستقبل (الشريك)
         runTransaction(ref(db, `bank_coins/${receiverRole}`), c => (c||0) + amount);
-        
-        // 3. تسجيل العملية
-        push(logsRef, { 
-            text: `غرامة: خصم ${amount} من ${victimName} وإضافتهم لـ ${receiverName} (${reason})`, 
-            type: 'fine', 
-            role: myRole, 
-            time: Date.now() 
-        });
-
-        window.showToast(`تم تحويل ${amount} جنيه لصالح ${receiverName}`, 'success');
-        window.closeFineModal();
+        push(logsRef, { text: `غرامة: خصم ${amount} من ${victimName} وإضافتهم لـ ${receiverName} (${reason})`, type: 'fine', role: myRole, time: Date.now() });
+        window.showToast(`تم تحويل ${amount} جنيه لصالح ${receiverName}`, 'success'); window.closeFineModal();
     };
 
     function listenToDB() {
         // Wallets
         onValue(walletRef, snap => {
-            const d = snap.val() || {mahmoud:0, nagham:0};
-            const elM = document.getElementById('score-m');
-            const elN = document.getElementById('score-n');
-            
-            // تحديث القيم
-            elM.innerText = d.mahmoud || 0;
-            elN.innerText = d.nagham || 0;
-
-            // تأثيرات حركية بسيطة عند التحديث
-            elM.classList.remove('balance-update', 'balance-deduct'); void elM.offsetWidth; // Trigger reflow
-            elN.classList.remove('balance-update', 'balance-deduct'); void elN.offsetWidth;
-
-            // تحديد لون التحديث (إيجابي أو سلبي)
-            elM.classList.add('balance-update');
-            elN.classList.add('balance-update');
-            
-            setTimeout(() => {
-                elM.classList.remove('balance-update');
-                elN.classList.remove('balance-update');
-            }, 500);
+            const d = snap.val() || {mahmoud:0, nagham:0}; const elM = document.getElementById('score-m'); const elN = document.getElementById('score-n');
+            elM.innerText = d.mahmoud || 0; elN.innerText = d.nagham || 0;
+            elM.classList.remove('balance-update', 'balance-deduct'); void elM.offsetWidth; elN.classList.remove('balance-update', 'balance-deduct'); void elN.offsetWidth;
+            elM.classList.add('balance-update'); elN.classList.add('balance-update');
+            setTimeout(() => { elM.classList.remove('balance-update'); elN.classList.remove('balance-update'); }, 500);
         });
-
         // Logs
         onValue(logsRef, snap => {
-            const logs = snap.val(); 
-            const container = document.getElementById('log-container');
-            // الاحتفاظ بالهيدر فقط
+            const logs = snap.val(); const container = document.getElementById('log-container');
             container.innerHTML = '<div class="log-header"><span><i class="fas fa-scroll"></i> السجل المالي</span><span style="font-size:0.7rem; color:#666;">Live</span></div>';
-            
             if(!logs) return;
             Object.values(logs).reverse().slice(0, 10).forEach(l => {
-                const div = document.createElement('div');
-                let tagClass = l.type === 'win' ? 'tag-money' : 'tag-fine';
-                let tagText = l.type === 'win' ? 'فوز' : 'غرامة';
-                
-                div.className = `log-item ${l.type === 'win' ? 'log-win' : 'log-fine'}`;
-                div.innerHTML = `<span>${l.text}</span> <span class="tag ${tagClass}">${tagText}</span>`;
-                container.appendChild(div);
+                const div = document.createElement('div'); let tagClass = l.type === 'win' ? 'tag-money' : 'tag-fine'; let tagText = l.type === 'win' ? 'فوز' : 'غرامة';
+                div.className = `log-item ${l.type === 'win' ? 'log-win' : 'log-fine'}`; div.innerHTML = `<span>${l.text}</span> <span class="tag ${tagClass}">${tagText}</span>`; container.appendChild(div);
             });
         });
-
+        // Race Logic
         onValue(gameRef, snap => {
-            const d = snap.val();
-            if(!d) return;
-
-            if(d.target) document.getElementById('target-val').innerText = d.target;
-
-            // Check if ready
+            const d = snap.val(); if(!d) return; if(d.target) document.getElementById('target-val').innerText = d.target;
+            const btn = document.getElementById('start-btn');
             if (d.wager && d.state !== 'playing' && d.state !== 'finished') {
-                const btn = document.getElementById('start-btn');
-                btn.disabled = false;
-                btn.innerText = "ابدأ السباق";
-                btn.onclick = () => {
-                    update(ref(db), { 'race_room/state': 'playing', 'race_room/winner': null });
-                };
+                btn.innerText = "ابدأ السباق"; btn.onclick = () => { update(ref(db), { 'race_room/state': 'playing', 'race_room/winner': null }); };
+            } else if (!d.wager || d.state === 'finished') {
+                btn.innerText = "ضبط الرهان"; btn.onclick = window.openSetup;
             }
-
-            if (d.state === 'playing') {
-                if (!gameRunning) startGame();
-            }
+            if (d.state === 'playing' && !gameRunning) startRace();
+        });
+        onValue(ref(db, 'race_room/state'), snap => {
+            if (snap.val() === 'finished') {
+                onValue(ref(db, 'race_room'), snap => {
+                    const data = snap.val(); if(!data || !data.winner) return;
+                    const iWon = data.winner === myRole; const wager = parseInt(data.wager); const winnerName = data.winner === 'mahmoud' ? 'Mahmoud' : 'Nagham'; const loserName = data.winner === 'mahmoud' ? 'Nagham' : 'Mahmoud';
+                    if (wager > 0) {
+                        const loser = data.winner === 'mahmoud' ? 'nagham' : 'mahmoud';
+                        runTransaction(ref(db, `bank_coins/${data.winner}`), (current) => (current || 0) + wager);
+                        runTransaction(ref(db, `bank_coins/${loser}`), (current) => Math.max(0, (current || 0) - wager));
+                        push(logsRef, { text: `اللعبة انتهت: ${winnerName} كسب +${wager} جنيه (عقاب على ${loserName})`, type: 'win', role: 'system', time: Date.now() });
+                    }
+                    const resModal = document.getElementById('result-modal');
+                    const resTitle = document.getElementById('res-title'); const resMoney = document.getElementById('res-money'); const resIcon = document.getElementById('res-icon');
+                    resModal.style.display = 'flex';
+                    if (iWon) { resIcon.innerText = "🏆"; resTitle.innerText = "مبروك يا وحش!"; resMoney.innerHTML = `+${wager} جنيه`; resMoney.className = "money-change"; }
+                    else { resIcon.innerText = "😭"; resTitle.innerText = "خسرت!"; resMoney.innerHTML = `-${wager} جنيه`; resMoney.className = "money-change negative"; }
+                });
+            } else { document.getElementById('result-modal').style.display = 'none'; }
         });
     }
 
-    function startGame() {
+    function startRace() {
         gameRunning = true; myScore = 0; obstacles.forEach(o => scene.remove(o.mesh)); obstacles = [];
-        playerMesh.position.y = 0.5; playerY = 0; isJumping = false;
-        document.getElementById('game-overlay').style.display = 'none';
+        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; document.getElementById('game-overlay').style.display = 'none';
     }
-
-    function iWon() {
-        gameRunning = false;
-        update(ref(db), { 
-            'race_room/winner': myRole,
-            'race_room/state': 'finished'
-        });
+    
+    window.resetCurrentGame = function() {
+        // Helper to close result modal
+        document.getElementById('result-modal').style.display = 'none';
     }
-
-    function crash() {
-        if(!gameRunning) return; gameRunning = false;
-        playerMesh.rotation.x = 1.5;
-        const winner = myRole === 'mahmoud' ? 'nagham' : 'mahmoud';
-        update(ref(db), { 
-            'race_room/winner': winner,
-            'race_room/state': 'finished'
-        });
-    }
-
-    // --- 6. Result & Money Transfer ---
-    onValue(ref(db, 'race_room/state'), snap => {
-        if (snap.val() === 'finished') {
-            onValue(ref(db, 'race_room'), snap => {
-                const data = snap.val();
-                if(!data || !data.winner) return;
-
-                const iWon = data.winner === myRole;
-                const wager = parseInt(data.wager);
-                const winnerName = data.winner === 'mahmoud' ? 'Mahmoud' : 'Nagham';
-                const loserName = data.winner === 'mahmoud' ? 'Nagham' : 'Mahmoud';
-
-                // 1. Wallet Logic (Transfer from Loser to Winner)
-                if (wager > 0) {
-                    const loser = data.winner === 'mahmoud' ? 'nagham' : 'mahmoud';
-                    runTransaction(ref(db, `bank_coins/${data.winner}`), (current) => (current || 0) + wager);
-                    runTransaction(ref(db, `bank_coins/${loser}`), (current) => Math.max(0, (current || 0) - wager));
-
-                    // 2. Log Game Result
-                    push(logsRef, {
-                        text: `اللعبة انتهت: ${winnerName} كسب +${wager} جنيه (عقاب على ${loserName})`,
-                        type: 'win',
-                        role: 'system',
-                        time: Date.now()
-                    });
-                }
-
-                // 3. Show UI
-                const resModal = document.getElementById('result-modal');
-                const resTitle = document.getElementById('res-title');
-                const resMoney = document.getElementById('res-money');
-                const resIcon = document.getElementById('res-icon');
-
-                resModal.style.display = 'flex';
-
-                if (iWon) {
-                    resIcon.innerText = "🏆";
-                    resTitle.innerText = "مبروك يا وحش!";
-                    resMoney.innerHTML = `+${wager} جنيه`;
-                    resMoney.className = "money-change";
-                } else {
-                    resIcon.innerText = "😭";
-                    resTitle.innerText = "خسرت!";
-                    resMoney.innerHTML = `-${wager} جنيه`;
-                    resMoney.className = "money-change negative";
-                }
-            });
-        } else {
-            document.getElementById('result-modal').style.display = 'none';
-        }
-    });
-
-    window.resetGame = function() {
-        update(ref(db), { 
-            'race_room/state': 'waiting',
-            'race_room/winner': null
-        });
-        document.getElementById('game-overlay').style.display = 'flex';
-        document.getElementById('start-btn').disabled = true;
-        document.getElementById('start-btn').innerText = "ضبط الرهان";
-    };
 
 </script>
 </body>
