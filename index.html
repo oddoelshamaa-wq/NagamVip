@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mahmoud & Nagham - Judge Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- CSS: التصميم --- */
+        :root {
+            --bg-grad: linear-gradient(135deg, #a29bfe 0%, #ff7675 100%);
+            --glass: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --mahmoud: #0984e3;
+            --nagham: #e84393;
+            --primary: #ff4757;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg-grad);
+            min-height: 100vh;
+            color: #2d3436;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        header { text-align: center; padding: 20px 10px; position: relative; }
+        h1 { font-size: 2rem; color: #fff; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); margin-bottom: 5px; }
+        .subtitle { color: #fff; font-size: 0.9rem; opacity: 0.9; }
+        
+        /* زر تعديل المفاجأة */
+        .edit-btn {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.3); border: 1px solid #fff;
+            padding: 8px 12px; border-radius: 20px; color: #fff; font-size: 0.8rem;
+            cursor: pointer; transition: 0.3s;
+        }
+        .edit-btn:hover { background: #fff; color: var(--primary); }
+
+        /* الكروت */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 600px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 { color: #2d3436; font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        /* العداد */
+        #timer { font-size: 1.8rem; font-weight: 900; text-align: center; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); direction: ltr; }
+
+        /* اللعبة */
+        #game-box {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #fff;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        canvas { display: block; width: 100%; height: 100%; }
+
+        /* شاشة النتائج */
+        #overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            color: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; z-index: 100; padding: 20px;
+        }
+
+        .winner-card {
+            background: #fff; color: #333;
+            width: 90%; padding: 20px; border-radius: 15px;
+            margin-top: 15px; border: 3px solid #ffd700;
+            animation: pop 0.4s ease-out;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        
+        .score-display {
+            background: #f1f2f6; padding: 10px; border-radius: 10px; 
+            font-size: 1.2rem; font-weight: bold; color: #2d3436;
+            border: 1px dashed #b2bec3;
+        }
+
+        .judge-text { font-size: 1.3rem; font-weight: 900; color: var(--primary); margin-top: 5px; line-height: 1.4; }
+        .winner-badge { background: #ffd700; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+
+        /* الأزرار */
+        .btn { background: var(--primary); color: #fff; border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.1rem; font-family: 'Tajawal'; cursor: pointer; margin-top: 15px; box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); }
+        
+        .controls { display: flex; gap: 10px; margin-top: 15px; }
+        .ctrl-btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; color: #fff; font-family: 'Tajawal'; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+        .btn-m { background: var(--mahmoud); }
+        .btn-n { background: var(--nagham); }
+        .ctrl-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* كرت الخدش */
+        #scratch-box { position: relative; width: 100%; max-width: 350px; height: 180px; margin: 0 auto; border-radius: 10px; overflow: hidden; border: 2px solid #fff; }
+        #scratch-txt { position: absolute; top:0; left:0; width:100%; height:100%; background:#fff0f5; display: flex; justify-content: center; align-items: center; font-weight:bold; color:var(--nagham); font-size:1.2rem; z-index: 1; }
+        #scratch-canvas { position: absolute; top:0; left:0; z-index: 2; cursor: pointer; }
+
+        /* الرسائل */
+        .lock-msg { background: #ff7675; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 10px; font-weight: bold; display: none; }
+        .hidden { display: none !important; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <button class="edit-btn" onclick="editSurprise()">✏️ تعديل المفاجأة</button>
+    <h1>Mahmoud ❤️ Nagham</h1>
+    <p class="subtitle">الفائز يحكم والخاسر ينفذ!</p>
+</header>
+
+<main style="max-width: 650px; margin: 0 auto;">
+
+    <!-- العداد -->
+    <div class="card" style="text-align: center;">
+        <h2><i class="fas fa-clock"></i> عداد العمر</h2>
+        <div id="timer">Loading...</div>
+    </div>
+
+    <!-- اللعبة -->
+    <div class="card">
+        <div id="game-lock-msg" class="lock-msg">لقد لعبتما اليوم! انتظروا غداً.</div>
+        
+        <div id="game-box">
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- أزرار اللمس الخفية -->
+            <div style="position:absolute; top:0; height:100%; width:50%; left:0; z-index:50;" id="touch-m"></div>
+            <div style="position:absolute; top:0; height:100%; width:50%; right:0; z-index:50;" id="touch-n"></div>
+
+            <!-- شاشة البداية/النهاية -->
+            <div id="overlay">
+                <h2 id="overlay-title">مرحباً!</h2>
+                <p id="overlay-desc" style="opacity:0.8;">اجمعوا العملات ووصلوا لـ 100 نقطة</p>
+                
+                <!-- كرت الفوز -->
+                <div id="win-card" class="winner-card hidden">
+                    <span class="winner-badge">👑 الحاكم</span>
+                    <h3 id="winner-name" style="font-size:1.4rem; margin:5px 0;">Name</h3>
+                    <div class="score-display">النتيجة النهائية: <span id="final-score">0</span> / 100</div>
+                    <div>الحكم اليومي:</div>
+                    <div class="judge-text" id="judge-rule">...</div>
+                </div>
+
+                <button class="btn" id="start-btn" onclick="startGame()">ابدأ اللعب</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="ctrl-btn btn-m" id="btn-m">Mahmoud (قفز)</button>
+            <button class="ctrl-btn btn-n" id="btn-n">Nagham (قفز)</button>
+        </div>
+    </div>
+
+    <!-- كرت المفاجأة -->
+    <div class="card" style="text-align: center;">
+        <h2>🎫 كرت المفاجأة</h2>
+        <div id="scratch-lock-msg" class="lock-msg">تم فتح الكرت اليوم!</div>
+        <div id="scratch-box">
+            <div id="scratch-txt">???</div>
+            <canvas id="scratch-canvas"></canvas>
+        </div>
+    </div>
+
+</main>
+
+<!-- =========================================
+     JavaScript: الكود كامل
+     ========================================= -->
+<script>
+    // --- تعديل المفاجأة (Admin) ---
+    function editSurprise() {
+        let current = localStorage.getItem('custom_surprise') || "عشاء رومانسي 🌹";
+        let input = prompt("اكتب الحكم أو المفاجأة اللي عايزها تطلع لما حد يكسب:", current);
+        if(input && input.trim() !== "") {
+            localStorage.setItem('custom_surprise', input.trim());
+            alert("تم حفظ الحكم! 🎉");
+        }
+    }
+
+    // --- البيانات ---
+    const surprises = ["🌹 وردة", "🎬 سينما", "📸 صورة جديدة", "🥗 سلطة", "🎮 لعبة مرة أخرى"];
+    const defaultJudge = "عشاء فاخر على حساب الفائز 🍽️";
+
+    // --- نظام اليوم الواحد (LocalStorage) ---
+    function checkDaily() {
+        const today = new Date().toDateString();
+        if(localStorage.getItem('lastGameDate') === today) {
+            document.getElementById('game-lock-msg').style.display = 'block';
+            document.getElementById('game-box').style.pointerEvents = 'none';
+            document.getElementById('game-box').style.opacity = '0.5';
+        }
+        if(localStorage.getItem('lastScratchDate') === today) {
+            document.getElementById('scratch-lock-msg').style.display = 'block';
+            document.getElementById('scratch-box').style.display = 'none';
+        }
+    }
+
+    function setGameDone() {
+        localStorage.setItem('lastGameDate', new Date().toDateString());
+        checkDaily();
+    }
+    function setScratchDone() {
+        localStorage.setItem('lastScratchDate', new Date().toDateString());
+        checkDaily();
+    }
+
+    // --- عداد الحب ---
+    const startDate = new Date("2023-01-01T00:00:00");
+    setInterval(() => {
+        const diff = new Date() - startDate;
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        document.getElementById('timer').innerText = `${d}d ${h}h ${m}m ${s}s`;
+    }, 1000);
+
+    // --- منطق اللعبة ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    
+    function resizeCanvas() {
+        canvas.width = canvas.parentElement.offsetWidth;
+        canvas.height = canvas.parentElement.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    setTimeout(resizeCanvas, 100);
+
+    let gameRunning = false;
+    let score = 0;
+    let obstacles = [];
+    let coins = [];
+    let frame = 0;
+    let speed = 4;
+
+    const players = [
+        { x: 40, y: 200, w: 30, h: 30, dy: 0, color: '#0984e3', coins: 0, ground: true }, // M
+        { x: 80, y: 200, w: 30, h: 30, dy: 0, color: '#e84393', coins: 0, ground: true }  // N
+    ];
+
+    function jump(idx) {
+        const p = players[idx];
+        if(p.ground && gameRunning) {
+            p.dy = -12;
+            p.ground = false;
+        }
+    }
+
+    ['touch-m', 'btn-m'].forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener('touchstart', (e) => { e.preventDefault(); jump(0); });
+        el.addEventListener('mousedown', (e) => { e.preventDefault(); jump(0); });
+    });
+    ['touch-n', 'btn-n'].forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener('touchstart', (e) => { e.preventDefault(); jump(1); });
+        el.addEventListener('mousedown', (e) => { e.preventDefault(); jump(1); });
+    });
+
+    function startGame() {
+        if(document.getElementById('game-lock-msg').style.display === 'block') return;
+        gameRunning = true;
+        overlay.classList.add('hidden');
+        document.getElementById('win-card').classList.add('hidden');
+        score = 0; frame = 0; speed = 4;
+        obstacles = []; coins = [];
+        players.forEach(p => { p.y = 200; p.dy = 0; p.coins = 0; });
+        gameLoop();
+    }
+
+    function win() {
+        gameRunning = false;
+        overlay.classList.remove('hidden');
+        document.getElementById('overlay-title').innerText = "مبروك الفوز!";
+        document.getElementById('overlay-desc').innerText = `تم إكمال الهدف`;
+        
+        // تحديد الفائز
+        let wIdx = players[0].coins >= players[1].coins ? 0 : 1;
+        if(players[0].coins === players[1].coins) wIdx = Math.random()>0.5?1:0;
+
+        const wName = wIdx === 0 ? "Mahmoud" : "Nagham";
+        
+        // قراءة الحكم المخصص من التخزين
+        const judgeRule = localStorage.getItem('custom_surprise') || defaultJudge;
+
+        document.getElementById('winner-name').innerText = wName;
+        document.getElementById('winner-name').style.color = wIdx === 0 ? "var(--mahmoud)" : "var(--nagham)";
+        
+        // تسجيل وعرض النتيجة
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('judge-rule').innerText = judgeRule;
+        
+        document.getElementById('win-card').classList.remove('hidden');
+        const btn = document.getElementById('start-btn');
+        btn.innerText = "تم";
+        btn.onclick = setGameDone;
+    }
+
+    function lose() {
+        gameRunning = false;
+        overlay.classList.remove('hidden');
+        document.getElementById('overlay-title').innerText = "خسرتما!";
+        document.getElementById('overlay-desc').innerText = `النتيجة: ${score} - حاولوا تاني`;
+        document.getElementById('win-card').classList.add('hidden');
+        const btn = document.getElementById('start-btn');
+        btn.innerText = "إعادة المحاولة";
+        btn.onclick = startGame;
+    }
+
+    function gameLoop() {
+        if(!gameRunning) return;
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        frame++;
+
+        if(frame % 500 === 0) speed += 0.5;
+        if(frame % 10 === 0) score++;
+
+        if(score >= 100) { win(); return; }
+
+        // رسم النقاط الحالية
+        ctx.font = "bold 16px Tajawal";
+        ctx.fillStyle = "#333";
+        ctx.fillText("Score: " + score, 10, 25);
+        ctx.fillStyle = players[0].color; ctx.fillText("M: " + players[0].coins, 10, 45);
+        ctx.fillStyle = players[1].color; ctx.fillText("N: " + players[1].coins, 80, 45);
+
+        players.forEach(p => {
+            p.dy += 0.6; p.y += p.dy;
+            if(p.y + p.h > canvas.height) { p.y = canvas.height - p.h; p.dy = 0; p.ground = true; }
+            ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.w, p.h);
+        });
+
+        if(frame % 90 === 0) {
+            obstacles.push({ x: canvas.width, y: canvas.height - (Math.random()>0.5?50:90), w: 30, h: Math.random()>0.5?50:90 });
+        }
+        obstacles.forEach((obs, i) => {
+            obs.x -= speed;
+            ctx.fillStyle = '#636e72'; ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+            players.forEach(p => {
+                if(p.x < obs.x + obs.w && p.x + p.w > obs.x && p.y < obs.y + obs.h && p.y + p.h > obs.y) { lose(); }
+            });
+            if(obs.x + obs.w < 0) obstacles.splice(i, 1);
+        });
+
+        if(frame % 70 === 0) {
+            coins.push({ x: canvas.width, y: canvas.height - 50 - Math.random()*100, w: 20, h: 20, type: Math.random()>0.5?0:1 });
+        }
+        coins.forEach((c, i) => {
+            c.x -= speed;
+            ctx.fillStyle = c.type === 0 ? '#0984e3' : '#e84393';
+            ctx.beginPath(); ctx.arc(c.x + c.w/2, c.y + c.h/2, c.w/2, 0, Math.PI*2); ctx.fill();
+            players.forEach(p => {
+                if(p.x < c.x + c.w && p.x + p.w > c.x && p.y < c.y + c.h && p.y + p.h > c.y) {
+                    if(c.type === 0) players[0].coins++; else players[1].coins++;
+                    coins.splice(i, 1);
+                }
+            });
+            if(c.x + c.w < 0) coins.splice(i, 1);
+        });
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // --- كرت الخدش ---
+    const sCanvas = document.getElementById('scratch-canvas');
+    const sCtx = sCanvas.getContext('2d');
+    const sBox = document.getElementById('scratch-box');
+
+    function initScratch() {
+        sCanvas.width = sBox.offsetWidth;
+        sCanvas.height = sBox.offsetHeight;
+        sCtx.globalCompositeOperation = 'source-over';
+        sCtx.fillStyle = '#b2bec3'; sCtx.fillRect(0,0,sCanvas.width,sCanvas.height);
+        sCtx.fillStyle = '#636e72'; sCtx.textAlign = 'center'; sCtx.fillText("خشني 👈", sCanvas.width/2, sCanvas.height/2);
+        document.getElementById('scratch-txt').innerText = surprises[Math.floor(Math.random()*surprises.length)];
+    }
+
+    let scr = false;
+    function scratch(e) {
+        if(!scr) return;
+        e.preventDefault();
+        const rect = sCanvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+        sCtx.globalCompositeOperation = 'destination-out';
+        sCtx.beginPath(); sCtx.arc(x, y, 20, 0, Math.PI*2); sCtx.fill();
+    }
+
+    sCanvas.addEventListener('mousedown', () => scr = true);
+    sCanvas.addEventListener('mouseup', () => { scr=false; setTimeout(setScratchDone, 1000); });
+    sCanvas.addEventListener('mousemove', scratch);
+    sCanvas.addEventListener('touchstart', () => scr = true);
+    sCanvas.addEventListener('touchend', () => { scr=false; setTimeout(setScratchDone, 1000); });
+    sCanvas.addEventListener('touchmove', scratch);
+
+    checkDaily();
+    setTimeout(initScratch, 200);
+</script>
+</body>
+</html>
