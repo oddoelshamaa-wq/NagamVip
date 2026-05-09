@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mahmoud & Nagham - 3D Love & Fines</title>
+    <title>Mahmoud & Nagham - Full System</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
             --bg-grad: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            --glass: rgba(255, 255, 255, 0.1);
             --mahmoud: #00d2ff;
             --nagham: #ff4b1f;
-            --gold: #ffd700;
-            --red-punish: #e74c3c;
             --text: #fff;
+            --points-color: #ffd700;
+            --money-color: #00b894;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -26,179 +25,296 @@
             min-height: 100vh;
             color: var(--text);
             overflow-x: hidden;
-            display: flex; flex-direction: column; gap: 10px;
-            padding-bottom: 80px;
+            display: flex; flex-direction: column; gap: 15px;
+            padding: 10px; padding-bottom: 90px;
         }
+
+        /* --- Toast Notification (Custom Alert) --- */
+        #toast-container {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 10000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 350px;
+        }
+        .toast {
+            background: rgba(30, 30, 30, 0.95); border-right: 4px solid var(--mahmoud);
+            color: #fff; padding: 12px 20px; border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 0.9rem;
+            display: flex; align-items: center; gap: 10px;
+            animation: slideIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast.error { border-color: #e74c3c; }
+        .toast.success { border-color: var(--money-color); }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- Selection Screen --- */
+        #select-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 12, 41, 0.98); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 30px;
+        }
+        #select-screen h1 { color: #fff; font-size: 2rem; text-shadow: 0 0 15px var(--mahmoud); text-align: center; }
+        .role-btn {
+            padding: 20px 40px; border: none; border-radius: 15px; color: #fff;
+            font-size: 1.3rem; font-weight: bold; width: 200px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); font-family: 'Tajawal';
+            transition: transform 0.2s;
+        }
+        .role-btn:active { transform: scale(0.95); }
+        .btn-m { background: var(--mahmoud); }
+        .btn-n { background: var(--nagham); }
 
         /* --- Anniversary Counter --- */
         #love-counter {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.3); padding: 10px 15px; border-radius: 15px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 10px; backdrop-filter: blur(5px);
         }
-        .love-title { font-size: 0.9rem; color: #fab1a0; margin-bottom: 5px; }
-        .timer-display { font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; }
+        .love-title { font-size: 0.8rem; color: #fab1a0; margin-bottom: 2px; }
+        .timer-display { font-family: 'Courier New', monospace; font-size: 1rem; font-weight: bold; letter-spacing: 1px; }
 
-        /* --- UI Cards --- */
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; padding: 10px; margin: 5px;
-            position: relative;
+        /* --- Wallets Section --- */
+        .wallets-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            position: relative; margin-bottom: 5px;
         }
-
-        /* --- Header / Bank --- */
-        .bank-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .player-score-box { display: flex; align-items: center; gap: 8px; font-weight: bold; }
-        .avatar-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
-        .score-val { font-size: 1.2rem; font-family: sans-serif; }
+        .wallet-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px; padding: 15px; text-align: center;
+            border: 2px solid transparent; backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        .w-mahmoud { border-color: var(--mahmoud); }
+        .w-nagham { border-color: var(--nagham); }
+        .wallet-name { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
+        .wallet-balance { font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); font-family: sans-serif; }
         
-        /* --- Manual Fine Button --- */
-        .fine-btn {
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            background: var(--red-punish); border: 2px solid #fff; color: #fff;
-            width: 40px; height: 40px; border-radius: 50%;
-            font-size: 1.2rem; cursor: pointer; z-index: 10;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
+        /* --- Floating Fine Button --- */
+        .fine-float-btn {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 50px; border-radius: 50%;
+            background: #e74c3c; border: 3px solid #222;
+            color: #fff; font-size: 1.4rem;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10; cursor: pointer;
         }
-        .fine-btn:active { transform: translateX(-50%) scale(0.9); }
+        .fine-float-btn:active { transform: translateX(-50%) scale(0.9); }
 
-        /* --- 3D Game Container --- */
+        /* Wallet Animation */
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .balance-update { animation: pop 0.4s ease; color: var(--money-color) !important; }
+        .balance-deduct { animation: pop 0.4s ease; color: #e74c3c !important; }
+
+        /* --- LOGS SECTION --- */
+        #log-container {
+            background: rgba(0,0,0,0.3); border-radius: 15px; padding: 10px;
+            height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        /* Scrollbar styling */
+        #log-container::-webkit-scrollbar { width: 4px; }
+        #log-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        .log-header { font-size: 0.9rem; color: #888; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
+        .log-item {
+            background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px;
+            border-right: 3px solid #555; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .tag { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
+        .log-win { border-color: var(--money-color); background: rgba(0, 184, 148, 0.1); color: #fff; }
+        .tag-money { background: var(--money-color); color: #000; }
+        .log-fine { border-color: #e74c3c; background: rgba(231, 76, 60, 0.1); color: #ffcccc; }
+        .tag-fine { background: #e74c3c; color: #fff; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* --- Modals --- */
+        #setup-modal, #fine-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 5000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .setup-content, .fine-content {
+            background: #1e1e1e; border: 1px solid #444; padding: 25px; border-radius: 20px;
+            width: 85%; text-align: center; color: #fff;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+        .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; font-family: 'Tajawal'; text-align: center; font-size: 1.1rem; }
+        .money-input { border-color: var(--money-color); color: var(--money-color); font-weight: bold; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { background: #555; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; }
+        .btn-confirm { background: #e74c3c; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; }
+
+        /* --- 3D Game Area --- */
         #game-container {
-            position: relative;
-            width: 100%;
-            height: 350px;
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 2px solid #444;
+            position: relative; width: 100%; height: 300px;
+            background: #000; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid #333;
         }
         canvas { display: block; width: 100%; height: 100%; outline: none; }
-
         #game-hud {
             position: absolute; top: 0; left: 0; width: 100%; padding: 10px;
             display: flex; justify-content: space-between; pointer-events: none;
-            text-shadow: 0 2px 4px #000; font-weight: bold;
+            text-shadow: 0 2px 4px #000; font-weight: bold; font-size: 1rem;
+            color: var(--points-color);
         }
-        .hud-target { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; border: 1px solid #fff; }
-
         #game-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 10; text-align: center;
+            background: rgba(0,0,0,0.85); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 10; text-align: center; padding: 20px;
+            backdrop-filter: blur(4px);
         }
-        
-        .btn-3d {
-            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
-            border: none; padding: 12px 30px; border-radius: 30px; color: #fff;
+        .btn-game {
+            background: linear-gradient(to right, #00d2ff, #3a7bd5); color: #fff;
+            border: none; padding: 12px 30px; border-radius: 30px;
             font-weight: bold; font-size: 1.1rem; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
-            transition: transform 0.1s; width: 80%;
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+            margin-top: 15px; width: 80%;
         }
-        .btn-3d:active { transform: scale(0.95); }
+        .btn-game:active { transform: scale(0.95); }
+        .btn-game:disabled { background: #555; cursor: not-allowed; opacity: 0.7; }
 
+        /* Controls */
         #controls-area {
             position: fixed; bottom: 20px; left: 0; width: 100%;
             display: flex; justify-content: center; z-index: 100; pointer-events: none;
         }
         #jump-btn-large {
-            pointer-events: all;
-            width: 80px; height: 80px; border-radius: 50%;
-            background: rgba(255,255,255,0.2); border: 2px solid #fff;
-            backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center;
-            font-size: 2rem; color: #fff;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            pointer-events: all; width: 85px; height: 85px; border-radius: 50%;
+            background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center;
+            font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
+        #jump-btn-large:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
 
-        /* --- Logs Section (Punishment Record) --- */
-        #log-container {
-            height: 140px; overflow-y: auto; font-size: 0.85rem;
-            display: flex; flex-direction: column; gap: 5px; padding: 5px;
-        }
-        .log-header { font-size: 0.9rem; color: #aaa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 5px; display: flex; justify-content: space-between;}
-        .log-item {
-            background: rgba(255,255,255,0.05); padding: 8px 10px; border-radius: 8px;
-            border-right: 3px solid #555; display: flex; justify-content: space-between;
-        }
-        .log-win { border-color: var(--gold); color: #fff; background: rgba(255, 215, 0, 0.1); }
-        .log-loss { border-color: var(--nagham); color: #ffcccc; background: rgba(255, 75, 31, 0.1); }
-        .log-fine { border-color: var(--red-punish); background: rgba(231, 76, 60, 0.15); color: #ffebee; }
-
-        /* Modals */
-        .modal {
+        /* Result Modal */
+        #result-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 6000;
+            background: rgba(0,0,0,0.98); z-index: 6000;
             display: none; justify-content: center; align-items: center;
         }
-        .modal-content {
-            background: #222; border: 1px solid #444; padding: 25px; border-radius: 20px;
-            width: 85%; text-align: center; color: #fff;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        .result-content {
+            background: #1e1e1e; border: 2px solid var(--money-color); padding: 30px; border-radius: 25px;
+            width: 90%; text-align: center; color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
-        .form-group { margin-bottom: 15px; text-align: right; }
-        .form-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; }
-        .modal-btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; margin: 5px; }
-        .btn-cancel { background: #555; color: #fff; }
-        .btn-confirm { background: var(--red-punish); color: #fff; }
+        .money-change { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--money-color); }
+        .money-change.negative { color: #e74c3c; }
     </style>
+
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
 </head>
 <body>
 
-<!-- Anniversary Counter -->
-<div id="love-counter">
-    <div class="love-title">❤️ ده يوم حبنا (من 20/11/2024)</div>
-    <div class="timer-display" id="timer">Loading...</div>
+<!-- Custom Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Selection Screen -->
+<div id="select-screen">
+    <h1>النظام الشامل</h1>
+    <button onclick="selectChar('mahmoud')" class="role-btn btn-m">أنا محمود</button>
+    <button onclick="selectChar('nagham')" class="role-btn btn-n">أنا نجوم</button>
 </div>
 
-<!-- Bank Section with Fine Button -->
-<div class="card">
-    <button class="fine-btn" onclick="openFineModal()" title="غرامة / محكمة">⚖️</button>
+<!-- Main Content -->
+<div id="main-app" style="display:none;">
     
-    <div class="bank-header">
-        <div class="player-score-box">
-            <div class="avatar-dot" style="background:var(--mahmoud)"></div>
-            <span style="color:#ccc">Mahmoud</span>
-            <span class="score-val" id="score-m">0</span>
+    <!-- Timer -->
+    <div id="love-counter">
+        <div class="love-title">❤️ ده يوم حبنا (من 20/11/2024)</div>
+        <div class="timer-display" id="timer">Loading...</div>
+    </div>
+
+    <!-- Wallets (Money) -->
+    <div class="wallets-container">
+        <button class="fine-float-btn" onclick="openFineModal()"><i class="fas fa-gavel"></i></button>
+        
+        <div class="wallet-card w-mahmoud">
+            <div class="wallet-name">Mahmoud</div>
+            <div class="wallet-balance" id="score-m">0</div>
         </div>
-        <div style="font-size:0.8rem; color:#888; text-align:center;">الرصيد الحالي</div>
-        <div class="player-score-box">
-            <span class="score-val" id="score-n">0</span>
-            <span style="color:#ccc">Nagham</span>
-            <div class="avatar-dot" style="background:var(--nagham)"></div>
+        <div class="wallet-card w-nagham">
+            <div class="wallet-name">Nagham</div>
+            <div class="wallet-balance" id="score-n">0</div>
+        </div>
+    </div>
+
+    <!-- Game Area -->
+    <div id="game-container">
+        <div id="game-hud">
+            <div>🎯 الهدف: <span id="target-val">50</span></div>
+            <div>نقاطي: <span id="my-score-val">0</span></div>
+        </div>
+        
+        <div id="game-overlay">
+            <h2 id="overlay-msg" style="color:#fff; margin-bottom:10px;">انتظار التحضير...</h2>
+            <p id="sub-msg" style="color:#aaa; font-size:0.8rem;">لعبة الرهان أو الغرامة اليدوية</p>
+            <button id="start-btn" class="btn-game" onclick="openSetup()" disabled>ضبط الرهان</button>
+        </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div id="log-container">
+        <div class="log-header">
+            <span><i class="fas fa-scroll"></i> السجل المالي</span>
+            <span style="font-size:0.7rem; color:#666;">Live</span>
         </div>
     </div>
 </div>
 
-<!-- 3D Game Area -->
-<div id="game-container">
-    <div id="game-hud">
-        <div>هدف الفوز: <span id="target-val">50</span></div>
-        <div>مستواي: <span id="my-score-val" style="color:var(--gold)">0</span></div>
-    </div>
-    
-    <div id="game-overlay">
-        <h2 id="overlay-msg" style="color:#fff; margin-bottom:20px;">انتظار الشريك...</h2>
-        <p id="sub-msg" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">أول شخص يوصل 50 ياخد 20 نقطة</p>
-        <button id="start-btn" class="btn-3d" onclick="requestStart()" disabled>جاري التجهيز...</button>
+<!-- Setup Modal (Wager) -->
+<div id="setup-modal">
+    <div class="setup-content">
+        <h3 style="color:var(--mahmoud); margin-bottom:15px;">💰 شروط الرهان</h3>
+        
+        <div style="text-align:right;">
+            <label style="color:#aaa; font-size:0.8rem;">هدف النقاط</label>
+            <input type="number" id="input-target" class="form-input" value="50">
+        </div>
+
+        <div style="text-align:right; margin-top:15px;">
+            <label style="color:var(--money-color); font-size:0.9rem; font-weight:bold;">الرهان (جنيه)</label>
+            <input type="number" id="input-wager" class="form-input money-input" value="20">
+        </div>
+
+        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="submitSetup()">حفظ وانتظار</button>
     </div>
 </div>
 
-<!-- Punishment Log Section -->
-<div class="card" id="log-container">
-    <div class="log-header">
-        <span><i class="fas fa-gavel"></i> سجل العقوبات والغرامات</span>
-        <span style="font-size:0.7rem; color:#666;">Live</span>
+<!-- Fine Modal -->
+<div id="fine-modal">
+    <div class="fine-content">
+        <h3 style="margin-bottom:20px; color:#e74c3c;">⚖️ غرامة يدوية (تحويل)</h3>
+        <div style="margin-bottom:15px; text-align:right;">
+            <label style="color:#aaa; font-size:0.9rem;">مين اللي هيدفع؟</label>
+            <select id="fine-target" class="form-input">
+                <option value="partner">الشريك (عقاب)</option>
+                <option value="me">أنا (اعتذار)</option>
+            </select>
+        </div>
+        <div style="margin-bottom:15px; text-align:right;">
+            <label style="color:#aaa; font-size:0.9rem;">المبلغ (جنيه)</label>
+            <input type="number" id="fine-amount" class="form-input" value="10">
+        </div>
+        <div style="margin-bottom:15px; text-align:right;">
+            <label style="color:#aaa; font-size:0.9rem;">السبب</label>
+            <input type="text" id="fine-reason" class="form-input" placeholder="مثلاً: إزعاج...">
+        </div>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeFineModal()">إلغاء</button>
+            <button class="btn-confirm" onclick="submitFine()">تنفيذ التحويل</button>
+        </div>
     </div>
-    <!-- Logs injected here -->
+</div>
+
+<!-- Result Modal -->
+<div id="result-modal">
+    <div class="result-content">
+        <div id="res-icon" style="font-size:4rem; margin-bottom:10px;"></div>
+        <h2 id="res-title" style="font-size:1.5rem;"></h2>
+        <div id="res-money" class="money-change"></div>
+        <button class="btn-game" style="background:#444;" onclick="resetGame()">تم</button>
+    </div>
 </div>
 
 <!-- Controls -->
@@ -206,51 +322,10 @@
     <div id="jump-btn-large"><i class="fas fa-plane"></i></div>
 </div>
 
-<!-- Result Modal -->
-<div id="result-modal" class="modal">
-    <div class="modal-content">
-        <div id="res-icon" style="font-size:3rem; margin-bottom:10px;"></div>
-        <div id="res-title" class="result-title"></div>
-        <div id="res-desc" style="color:#bbb; margin-bottom:10px;"></div>
-        <div id="res-money" style="font-size:2rem; margin:10px 0; font-weight:bold;"></div>
-        <button class="modal-btn btn-confirm" style="width:100%" onclick="closeResult()">تم</button>
-    </div>
-</div>
-
-<!-- Manual Fine Modal -->
-<div id="fine-modal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-bottom:15px; color:var(--red-punish)">⚖️ تطبيق غرامة</h3>
-        
-        <div class="form-group">
-            <label>مين اللي هيدفع؟</label>
-            <select id="fine-target" class="form-input">
-                <option value="partner">الشريك (عقاب)</option>
-                <option value="me">أنا (اعتذار)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>المبلغ (نقاط)</label>
-            <input type="number" id="fine-amount" class="form-input" value="10">
-        </div>
-
-        <div class="form-group">
-            <label>السبب</label>
-            <input type="text" id="fine-reason" class="form-input" placeholder="مثلاً: إزعاج...">
-        </div>
-
-        <div style="display:flex; justify-content:center;">
-            <button class="modal-btn btn-cancel" onclick="closeFineModal()">إلغاء</button>
-            <button class="modal-btn btn-confirm" onclick="submitFine()">تنفيذ الغرامة</button>
-        </div>
-    </div>
-</div>
-
 <script type="module">
     import * as THREE from 'three';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, runTransaction, push } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, runTransaction, push } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",
@@ -264,14 +339,44 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Globals
-    let myRole = localStorage.getItem('role');
+    let myRole = null;
     let gameRunning = false;
     let myScore = 0;
-    const WIN_SCORE = 50; 
-    const STAKE_AMOUNT = 20; 
+    
+    const gameRef = ref(db, 'race_room');
+    const walletRef = ref(db, 'bank_coins');
+    const logsRef = ref(db, 'activity_logs');
 
-    // --- 1. Timer Logic ---
+    // --- UTILS: Toast Notification ---
+    window.showToast = function(msg, type = 'normal') {
+        const container = document.getElementById('toast-container');
+        const div = document.createElement('div');
+        div.className = `toast ${type}`;
+        
+        let icon = type === 'error' ? '<i class="fas fa-circle-exclamation"></i>' : 
+                   type === 'success' ? '<i class="fas fa-check-circle"></i>' : 
+                   '<i class="fas fa-info-circle"></i>';
+        
+        div.innerHTML = `${icon} <span>${msg}</span>`;
+        container.appendChild(div);
+        
+        setTimeout(() => {
+            div.style.opacity = '0';
+            div.style.transform = 'translateY(-20px)';
+            setTimeout(() => div.remove(), 300);
+        }, 3000);
+    };
+
+    // --- 1. Selection ---
+    window.selectChar = function(role) {
+        myRole = role;
+        document.getElementById('select-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        initGame();
+        listenToDB();
+    };
+
+    // --- 2. Timer ---
     const START_DATE = new Date('2024-11-20T00:00:00');
     function updateTimer() {
         const now = new Date();
@@ -280,13 +385,13 @@
         const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / 1000 / 60) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
-        document.getElementById('timer').innerHTML = `${days} يوم  |  ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+        document.getElementById('timer').innerHTML = `${days} يوم | ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
     }
     setInterval(updateTimer, 1000); updateTimer();
 
-    // --- 2. Three.js 3D Game ---
-    let scene, camera, renderer, playerMesh, partnerMesh;
-    let obstacles = [], frameCount = 0, speed = 0.4;
+    // --- 3. Three.js ---
+    let scene, camera, renderer, playerMesh;
+    let obstacles = [], speed = 0.4;
     let playerY = 0, playerVelY = 0, isJumping = false;
 
     function initGame() {
@@ -301,54 +406,46 @@
         renderer.setSize(width, height); renderer.shadowMap.enabled = true;
         container.appendChild(renderer.domElement);
 
-        // Lights
         scene.add(new THREE.AmbientLight(0xffffff, 0.5));
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(5, 10, 5); dirLight.castShadow = true; scene.add(dirLight);
-
-        // Ground
+        dirLight.position.set(5, 10, 5); scene.add(dirLight);
         scene.add(new THREE.GridHelper(200, 200, 0x444444, 0x222222));
 
-        // Player
         const pColor = myRole === 'mahmoud' ? 0x00d2ff : 0xff4b1f;
         const pGeo = new THREE.BoxGeometry(1, 1, 1);
         const pMat = new THREE.MeshStandardMaterial({ color: pColor, emissive: pColor, emissiveIntensity: 0.5 });
         playerMesh = new THREE.Mesh(pGeo, pMat);
-        playerMesh.position.set(-1.5, 0.5, 0); playerMesh.castShadow = true; scene.add(playerMesh);
-
-        // Partner
-        const nColor = myRole === 'mahmoud' ? 0xff4b1f : 0x00d2ff;
-        const nMat = new THREE.MeshStandardMaterial({ color: nColor, emissive: nColor, emissiveIntensity: 0.5 });
-        partnerMesh = new THREE.Mesh(pGeo, nMat);
-        partnerMesh.position.set(1.5, 0.5, -5); scene.add(partnerMesh);
+        playerMesh.position.set(-1.5, 0.5, 0); scene.add(playerMesh);
 
         window.addEventListener('resize', () => {
-            camera.aspect = width/height; camera.updateProjectionMatrix(); renderer.setSize(width, height);
+            camera.aspect = container.clientWidth/container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight);
         });
-
         animate();
     }
 
     function animate() {
         requestAnimationFrame(animate);
         if (gameRunning) {
-            frameCount++; myScore++;
+            myScore++;
             document.getElementById('my-score-val').innerText = myScore;
 
-            if (myScore % 40 === 0) createObstacle(myScore); // Synced spawn
+            const target = parseInt(document.getElementById('target-val').innerText);
+            if (myScore >= target) {
+                iWon();
+                return;
+            }
+
+            if (myScore % 40 === 0) createObstacle(myScore);
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 const obs = obstacles[i];
                 obs.mesh.position.z += speed;
-
-                // Collision
                 if (Math.abs(obs.mesh.position.z - playerMesh.position.z) < 0.8) {
                     if ((isJumping && playerY < 0.5) || !isJumping) crash();
                 }
                 if (obs.mesh.position.z > 10) { scene.remove(obs.mesh); obstacles.splice(i, 1); }
             }
 
-            // Physics
             if (isJumping) {
                 playerVelY -= 0.015; playerY += playerVelY;
                 if (playerY <= 0) { playerY = 0; isJumping = false; }
@@ -368,116 +465,35 @@
     window.jump = function() {
         if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.35; }
     };
-
     document.getElementById('jump-btn-large').addEventListener('touchstart', e => { e.preventDefault(); jump(); });
     window.addEventListener('keydown', e => { if(e.code === 'Space') jump(); });
 
-    // --- 3. Firebase & Logic ---
-    const gameRef = ref(db, 'race_room');
-    const logsRef = ref(db, 'punishment_logs');
-
-    if(myRole) {
-        document.getElementById('select-screen')?.remove(); // Safety
-        initGame();
-        listenToDB();
-    }
-
-    // Logs Helper
-    function addLog(text, type) {
-        push(logsRef, { text: text, type: type, role: myRole, time: Date.now() });
-    }
-
-    function listenToDB() {
-        // Scores
-        onValue(ref(db, 'bank_coins'), snap => {
-            const d = snap.val() || {mahmoud:0, nagham:0};
-            document.getElementById('score-m').innerText = d.mahmoud || 0;
-            document.getElementById('score-n').innerText = d.nagham || 0;
-        });
-
-        // Logs UI
-        onValue(logsRef, snap => {
-            const logs = snap.val(); const container = document.getElementById('log-container');
-            container.innerHTML = '<div class="log-header"><span><i class="fas fa-gavel"></i> سجل العقوبات والغرامات</span><span style="font-size:0.7rem;color:#666;">Live</span></div>';
-            if(!logs) return;
-            Object.values(logs).reverse().slice(0, 15).forEach(l => {
-                const div = document.createElement('div');
-                div.className = `log-item log-${l.type}`;
-                div.innerHTML = `<span>${l.text}</span> <span style="font-size:0.7rem;opacity:0.7">${new Date(l.time).getHours()}:${String(new Date(l.time).getMinutes()).padStart(2,'0')}</span>`;
-                container.appendChild(div);
-            });
-        });
-
-        // Game State
-        onValue(gameRef, snap => {
-            const d = snap.val(); if(!d) return;
-            
-            if (d.state === 'waiting') {
-                gameRunning = false; overlay.style.display = 'flex';
-                startBtn.disabled = false; startBtn.innerText = "ابدأ السباق!";
-                overlayMsg.innerText = d.requester ? `${d.requester} مستعد...` : "في انتظار البداية";
-            } else if (d.state === 'playing') {
-                if (!gameRunning && d.status !== 'crashed') startGame(d.seed);
-            } else if (d.state === 'finished') {
-                gameRunning = false; handleFinish(d);
-            }
-        });
-    }
-
-    window.requestStart = function() {
-        const myName = myRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
-        set(gameRef, { state: 'waiting', requester: myName, seed: Math.floor(Math.random()*10000) });
-        setTimeout(() => set(gameRef, { state: 'playing', seed: Math.floor(Math.random()*10000), status: 'playing' }), 2000);
+    // --- 4. Setup & Logic ---
+    
+    window.openSetup = function() {
+        document.getElementById('setup-modal').style.display = 'flex';
     };
 
-    function startGame() {
-        gameRunning = true; myScore = 0; obstacles.forEach(o => scene.remove(o.mesh)); obstacles = [];
-        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; partnerMesh.rotation.x = 0;
-        overlay.style.display = 'none';
-    }
-
-    function crash() {
-        if(!gameRunning) return; gameRunning = false;
-        playerMesh.rotation.x = 1.5; playerMesh.position.y = 0.5;
-        set(gameRef, { status: 'crashed', winner: (myRole === 'mahmoud') ? 'nagham' : 'mahmoud', state: 'finished' });
-    }
-
-    function handleFinish(data) {
-        const amIWinner = data.winner === myRole;
-        const opponentName = (myRole === 'mahmoud') ? 'Nagham' : 'Mahmoud';
+    window.submitSetup = function() {
+        const target = document.getElementById('input-target').value;
+        const wager = document.getElementById('input-wager').value;
         
-        if (amIWinner) {
-            // Win
-            addPoints(myRole, STAKE_AMOUNT);
-            addLog(`🏆 <b>${myRole}</b> فاز السباق على ${opponentName} وحصل على ${STAKE_AMOUNT} نقطة.`, 'win');
-            showResultModal(true, "مبروك الفوز!", `أنت وصلت للهدف أولاً.`, `+${STAKE_AMOUNT}`);
-        } else {
-            // Lose (Punishment)
-            addPoints(myRole, -STAKE_AMOUNT);
-            addLog(`💥 <b>${myRole}</b> خسر السباق وتتم عليه غرامة ${STAKE_AMOUNT} نقطة.`, 'fine');
-            showResultModal(false, "لقد خسرت!", `${opponentName} وصل أولاً.`, `-${STAKE_AMOUNT}`);
+        if(!wager || wager <= 0) {
+            showToast('اكتب قيمة الرهان صح!', 'error');
+            return;
         }
-    }
 
-    function addPoints(role, amount) {
-        runTransaction(ref(db, `bank_coins/${role}`), c => (c||0) + amount);
-    }
-
-    function showResultModal(win, title, desc, money) {
-        const modal = document.getElementById('result-modal');
-        document.getElementById('res-icon').innerText = win ? '🏆' : '💸';
-        const t = document.getElementById('res-title'); t.innerText = title; t.style.color = win ? 'var(--gold)' : 'var(--red-punish)';
-        document.getElementById('res-desc').innerText = desc;
-        document.getElementById('res-money').innerText = money; document.getElementById('res-money').style.color = win ? '#00b894' : '#e74c3c';
-        modal.style.display = 'flex';
-    }
-
-    window.closeResult = function() {
-        document.getElementById('result-modal').style.display = 'none';
-        set(gameRef, { state: 'waiting' });
+        const updates = {};
+        updates[`race_room/target`] = target;
+        updates[`race_room/wager`] = wager; 
+        
+        update(ref(db), updates);
+        document.getElementById('setup-modal').style.display = 'none';
+        document.getElementById('overlay-msg').innerText = "تم الاتفاق.. بانتظار البدء";
+        showToast('تم حفظ شروط الرهان', 'success');
     };
 
-    // --- 4. Manual Fine Logic ---
+    // --- 5. Fine System (Manual Transfer) ---
     window.openFineModal = () => document.getElementById('fine-modal').style.display = 'flex';
     window.closeFineModal = () => document.getElementById('fine-modal').style.display = 'none';
 
@@ -486,19 +502,188 @@
         const amount = parseInt(document.getElementById('fine-amount').value) || 0;
         const reason = document.getElementById('fine-reason').value || "بدون سبب";
 
-        if(amount <= 0) return alert('اكتب مبلغ صحيح!');
+        if(amount <= 0) {
+            showToast('اكتب مبلغ صحيح!', 'error');
+            return;
+        }
 
+        // تحديد الأدوار: الضحية والشريك
         let victimRole = target === 'me' ? myRole : (myRole === 'mahmoud' ? 'nagham' : 'mahmoud');
+        let receiverRole = victimRole === 'mahmoud' ? 'nagham' : 'mahmoud';
+        
         let victimName = victimRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
+        let receiverName = receiverRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
 
-        // Deduct
+        // 1. خصم من الضحية
         runTransaction(ref(db, `bank_coins/${victimRole}`), c => Math.max(0, (c||0) - amount));
+        
+        // 2. إضافة للمستقبل (الشريك) - "هنا التعديل المطلوب"
+        runTransaction(ref(db, `bank_coins/${receiverRole}`), c => (c||0) + amount);
+        
+        // 3. تسجيل العملية
+        push(logsRef, { 
+            text: `غرامة: خصم ${amount} من ${victimName} وإضافتهم لـ ${receiverName} (${reason})`, 
+            type: 'fine', 
+            role: myRole, 
+            time: Date.now() 
+        });
 
-        // Log as FINE
-        addLog(`⚖️ <b>${victimName}</b> غرامة: -${amount} نقطة. (${reason})`, 'fine');
-
+        showToast(`تم تحويل ${amount} جنيه لصالح ${receiverName}`, 'success');
         closeFineModal();
     };
+
+    function listenToDB() {
+        // Wallets
+        onValue(walletRef, snap => {
+            const d = snap.val() || {mahmoud:0, nagham:0};
+            const elM = document.getElementById('score-m');
+            const elN = document.getElementById('score-n');
+            
+            // تحديث القيم
+            elM.innerText = d.mahmoud || 0;
+            elN.innerText = d.nagham || 0;
+
+            // تأثيرات حركية بسيطة عند التحديث
+            elM.classList.remove('balance-update', 'balance-deduct'); void elM.offsetWidth; // Trigger reflow
+            elN.classList.remove('balance-update', 'balance-deduct'); void elN.offsetWidth;
+
+            // تحديد لون التحديث (إيجابي أو سلبي) حسب التغيير (اختياري، هنا سنستخدم لون محايد للتأثير)
+            elM.classList.add('balance-update');
+            elN.classList.add('balance-update');
+            
+            setTimeout(() => {
+                elM.classList.remove('balance-update');
+                elN.classList.remove('balance-update');
+            }, 500);
+        });
+
+        // Logs
+        onValue(logsRef, snap => {
+            const logs = snap.val(); 
+            const container = document.getElementById('log-container');
+            // الاحتفاظ بالهيدر فقط
+            container.innerHTML = '<div class="log-header"><span><i class="fas fa-scroll"></i> السجل المالي</span><span style="font-size:0.7rem; color:#666;">Live</span></div>';
+            
+            if(!logs) return;
+            Object.values(logs).reverse().slice(0, 10).forEach(l => {
+                const div = document.createElement('div');
+                let tagClass = l.type === 'win' ? 'tag-money' : 'tag-fine';
+                let tagText = l.type === 'win' ? 'فوز' : 'غرامة';
+                
+                div.className = `log-item ${l.type === 'win' ? 'log-win' : 'log-fine'}`;
+                div.innerHTML = `<span>${l.text}</span> <span class="tag ${tagClass}">${tagText}</span>`;
+                container.appendChild(div);
+            });
+        });
+
+        onValue(gameRef, snap => {
+            const d = snap.val();
+            if(!d) return;
+
+            if(d.target) document.getElementById('target-val').innerText = d.target;
+
+            // Check if ready
+            if (d.wager && d.state !== 'playing' && d.state !== 'finished') {
+                const btn = document.getElementById('start-btn');
+                btn.disabled = false;
+                btn.innerText = "ابدأ السباق";
+                btn.onclick = () => {
+                    update(ref(db), { 'race_room/state': 'playing', 'race_room/winner': null });
+                };
+            }
+
+            if (d.state === 'playing') {
+                if (!gameRunning) startGame();
+            }
+        });
+    }
+
+    function startGame() {
+        gameRunning = true; myScore = 0; obstacles.forEach(o => scene.remove(o.mesh)); obstacles = [];
+        playerMesh.position.y = 0.5; playerY = 0; isJumping = false;
+        document.getElementById('game-overlay').style.display = 'none';
+    }
+
+    function iWon() {
+        gameRunning = false;
+        update(ref(db), { 
+            'race_room/winner': myRole,
+            'race_room/state': 'finished'
+        });
+    }
+
+    function crash() {
+        if(!gameRunning) return; gameRunning = false;
+        playerMesh.rotation.x = 1.5;
+        const winner = myRole === 'mahmoud' ? 'nagham' : 'mahmoud';
+        update(ref(db), { 
+            'race_room/winner': winner,
+            'race_room/state': 'finished'
+        });
+    }
+
+    // --- 6. Result & Money Transfer ---
+    onValue(ref(db, 'race_room/state'), snap => {
+        if (snap.val() === 'finished') {
+            onValue(ref(db, 'race_room'), snap => {
+                const data = snap.val();
+                if(!data || !data.winner) return;
+
+                const iWon = data.winner === myRole;
+                const wager = parseInt(data.wager);
+                const winnerName = data.winner === 'mahmoud' ? 'Mahmoud' : 'Nagham';
+                const loserName = data.winner === 'mahmoud' ? 'Nagham' : 'Mahmoud';
+
+                // 1. Wallet Logic (Transfer from Loser to Winner)
+                if (wager > 0) {
+                    const loser = data.winner === 'mahmoud' ? 'nagham' : 'mahmoud';
+                    runTransaction(ref(db, `bank_coins/${data.winner}`), (current) => (current || 0) + wager);
+                    runTransaction(ref(db, `bank_coins/${loser}`), (current) => Math.max(0, (current || 0) - wager));
+
+                    // 2. Log Game Result
+                    push(logsRef, {
+                        text: `اللعبة انتهت: ${winnerName} كسب +${wager} جنيه (عقاب على ${loserName})`,
+                        type: 'win',
+                        role: 'system',
+                        time: Date.now()
+                    });
+                }
+
+                // 3. Show UI
+                const resModal = document.getElementById('result-modal');
+                const resTitle = document.getElementById('res-title');
+                const resMoney = document.getElementById('res-money');
+                const resIcon = document.getElementById('res-icon');
+
+                resModal.style.display = 'flex';
+
+                if (iWon) {
+                    resIcon.innerText = "🏆";
+                    resTitle.innerText = "مبروك يا وحش!";
+                    resMoney.innerHTML = `+${wager} جنيه`;
+                    resMoney.className = "money-change";
+                } else {
+                    resIcon.innerText = "😭";
+                    resTitle.innerText = "خسرت!";
+                    resMoney.innerHTML = `-${wager} جنيه`;
+                    resMoney.className = "money-change negative";
+                }
+            });
+        } else {
+            document.getElementById('result-modal').style.display = 'none';
+        }
+    });
+
+    window.resetGame = function() {
+        update(ref(db), { 
+            'race_room/state': 'waiting',
+            'race_room/winner': null
+        });
+        document.getElementById('game-overlay').style.display = 'flex';
+        document.getElementById('start-btn').disabled = true;
+        document.getElementById('start-btn').innerText = "ضبط الرهان";
+    };
+
 </script>
 </body>
 </html>
