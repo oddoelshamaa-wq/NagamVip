@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mahmoud & Nagham - Ultimate Championship</title>
+    <title>Mahmoud & Nagham - Ultimate System</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -468,7 +468,7 @@
             <textarea id="input-secret-punishment" class="form-input" placeholder="اكتب العقاب هنا... مثلاً: إحضار قهوة"></textarea>
         </div>
 
-        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="window.submitSetup()">حفظ وانتظار الشريك</button>
+        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="window.submitSetup()">حفظ وابدأ</button>
     </div>
 </div>
 
@@ -532,7 +532,7 @@
     try {
         app = initializeApp(firebaseConfig);
         db = getDatabase(app);
-    } catch (e) { console.error("Firebase Error:", e); }
+    } catch (e) { console.error("Firebase Error:", e); alert("Error connecting to Database. Check console."); }
 
     // Global Vars
     let myRole = null;
@@ -626,16 +626,9 @@
         if(currentMode !== 'game') requestAnimationFrame(animate); else requestAnimationFrame(animate);
         if (gameRunning && currentMode === 'game') {
             myScore++; 
-            // Visual distance only, real logic handled by 'crash' or 'distance' if implemented
-            // But we use crash = lose. Distance win = fixed.
             
             const target = parseInt(document.getElementById('target-val').innerText);
-            // For simple race: just run until crash or reach arbitrary distance?
-            // User logic: "Win Number" refers to SERIES wins. 
-            // The actual race mechanics: Let's make it "First to reach distance OR Crash".
-            // To prevent infinite running, let's say reaching distance is the win condition.
-            
-            if (myScore >= target * 10) { iWonRace(); return; } // Scaling score for gameplay feel
+            if (myScore >= target * 10) { iWonRace(); return; } 
 
             if (myScore % 40 === 0) createObstacle(myScore);
             for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -663,7 +656,7 @@
     window.openSetup = function() { document.getElementById('setup-modal').style.display = 'flex'; };
     
     window.submitSetup = function() {
-        const seriesTarget = document.getElementById('input-series-target').value; // e.g., 3
+        const seriesTarget = document.getElementById('input-series-target').value;
         const distanceTarget = document.getElementById('input-target').value;
         const secretHokm = document.getElementById('input-secret-punishment').value;
         
@@ -675,11 +668,14 @@
         updates[`race_room/seriesTarget`] = parseInt(seriesTarget);
         updates[`race_room/distanceTarget`] = parseInt(distanceTarget);
         updates[`race_room/secretHokm/${myRole}`] = secretHokm;
-        updates[`race_room/status`] = 'waiting_for_secrets'; // Waiting for other secret
         
+        // Immediately go to 'ready' or 'playing' depending on user choice, 
+        // but here let's go to 'ready' state so they can click start on overlay
+        updates[`race_room/status`] = 'ready'; 
+
         update(ref(db), updates);
         document.getElementById('setup-modal').style.display = 'none';
-        window.showToast('تم حفظ شروطك.. بانتظار الشريك', 'success');
+        window.showToast('تم حفظ الشروط! اضغط ابدأ.', 'success');
     };
 
     function iWonRace() { 
@@ -758,7 +754,10 @@
     window.makeTTTMove = function(index) {
         onValue(tttRef, snap => {
             const data = snap.val();
-            if(!data || data.state !== 'playing') return;
+            if(!data || data.state !== 'playing') { 
+                if(data && data.state === 'ready') window.showToast("ابدأ اللعبة أولاً من الزر!", "error");
+                return; 
+            }
             if(data.currentTurn !== myRole) { window.showToast("مش دورك!", "error"); return; }
             if(data.board[index] !== null) return;
 
@@ -819,7 +818,7 @@
                 actionBtn.onclick = window.openTTTSetup;
                 actionBtn.disabled = false;
             } else if(data.state === 'ready') {
-                msgEl.innerText = "الرهان محدد.. بانتظار البدء";
+                msgEl.innerText = "الرهان محدد.. ابدأ اللعب";
                 actionBtn.innerText = "ابدأ اللعبة";
                 actionBtn.onclick = () => update(tttRef, { state: 'playing' });
                 actionBtn.disabled = false;
@@ -842,9 +841,8 @@
                     });
                 }
 
-                // Show Simple Result Modal for TTT (Reuse modal but hide punishment)
                 const resModal = document.getElementById('result-modal');
-                document.getElementById('punishment-section').style.display = 'none'; // Hide punishment for TTT
+                document.getElementById('punishment-section').style.display = 'none'; 
                 document.getElementById('res-icon').innerText = isDraw ? "🤝" : iWon ? "🏆" : "😭";
                 document.getElementById('res-title').innerText = isDraw ? "تعادل!" : iWon ? "مبروك كسبت!" : "خسرت!";
                 document.getElementById('res-money').innerHTML = isDraw ? "No Money Transfer" : iWon ? `+${wager} جنيه` : `-${wager} جنيه`;
@@ -894,7 +892,7 @@
             });
         });
 
-        // Race Logic (Updated for Series & Punishment)
+        // Race Logic (Simplified for working status)
         onValue(gameRef, snap => {
             const d = snap.val(); if(!d) return;
             
@@ -911,31 +909,22 @@
             const overlayMsg = document.getElementById('overlay-msg');
             const subMsg = document.getElementById('sub-msg');
 
-            // Logic based on status
-            if (d.status === 'waiting_for_secrets') {
-                // Check if both secrets are present
-                const secrets = d.secretHokm || {};
-                const bothReady = secrets.mahmoud && secrets.nagham;
-                
-                overlayMsg.innerText = bothReady ? "الكل جاهز!" : "بانتظار العقاب السري...";
-                subMsg.innerText = bothReady ? "ابدأ اللعبة" : "الشريك بيكتب العقاب دلوقتي";
-                btn.innerText = bothReady ? "ابدأ السباق" : "انتظار...";
-                btn.disabled = !bothReady;
+            if (d.status === 'ready') {
+                overlayMsg.innerText = "جاهز للسباق";
+                subMsg.innerText = "ضغطت على زر البدء؟";
+                btn.innerText = "ابدأ السباق";
+                btn.disabled = false;
                 btn.onclick = () => {
-                    if(bothReady) {
-                        // Start Game
-                        update(ref(db), { 'race_room/status': 'playing' });
-                    }
+                    update(ref(db), { 'race_room/status': 'playing' });
                 };
                 document.getElementById('game-overlay').style.display = 'flex';
 
             } else if (d.status === 'round_finished') {
-                // Don't hide overlay yet, wait for result modal logic
                 document.getElementById('game-overlay').style.display = 'flex';
                 overlayMsg.innerText = "انتهى الدور!";
                 btn.innerText = "عرض النتيجة";
                 btn.disabled = false;
-                btn.onclick = () => showRaceResult(d); // Show the punishment modal
+                btn.onclick = () => showRaceResult(d);
 
             } else if (d.status === 'playing') {
                 document.getElementById('game-overlay').style.display = 'none';
@@ -961,8 +950,7 @@
         const iWon = winner === myRole;
         const iLost = loser === myRole;
         
-        // Punishment Reveal Logic
-        const punishmentText = data.secretHokm[loser] || "لا يوجد عقاب";
+        const punishmentText = data.secretHokm && data.secretHokm[loser] ? data.secretHokm[loser] : "لا يوجد عقاب مسجل";
         
         const resModal = document.getElementById('result-modal');
         const resTitle = document.getElementById('res-title');
@@ -970,7 +958,6 @@
         const punishSection = document.getElementById('punishment-section');
         const punishText = document.getElementById('res-punishment-text');
 
-        // Determine Series Winner
         const isSeriesOver = seriesScores[winner] >= target;
 
         resTitle.innerText = isSeriesOver 
@@ -979,26 +966,21 @@
         
         resIcon.innerText = iWon ? "🏆" : "😭";
 
-        // Show Punishment
         punishSection.style.display = 'block';
         punishText.innerText = punishmentText;
 
-        // Reset Button Logic
         const resetBtn = document.querySelector('#result-modal .btn-game');
         resetBtn.onclick = () => {
-            // Prepare for next round or end series
             if (isSeriesOver) {
-                // Reset everything
                 update(ref(db), {
                     'race_room/status': 'setup',
                     'race_room/roundScores': { mahmoud: 0, nagham: 0 },
-                    'race_room/secretHokm': { mahmoud: null, nagham: null } // Clear secrets for new series
+                    'race_room/secretHokm': { mahmoud: null, nagham: null }
                 });
             } else {
-                // Next round: clear secrets ONLY, keep scores
                 update(ref(db), {
-                    'race_room/status': 'waiting_for_secrets', // Go back to setup phase
-                    'race_room/secretHokm': { mahmoud: null, nagham: null } // Clear secrets so they write new ones
+                    'race_room/status': 'ready',
+                    'race_room/secretHokm': { mahmoud: null, nagham: null }
                 });
             }
             resModal.style.display = 'none';
@@ -1013,7 +995,7 @@
     }
     
     window.resetCurrentGame = function() {
-        // Helper, logic is handled in button click
+        // Logic handled in button click
     }
 
 </script>
