@@ -542,7 +542,7 @@
     const walletRef = ref(db, 'bank_coins');
     const logsRef = ref(db, 'activity_logs');
     
-    // Game 1: Race (Updated)
+    // Game 1: Race
     const gameRef = ref(db, 'race_room');
     let gameRunning = false, myScore = 0;
     
@@ -555,7 +555,8 @@
 
     // Game 3: Tic Tac Toe
     const tttRef = ref(db, 'tictactoe_room');
-    let tttBoard = Array(9).fill(null);
+    // Cache for TTT local state to prevent reading issues
+    let tttLocalData = null; 
 
     // --- Toast ---
     window.showToast = function(msg, type = 'normal') {
@@ -601,7 +602,7 @@
 
     // ================= GAME 1: RACE (3D) =================
     let scene, camera, renderer, playerMesh;
-    let obstacles = [], speed = 0.4;
+    let obstacles = [], speed = 0.2; // Reduced speed from 0.4 to 0.2 (Easier)
     let playerY = 0, playerVelY = 0, isJumping = false;
 
     function initGame() {
@@ -630,13 +631,28 @@
             const target = parseInt(document.getElementById('target-val').innerText);
             if (myScore >= target * 10) { iWonRace(); return; } 
 
-            if (myScore % 40 === 0) createObstacle(myScore);
+            // FIX: Increased obstacle spacing (was 40, now 80) to make it easier
+            if (myScore % 80 === 0) createObstacle(myScore);
+            
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 const obs = obstacles[i]; obs.mesh.position.z += speed;
-                if (Math.abs(obs.mesh.position.z - playerMesh.position.z) < 0.8) { if ((isJumping && playerY < 0.5) || !isJumping) crashRace(); }
+                
+                // Slightly more forgiving collision logic
+                const dz = Math.abs(obs.mesh.position.z - playerMesh.position.z);
+                if (dz < 0.9) { 
+                    // If jumping high enough (0.6 instead of 0.5), avoid collision
+                    if (!isJumping || playerY < 0.6) crashRace(); 
+                }
+                
                 if (obs.mesh.position.z > 10) { scene.remove(obs.mesh); obstacles.splice(i, 1); }
             }
-            if (isJumping) { playerVelY -= 0.015; playerY += playerVelY; if (playerY <= 0) { playerY = 0; isJumping = false; } playerMesh.position.y = 0.5 + playerY; }
+            // Jump Physics
+            if (isJumping) { 
+                playerVelY -= 0.012; // Reduced gravity slightly for floatier feel
+                playerY += playerVelY; 
+                if (playerY <= 0) { playerY = 0; isJumping = false; } 
+                playerMesh.position.y = 0.5 + playerY; 
+            }
         }
         if(currentMode === 'game') renderer.render(scene, camera);
     }
@@ -648,7 +664,7 @@
         mesh.position.set(-1.5, h/2, -50); scene.add(mesh); obstacles.push({mesh});
     }
 
-    window.jumpAction = function() { if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.35; } };
+    window.jumpAction = function() { if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.45; } }; // Increased jump force
     document.getElementById('jump-btn-large').addEventListener('touchstart', e => { e.preventDefault(); window.jumpAction(); });
     document.getElementById('jump-btn-large').addEventListener('mousedown', e => { e.preventDefault(); window.jumpAction(); });
     window.addEventListener('keydown', e => { if(e.code === 'Space' && currentMode === 'game') window.jumpAction(); });
@@ -663,14 +679,10 @@
         if(!seriesTarget || seriesTarget <= 0) { window.showToast('حدد رقم الفوز!', 'error'); return; }
         if(!secretHokm) { window.showToast('لازم تكتب العقاب السري!', 'error'); return; }
 
-        // Update DB
         const updates = {};
         updates[`race_room/seriesTarget`] = parseInt(seriesTarget);
         updates[`race_room/distanceTarget`] = parseInt(distanceTarget);
         updates[`race_room/secretHokm/${myRole}`] = secretHokm;
-        
-        // Immediately go to 'ready' or 'playing' depending on user choice, 
-        // but here let's go to 'ready' state so they can click start on overlay
         updates[`race_room/status`] = 'ready'; 
 
         update(ref(db), updates);
@@ -693,8 +705,14 @@
     }
 
     function finishRound(winnerRole) {
-        // Update DB
-        update(ref(db), { 'race_room/lastRoundWinner': winnerRole, 'race_room/status': 'round_finished' });
+        // CRITICAL FIX: Increment the round score in DB so "Best of X" logic works
+        const scoreRef = ref(db, `race_room/roundScores/${winnerRole}`);
+        runTransaction(scoreRef, (currentScore) => (currentScore || 0) + 1);
+
+        update(ref(db), { 
+            'race_room/lastRoundWinner': winnerRole, 
+            'race_room/status': 'round_finished' 
+        });
     }
 
     // ================= GAME 2: KASHKUL =================
@@ -742,43 +760,59 @@
         });
     }
 
-    // ================= GAME 3: TIC TAC TOE =================
+    // ================= GAME 3: TIC TAC TOE (FIXED) =================
     window.openTTTSetup = function() { document.getElementById('setup-ttt-modal').style.display = 'flex'; };
+    
     window.submitTTTSetup = function() {
         const wager = document.getElementById('ttt-input-wager').value;
         if(!wager || wager <= 0) { window.showToast('اكتب قيمة الرهان صح!', 'error'); return; }
-        update(tttRef, { wager: wager, state: 'ready', board: Array(9).fill(null), currentTurn: 'mahmoud', winner: null, wins: {mahmoud: 0, nagham: 0} });
-        document.getElementById('setup-ttt-modal').style.display = 'none'; window.showToast('تم ضبط الرهان', 'success');
+        
+        // Reset Board
+        update(tttRef, { 
+            wager: wager, 
+            state: 'ready', 
+            board: Array(9).fill(null), 
+            currentTurn: 'mahmoud', 
+            winner: null, 
+            wins: {mahmoud: 0, nagham: 0} 
+        });
+        document.getElementById('setup-ttt-modal').style.display = 'none'; 
+        window.showToast('تم ضبط الرهان', 'success');
     };
 
+    // FIXED MOVE LOGIC: Removed nested onValue listener
     window.makeTTTMove = function(index) {
-        onValue(tttRef, snap => {
-            const data = snap.val();
-            if(!data || data.state !== 'playing') { 
-                if(data && data.state === 'ready') window.showToast("ابدأ اللعبة أولاً من الزر!", "error");
-                return; 
-            }
-            if(data.currentTurn !== myRole) { window.showToast("مش دورك!", "error"); return; }
-            if(data.board[index] !== null) return;
+        // Use local cache to check rules immediately
+        if (!tttLocalData || tttLocalData.state !== 'playing') { 
+            window.showToast("اللعبة غير جاهزة", "error");
+            return; 
+        }
+        if (tttLocalData.currentTurn !== myRole) { 
+            window.showToast("مش دورك!", "error"); 
+            return; 
+        }
+        if (tttLocalData.board[index] !== null) return;
 
-            const newBoard = [...data.board];
-            newBoard[index] = myRole === 'mahmoud' ? 'mahmoud' : 'nagham';
-            let nextTurn = data.currentTurn === 'mahmoud' ? 'nagham' : 'mahmoud';
-            
-            const winner = checkTTTWinner(newBoard);
-            
-            const updates = { board: newBoard, currentTurn: nextTurn };
-            if(winner) {
-                updates.winner = winner;
-                updates.state = 'finished';
-                const currentWins = data.wins || {mahmoud:0, nagham:0};
-                updates.wins = { ...currentWins, [winner]: (currentWins[winner] || 0) + 1 };
-            } else if(!newBoard.includes(null)) {
-                updates.state = 'finished';
-                updates.winner = 'draw';
-            }
-            update(tttRef, updates);
-        }, {onlyOnce: true}); 
+        // Calculate updates locally
+        const newBoard = [...tttLocalData.board];
+        newBoard[index] = myRole === 'mahmoud' ? 'mahmoud' : 'nagham';
+        let nextTurn = tttLocalData.currentTurn === 'mahmoud' ? 'nagham' : 'mahmoud';
+        
+        const winner = checkTTTWinner(newBoard);
+        
+        const updates = { board: newBoard, currentTurn: nextTurn };
+        if(winner) {
+            updates.winner = winner;
+            updates.state = 'finished';
+            const currentWins = tttLocalData.wins || {mahmoud:0, nagham:0};
+            updates.wins = { ...currentWins, [winner]: (currentWins[winner] || 0) + 1 };
+        } else if(!newBoard.includes(null)) {
+            updates.state = 'finished';
+            updates.winner = 'draw';
+        }
+        
+        // Send to DB once
+        update(tttRef, updates);
     };
 
     function checkTTTWinner(board) {
@@ -793,6 +827,8 @@
     function listenToTTT() {
         onValue(tttRef, snap => {
             const data = snap.val();
+            tttLocalData = data; // Update local cache
+
             const boardEl = document.getElementById('ttt-board');
             const msgEl = document.getElementById('ttt-msg');
             const actionBtn = document.getElementById('ttt-action-btn');
@@ -802,6 +838,7 @@
             document.getElementById('ttt-wins-m').innerText = wins.mahmoud;
             document.getElementById('ttt-wins-n').innerText = wins.nagham;
 
+            // Render Board
             boardEl.innerHTML = '';
             (data.board || Array(9).fill(null)).forEach((cell, idx) => {
                 const div = document.createElement('div');
@@ -812,6 +849,7 @@
                 boardEl.appendChild(div);
             });
 
+            // State Management
             if(!data.wager) {
                 msgEl.innerText = "في انتظار ضبط الرهان...";
                 actionBtn.innerText = "ضبط الرهان";
@@ -831,7 +869,9 @@
                 const isDraw = data.winner === 'draw';
                 const wager = parseInt(data.wager);
 
-                if(wager > 0 && !isDraw) {
+                // Handle Money (only once ideally, but here on view update is okay for simplicity, 
+                // ideally add a flag 'rewardClaimed')
+                if(wager > 0 && !isDraw && !data.claimed) {
                     const loser = data.winner === 'mahmoud' ? 'nagham' : 'mahmoud';
                     runTransaction(ref(db, `bank_coins/${data.winner}`), c => (c||0) + wager);
                     runTransaction(ref(db, `bank_coins/${loser}`), c => Math.max(0, (c||0) - wager));
@@ -839,6 +879,8 @@
                         text: `لعبة إكس أو: ${data.winner} كسب +${wager} جنيه`,
                         type: 'win', role: 'system', time: Date.now()
                     });
+                    // Mark as claimed to prevent double counting on re-renders
+                    update(tttRef, { claimed: true });
                 }
 
                 const resModal = document.getElementById('result-modal');
@@ -853,7 +895,14 @@
                 actionBtn.innerText = "لعبة جديدة";
                 actionBtn.disabled = false;
                 actionBtn.onclick = () => {
-                    update(tttRef, { state: 'ready', board: Array(9).fill(null), currentTurn: 'mahmoud', winner: null });
+                    update(tttRef, { 
+                        state: 'ready', 
+                        board: Array(9).fill(null), 
+                        currentTurn: 'mahmoud', 
+                        winner: null,
+                        claimed: false 
+                    });
+                    resModal.style.display = 'none';
                 };
             }
         });
@@ -892,15 +941,15 @@
             });
         });
 
-        // Race Logic (Simplified for working status)
+        // Race Logic
         onValue(gameRef, snap => {
             const d = snap.val(); if(!d) return;
             
-            // Update UI Targets
             if(d.distanceTarget) document.getElementById('target-val').innerText = d.distanceTarget;
             if(d.seriesTarget) document.getElementById('target-display').innerText = `(الهدف: ${d.seriesTarget})`;
             
-            // Update Series Score
+            // Score updating is now handled in finishRound via transaction
+            
             const scores = d.roundScores || {mahmoud: 0, nagham: 0};
             document.getElementById('round-score-m').innerText = scores.mahmoud;
             document.getElementById('round-score-n').innerText = scores.nagham;
@@ -958,6 +1007,7 @@
         const punishSection = document.getElementById('punishment-section');
         const punishText = document.getElementById('res-punishment-text');
 
+        // FIX: Correctly check if series is over based on incremented scores
         const isSeriesOver = seriesScores[winner] >= target;
 
         resTitle.innerText = isSeriesOver 
@@ -968,16 +1018,19 @@
 
         punishSection.style.display = 'block';
         punishText.innerText = punishmentText;
+        document.getElementById('res-money').innerText = ""; // No money in race, just punishment
 
         const resetBtn = document.querySelector('#result-modal .btn-game');
         resetBtn.onclick = () => {
             if (isSeriesOver) {
+                // Full Reset
                 update(ref(db), {
                     'race_room/status': 'setup',
                     'race_room/roundScores': { mahmoud: 0, nagham: 0 },
                     'race_room/secretHokm': { mahmoud: null, nagham: null }
                 });
             } else {
+                // Next Round: Keep scores, just reset status and secret hokm for new inputs
                 update(ref(db), {
                     'race_room/status': 'ready',
                     'race_room/secretHokm': { mahmoud: null, nagham: null }
@@ -991,11 +1044,11 @@
 
     function startRace() {
         gameRunning = true; myScore = 0; obstacles.forEach(o => scene.remove(o.mesh)); obstacles = [];
-        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; 
+        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; playerMesh.rotation.x = 0;
     }
     
     window.resetCurrentGame = function() {
-        // Logic handled in button click
+        // Handled inline
     }
 
 </script>
