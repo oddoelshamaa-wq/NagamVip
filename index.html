@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mahmoud & Nagham - Ultimate System</title>
+    <title>Mahmoud & Nagham - Ultimate Championship</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -108,6 +108,7 @@
         .w-nagham { border-color: var(--nagham); }
         .wallet-name { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
         .wallet-balance { font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); font-family: sans-serif; }
+        
         .fine-float-btn {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             width: 50px; height: 50px; border-radius: 50%;
@@ -117,9 +118,17 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10; cursor: pointer;
         }
         .fine-float-btn:active { transform: translateX(-50%) scale(0.9); }
-        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-        .balance-update { animation: pop 0.4s ease; color: var(--money-color) !important; }
-        .balance-deduct { animation: pop 0.4s ease; color: #e74c3c !important; }
+
+        /* --- Series Score for Race --- */
+        .series-score-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 15px;
+            margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .series-text { font-size: 0.9rem; color: #ddd; }
+        .series-values { font-weight: bold; font-size: 1.1rem; }
+        .s-val-m { color: var(--mahmoud); margin-left: 5px; }
+        .s-val-n { color: var(--nagham); margin-right: 5px; }
 
         /* --- Logs --- */
         #log-container {
@@ -169,6 +178,7 @@
             margin-top: 15px; width: 80%;
         }
         .btn-game:active { transform: scale(0.95); }
+        .btn-game:disabled { background: #555; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 
         /* Controls */
         #controls-area {
@@ -274,7 +284,6 @@
         .ttt-cell.mahmoud { color: var(--mahmoud); text-shadow: 0 0 10px var(--mahmoud); }
         .ttt-cell.nagham { color: var(--nagham); text-shadow: 0 0 10px var(--nagham); }
         .ttt-cell.win { background: rgba(255, 215, 0, 0.2); border-color: #ffd700; }
-
         .ttt-status { margin-bottom: 15px; font-weight: bold; min-height: 1.5rem; }
 
         /* --- Modals --- */
@@ -290,6 +299,11 @@
         }
         .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; font-family: 'Tajawal'; text-align: center; font-size: 1.1rem; }
         .money-input { border-color: var(--money-color); color: var(--money-color); font-weight: bold; }
+        
+        textarea.form-input {
+            resize: none; height: 80px; text-align: right;
+        }
+
         .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
         .btn-cancel { background: #555; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; }
         .btn-confirm { background: #e74c3c; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
@@ -306,6 +320,12 @@
         }
         .money-change { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--money-color); }
         .money-change.negative { color: #e74c3c; }
+        
+        .punishment-box {
+            background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; margin: 15px 0;
+            border: 1px dashed #ff4b1f; font-size: 1.1rem; color: #ffcccc;
+        }
+        .punishment-label { font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 5px; }
 
     </style>
 
@@ -333,7 +353,7 @@
     <!-- Navigation with 3 Tabs -->
     <div class="top-nav" style="grid-template-columns: 1fr 1fr 1fr;">
         <div class="nav-tab active" id="tab-game" onclick="switchTab('game')">
-            <i class="fas fa-gamepad"></i> سباق
+            <i class="fas fa-gamepad"></i> البطولة
         </div>
         <div class="nav-tab" id="tab-notebook" onclick="switchTab('notebook')">
             <i class="fas fa-book-open"></i> أهداف
@@ -351,15 +371,25 @@
             <div class="wallet-card w-nagham"><div class="wallet-name">Nagham</div><div class="wallet-balance" id="score-n">0</div></div>
         </div>
 
+        <!-- Series Score Bar -->
+        <div class="series-score-bar">
+            <div class="series-text">نتيجة الأدوار:</div>
+            <div class="series-values">
+                <span class="s-val-m" id="round-score-m">0</span>
+                <span style="color:#666"> - </span>
+                <span class="s-val-n" id="round-score-n">0</span>
+                <span style="font-size:0.8rem; color:#aaa; margin-right:10px;" id="target-display">(الهدف: 3)</span>
+            </div>
+        </div>
+
         <div id="game-container">
             <div id="game-hud">
-                <div>🎯 الهدف: <span id="target-val">50</span></div>
-                <div>نقاطي: <span id="my-score-val">0</span></div>
+                <div>🏁 المسافة: <span id="target-val">50</span>m</div>
             </div>
             <div id="game-overlay">
-                <h2 id="overlay-msg" style="color:#fff; margin-bottom:10px;">انتظار التحضير...</h2>
-                <p id="sub-msg" style="color:#aaa; font-size:0.8rem;">لعبة الرهان</p>
-                <button id="start-btn" class="btn-game" onclick="window.openSetup()">ضبط الرهان</button>
+                <h2 id="overlay-msg" style="color:#fff; margin-bottom:10px;">ضبط البطولة</h2>
+                <p id="sub-msg" style="color:#aaa; font-size:0.8rem;">حدد الهدف والعقاب السري</p>
+                <button id="start-btn" class="btn-game" onclick="window.openSetup()">ضبط الشروط والعقاب</button>
             </div>
         </div>
         <div id="log-container">
@@ -415,13 +445,30 @@
 
 </div>
 
-<!-- Modal: Race Setup -->
+<!-- Modal: Race Setup (Series & Punishment) -->
 <div id="setup-modal">
     <div class="setup-content">
-        <h3 style="color:var(--mahmoud); margin-bottom:15px;">💰 شروط الرهان (سباق)</h3>
-        <div style="text-align:right;"><label style="color:#aaa; font-size:0.8rem;">هدف النقاط</label><input type="number" id="input-target" class="form-input" value="50"></div>
-        <div style="text-align:right; margin-top:15px;"><label style="color:var(--money-color); font-size:0.9rem; font-weight:bold;">الرهان (جنيه)</label><input type="number" id="input-wager" class="form-input money-input" value="20"></div>
-        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="window.submitSetup()">حفظ وانتظار</button>
+        <h3 style="color:var(--mahmoud); margin-bottom:15px;">🏆 شروط البطولة</h3>
+        
+        <!-- Series Target -->
+        <div style="text-align:right;">
+            <label style="color:#aaa; font-size:0.8rem;">الفوز بكم دور؟</label>
+            <input type="number" id="input-series-target" class="form-input" value="3" min="1">
+        </div>
+        
+        <!-- Distance Target -->
+        <div style="text-align:right; margin-top:10px;">
+            <label style="color:#aaa; font-size:0.8rem;">مسافة السباق (متر)</label>
+            <input type="number" id="input-target" class="form-input" value="50">
+        </div>
+
+        <!-- Secret Punishment -->
+        <div style="text-align:right; margin-top:15px;">
+            <label style="color:#e74c3c; font-weight:bold;">عقابي لو خسرت (سري):</label>
+            <textarea id="input-secret-punishment" class="form-input" placeholder="اكتب العقاب هنا... مثلاً: إحضار قهوة"></textarea>
+        </div>
+
+        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="window.submitSetup()">حفظ وانتظار الشريك</button>
     </div>
 </div>
 
@@ -450,8 +497,17 @@
     <div class="result-content">
         <div id="res-icon" style="font-size:4rem; margin-bottom:10px;"></div>
         <h2 id="res-title" style="font-size:1.5rem;"></h2>
+        
+        <!-- Punishment Reveal Section -->
+        <div id="punishment-section" style="display:none;">
+            <div class="punishment-box">
+                <span class="punishment-label">العقاب المفروض على الخاسر:</span>
+                <span id="res-punishment-text" style="font-weight:bold;"></span>
+            </div>
+        </div>
+
         <div id="res-money" class="money-change"></div>
-        <button class="btn-game" style="background:#444;" onclick="window.resetCurrentGame()">تم</button>
+        <button class="btn-game" style="background:#444;" onclick="window.resetCurrentGame()">تم / الدور التالي</button>
     </div>
 </div>
 
@@ -486,7 +542,7 @@
     const walletRef = ref(db, 'bank_coins');
     const logsRef = ref(db, 'activity_logs');
     
-    // Game 1: Race
+    // Game 1: Race (Updated)
     const gameRef = ref(db, 'race_room');
     let gameRunning = false, myScore = 0;
     
@@ -569,9 +625,18 @@
     function animate() {
         if(currentMode !== 'game') requestAnimationFrame(animate); else requestAnimationFrame(animate);
         if (gameRunning && currentMode === 'game') {
-            myScore++; document.getElementById('my-score-val').innerText = myScore;
+            myScore++; 
+            // Visual distance only, real logic handled by 'crash' or 'distance' if implemented
+            // But we use crash = lose. Distance win = fixed.
+            
             const target = parseInt(document.getElementById('target-val').innerText);
-            if (myScore >= target) { iWonRace(); return; }
+            // For simple race: just run until crash or reach arbitrary distance?
+            // User logic: "Win Number" refers to SERIES wins. 
+            // The actual race mechanics: Let's make it "First to reach distance OR Crash".
+            // To prevent infinite running, let's say reaching distance is the win condition.
+            
+            if (myScore >= target * 10) { iWonRace(); return; } // Scaling score for gameplay feel
+
             if (myScore % 40 === 0) createObstacle(myScore);
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 const obs = obstacles[i]; obs.mesh.position.z += speed;
@@ -596,15 +661,45 @@
     window.addEventListener('keydown', e => { if(e.code === 'Space' && currentMode === 'game') window.jumpAction(); });
 
     window.openSetup = function() { document.getElementById('setup-modal').style.display = 'flex'; };
+    
     window.submitSetup = function() {
-        const target = document.getElementById('input-target').value; const wager = document.getElementById('input-wager').value;
-        if(!wager || wager <= 0) { window.showToast('اكتب قيمة الرهان صح!', 'error'); return; }
-        update(ref(db), { 'race_room/target': target, 'race_room/wager': wager });
-        document.getElementById('setup-modal').style.display = 'none'; document.getElementById('overlay-msg').innerText = "تم الاتفاق.. اضغط للبدء"; window.showToast('تم حفظ شروط الرهان', 'success');
+        const seriesTarget = document.getElementById('input-series-target').value; // e.g., 3
+        const distanceTarget = document.getElementById('input-target').value;
+        const secretHokm = document.getElementById('input-secret-punishment').value;
+        
+        if(!seriesTarget || seriesTarget <= 0) { window.showToast('حدد رقم الفوز!', 'error'); return; }
+        if(!secretHokm) { window.showToast('لازم تكتب العقاب السري!', 'error'); return; }
+
+        // Update DB
+        const updates = {};
+        updates[`race_room/seriesTarget`] = parseInt(seriesTarget);
+        updates[`race_room/distanceTarget`] = parseInt(distanceTarget);
+        updates[`race_room/secretHokm/${myRole}`] = secretHokm;
+        updates[`race_room/status`] = 'waiting_for_secrets'; // Waiting for other secret
+        
+        update(ref(db), updates);
+        document.getElementById('setup-modal').style.display = 'none';
+        window.showToast('تم حفظ شروطك.. بانتظار الشريك', 'success');
     };
 
-    function iWonRace() { gameRunning = false; update(ref(db), { 'race_room/winner': myRole, 'race_room/state': 'finished' }); }
-    function crashRace() { if(!gameRunning) return; gameRunning = false; playerMesh.rotation.x = 1.5; const winner = myRole === 'mahmoud' ? 'nagham' : 'mahmoud'; update(ref(db), { 'race_room/winner': winner, 'race_room/state': 'finished' }); }
+    function iWonRace() { 
+        if(!gameRunning) return; 
+        gameRunning = false; 
+        finishRound(myRole); 
+    }
+    
+    function crashRace() { 
+        if(!gameRunning) return; 
+        gameRunning = false; 
+        playerMesh.rotation.x = 1.5; 
+        const winner = myRole === 'mahmoud' ? 'nagham' : 'mahmoud'; 
+        finishRound(winner); 
+    }
+
+    function finishRound(winnerRole) {
+        // Update DB
+        update(ref(db), { 'race_room/lastRoundWinner': winnerRole, 'race_room/status': 'round_finished' });
+    }
 
     // ================= GAME 2: KASHKUL =================
     window.addGoal = function() {
@@ -663,17 +758,14 @@
     window.makeTTTMove = function(index) {
         onValue(tttRef, snap => {
             const data = snap.val();
-            // Validations
             if(!data || data.state !== 'playing') return;
             if(data.currentTurn !== myRole) { window.showToast("مش دورك!", "error"); return; }
             if(data.board[index] !== null) return;
 
-            // Update Board
             const newBoard = [...data.board];
             newBoard[index] = myRole === 'mahmoud' ? 'mahmoud' : 'nagham';
             let nextTurn = data.currentTurn === 'mahmoud' ? 'nagham' : 'mahmoud';
             
-            // Check Win
             const winner = checkTTTWinner(newBoard);
             
             const updates = { board: newBoard, currentTurn: nextTurn };
@@ -686,22 +778,15 @@
                 updates.state = 'finished';
                 updates.winner = 'draw';
             }
-
             update(tttRef, updates);
-        }, {onlyOnce: true}); // Listen once to avoid loops
+        }, {onlyOnce: true}); 
     };
 
     function checkTTTWinner(board) {
-        const wins = [
-            [0,1,2], [3,4,5], [6,7,8], // Rows
-            [0,3,6], [1,4,7], [2,5,8], // Cols
-            [0,4,8], [2,4,6]           // Diagonals
-        ];
+        const wins = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
         for(let combo of wins) {
             const [a,b,c] = combo;
-            if(board[a] && board[a] === board[b] && board[a] === board[c]) {
-                return board[a];
-            }
+            if(board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
         }
         return null;
     }
@@ -714,13 +799,10 @@
             const actionBtn = document.getElementById('ttt-action-btn');
 
             if(!data) return;
-
-            // Render Stats
             const wins = data.wins || {mahmoud: 0, nagham: 0};
             document.getElementById('ttt-wins-m').innerText = wins.mahmoud;
             document.getElementById('ttt-wins-n').innerText = wins.nagham;
 
-            // Render Board
             boardEl.innerHTML = '';
             (data.board || Array(9).fill(null)).forEach((cell, idx) => {
                 const div = document.createElement('div');
@@ -731,7 +813,6 @@
                 boardEl.appendChild(div);
             });
 
-            // UI Logic
             if(!data.wager) {
                 msgEl.innerText = "في انتظار ضبط الرهان...";
                 actionBtn.innerText = "ضبط الرهان";
@@ -747,7 +828,6 @@
                 actionBtn.innerText = "جاري اللعب...";
                 actionBtn.disabled = true;
             } else if(data.state === 'finished') {
-                // Handle Result
                 const iWon = data.winner === myRole;
                 const isDraw = data.winner === 'draw';
                 const wager = parseInt(data.wager);
@@ -762,8 +842,9 @@
                     });
                 }
 
-                // Show Result Modal
+                // Show Simple Result Modal for TTT (Reuse modal but hide punishment)
                 const resModal = document.getElementById('result-modal');
+                document.getElementById('punishment-section').style.display = 'none'; // Hide punishment for TTT
                 document.getElementById('res-icon').innerText = isDraw ? "🤝" : iWon ? "🏆" : "😭";
                 document.getElementById('res-title').innerText = isDraw ? "تعادل!" : iWon ? "مبروك كسبت!" : "خسرت!";
                 document.getElementById('res-money').innerHTML = isDraw ? "No Money Transfer" : iWon ? `+${wager} جنيه` : `-${wager} جنيه`;
@@ -774,7 +855,6 @@
                 actionBtn.innerText = "لعبة جديدة";
                 actionBtn.disabled = false;
                 actionBtn.onclick = () => {
-                    // Reset board but keep wager
                     update(tttRef, { state: 'ready', board: Array(9).fill(null), currentTurn: 'mahmoud', winner: null });
                 };
             }
@@ -801,10 +881,8 @@
         onValue(walletRef, snap => {
             const d = snap.val() || {mahmoud:0, nagham:0}; const elM = document.getElementById('score-m'); const elN = document.getElementById('score-n');
             elM.innerText = d.mahmoud || 0; elN.innerText = d.nagham || 0;
-            elM.classList.remove('balance-update', 'balance-deduct'); void elM.offsetWidth; elN.classList.remove('balance-update', 'balance-deduct'); void elN.offsetWidth;
-            elM.classList.add('balance-update'); elN.classList.add('balance-update');
-            setTimeout(() => { elM.classList.remove('balance-update'); elN.classList.remove('balance-update'); }, 500);
         });
+
         // Logs
         onValue(logsRef, snap => {
             const logs = snap.val(); const container = document.getElementById('log-container');
@@ -815,46 +893,127 @@
                 div.className = `log-item ${l.type === 'win' ? 'log-win' : 'log-fine'}`; div.innerHTML = `<span>${l.text}</span> <span class="tag ${tagClass}">${tagText}</span>`; container.appendChild(div);
             });
         });
-        // Race Logic
+
+        // Race Logic (Updated for Series & Punishment)
         onValue(gameRef, snap => {
-            const d = snap.val(); if(!d) return; if(d.target) document.getElementById('target-val').innerText = d.target;
+            const d = snap.val(); if(!d) return;
+            
+            // Update UI Targets
+            if(d.distanceTarget) document.getElementById('target-val').innerText = d.distanceTarget;
+            if(d.seriesTarget) document.getElementById('target-display').innerText = `(الهدف: ${d.seriesTarget})`;
+            
+            // Update Series Score
+            const scores = d.roundScores || {mahmoud: 0, nagham: 0};
+            document.getElementById('round-score-m').innerText = scores.mahmoud;
+            document.getElementById('round-score-n').innerText = scores.nagham;
+
             const btn = document.getElementById('start-btn');
-            if (d.wager && d.state !== 'playing' && d.state !== 'finished') {
-                btn.innerText = "ابدأ السباق"; btn.onclick = () => { update(ref(db), { 'race_room/state': 'playing', 'race_room/winner': null }); };
-            } else if (!d.wager || d.state === 'finished') {
-                btn.innerText = "ضبط الرهان"; btn.onclick = window.openSetup;
-            }
-            if (d.state === 'playing' && !gameRunning) startRace();
-        });
-        onValue(ref(db, 'race_room/state'), snap => {
-            if (snap.val() === 'finished') {
-                onValue(ref(db, 'race_room'), snap => {
-                    const data = snap.val(); if(!data || !data.winner) return;
-                    const iWon = data.winner === myRole; const wager = parseInt(data.wager); const winnerName = data.winner === 'mahmoud' ? 'Mahmoud' : 'Nagham'; const loserName = data.winner === 'mahmoud' ? 'Nagham' : 'Mahmoud';
-                    if (wager > 0) {
-                        const loser = data.winner === 'mahmoud' ? 'nagham' : 'mahmoud';
-                        runTransaction(ref(db, `bank_coins/${data.winner}`), (current) => (current || 0) + wager);
-                        runTransaction(ref(db, `bank_coins/${loser}`), (current) => Math.max(0, (current || 0) - wager));
-                        push(logsRef, { text: `اللعبة انتهت: ${winnerName} كسب +${wager} جنيه (عقاب على ${loserName})`, type: 'win', role: 'system', time: Date.now() });
+            const overlayMsg = document.getElementById('overlay-msg');
+            const subMsg = document.getElementById('sub-msg');
+
+            // Logic based on status
+            if (d.status === 'waiting_for_secrets') {
+                // Check if both secrets are present
+                const secrets = d.secretHokm || {};
+                const bothReady = secrets.mahmoud && secrets.nagham;
+                
+                overlayMsg.innerText = bothReady ? "الكل جاهز!" : "بانتظار العقاب السري...";
+                subMsg.innerText = bothReady ? "ابدأ اللعبة" : "الشريك بيكتب العقاب دلوقتي";
+                btn.innerText = bothReady ? "ابدأ السباق" : "انتظار...";
+                btn.disabled = !bothReady;
+                btn.onclick = () => {
+                    if(bothReady) {
+                        // Start Game
+                        update(ref(db), { 'race_room/status': 'playing' });
                     }
-                    const resModal = document.getElementById('result-modal');
-                    const resTitle = document.getElementById('res-title'); const resMoney = document.getElementById('res-money'); const resIcon = document.getElementById('res-icon');
-                    resModal.style.display = 'flex';
-                    if (iWon) { resIcon.innerText = "🏆"; resTitle.innerText = "مبروك يا وحش!"; resMoney.innerHTML = `+${wager} جنيه`; resMoney.className = "money-change"; }
-                    else { resIcon.innerText = "😭"; resTitle.innerText = "خسرت!"; resMoney.innerHTML = `-${wager} جنيه`; resMoney.className = "money-change negative"; }
-                });
-            } else { document.getElementById('result-modal').style.display = 'none'; }
+                };
+                document.getElementById('game-overlay').style.display = 'flex';
+
+            } else if (d.status === 'round_finished') {
+                // Don't hide overlay yet, wait for result modal logic
+                document.getElementById('game-overlay').style.display = 'flex';
+                overlayMsg.innerText = "انتهى الدور!";
+                btn.innerText = "عرض النتيجة";
+                btn.disabled = false;
+                btn.onclick = () => showRaceResult(d); // Show the punishment modal
+
+            } else if (d.status === 'playing') {
+                document.getElementById('game-overlay').style.display = 'none';
+                if(!gameRunning) startRace();
+            } else {
+                // Initial state
+                document.getElementById('game-overlay').style.display = 'flex';
+                overlayMsg.innerText = "ضبط البطولة";
+                subMsg.innerText = "حدد الهدف والعقاب السري";
+                btn.innerText = "ضبط الشروط والعقاب";
+                btn.disabled = false;
+                btn.onclick = window.openSetup;
+            }
         });
+    }
+
+    function showRaceResult(data) {
+        const winner = data.lastRoundWinner;
+        const loser = winner === 'mahmoud' ? 'nagham' : 'mahmoud';
+        const seriesScores = data.roundScores || {mahmoud:0, nagham:0};
+        const target = data.seriesTarget || 3;
+
+        const iWon = winner === myRole;
+        const iLost = loser === myRole;
+        
+        // Punishment Reveal Logic
+        const punishmentText = data.secretHokm[loser] || "لا يوجد عقاب";
+        
+        const resModal = document.getElementById('result-modal');
+        const resTitle = document.getElementById('res-title');
+        const resIcon = document.getElementById('res-icon');
+        const punishSection = document.getElementById('punishment-section');
+        const punishText = document.getElementById('res-punishment-text');
+
+        // Determine Series Winner
+        const isSeriesOver = seriesScores[winner] >= target;
+
+        resTitle.innerText = isSeriesOver 
+            ? `🏆 انتهت البطولة! ${winner === 'mahmoud' ? 'Mahmoud' : 'Nagham'} فاز بالمجموع!`
+            : `فاز الدور: ${winner === 'mahmoud' ? 'Mahmoud' : 'Nagham'}`;
+        
+        resIcon.innerText = iWon ? "🏆" : "😭";
+
+        // Show Punishment
+        punishSection.style.display = 'block';
+        punishText.innerText = punishmentText;
+
+        // Reset Button Logic
+        const resetBtn = document.querySelector('#result-modal .btn-game');
+        resetBtn.onclick = () => {
+            // Prepare for next round or end series
+            if (isSeriesOver) {
+                // Reset everything
+                update(ref(db), {
+                    'race_room/status': 'setup',
+                    'race_room/roundScores': { mahmoud: 0, nagham: 0 },
+                    'race_room/secretHokm': { mahmoud: null, nagham: null } // Clear secrets for new series
+                });
+            } else {
+                // Next round: clear secrets ONLY, keep scores
+                update(ref(db), {
+                    'race_room/status': 'waiting_for_secrets', // Go back to setup phase
+                    'race_room/secretHokm': { mahmoud: null, nagham: null } // Clear secrets so they write new ones
+                });
+            }
+            resModal.style.display = 'none';
+        };
+
+        resModal.style.display = 'flex';
     }
 
     function startRace() {
         gameRunning = true; myScore = 0; obstacles.forEach(o => scene.remove(o.mesh)); obstacles = [];
-        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; document.getElementById('game-overlay').style.display = 'none';
+        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; 
     }
     
     window.resetCurrentGame = function() {
-        // Helper to close result modal
-        document.getElementById('result-modal').style.display = 'none';
+        // Helper, logic is handled in button click
     }
 
 </script>
