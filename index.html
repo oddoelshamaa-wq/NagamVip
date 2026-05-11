@@ -1,1056 +1,798 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mahmoud & Nagham - Ultimate System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>محمود & نغم</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#0a0a0f;--bg2:#14121c;--card:rgba(232,220,210,.05);--card2:rgba(232,220,210,.08);--border:rgba(232,220,210,.1);--accent:#e63946;--accent-g:rgba(230,57,70,.3);--gold:#d4a574;--gold-g:rgba(212,165,116,.3);--txt:#f5ebe0;--muted:#7a7268;--ok:#2ecc71;--danger:#e74c3c}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;min-height:100dvh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+canvas#heartsBg{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-    <style>
-        :root {
-            --bg-grad: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            --mahmoud: #00d2ff;
-            --nagham: #ff4b1f;
-            --text: #fff;
-            --points-color: #ffd700;
-            --money-color: #00b894;
-            --notebook-bg: #fdfbf7;
-            --notebook-lines: #a4b0be;
-        }
+/* === لوجين === */
+#loginScreen{position:fixed;inset:0;z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+#loginScreen.hidden{display:none}
+.lg-brand{font-size:2.2rem;font-weight:900;margin-bottom:6px;text-align:center}
+.lg-brand .nm{color:var(--accent)}.lg-brand .nn{color:var(--gold)}
+.lg-sub{color:var(--muted);margin-bottom:28px;text-align:center}
+.lg-cards{display:flex;gap:14px;width:100%;max-width:420px}
+.lg-card{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:22px;padding:24px 14px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.lg-card:active{transform:scale(.97)}
+.lg-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;border-radius:50%;opacity:0;transition:opacity .4s}
+.lg-card.mc::before{background:radial-gradient(circle,var(--accent-g),transparent 60%)}
+.lg-card.nc::before{background:radial-gradient(circle,var(--gold-g),transparent 60%)}
+.lg-card:hover::before,.lg-card.sel::before{opacity:.5}
+.lg-av{width:58px;height:58px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;position:relative;z-index:1}
+.lg-av.ma{background:var(--accent);color:#fff}
+.lg-av.na{background:var(--gold);color:#1a1520}
+.lg-name{font-size:1.2rem;font-weight:800;position:relative;z-index:1;margin-bottom:10px}
+.lg-pw{display:none;position:relative;z-index:1}
+.lg-pw.show{display:block;animation:fu .3s ease}
+.lg-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;color:var(--txt);font-family:'Tajawal',sans-serif;font-size:.95rem;outline:none;text-align:center;transition:border .3s}
+.lg-inp:focus{border-color:var(--gold);box-shadow:0 0 12px var(--gold-g)}
+.lg-hint{font-size:.78rem;color:var(--muted);margin:5px 0 8px}
+.lg-err{color:var(--danger);font-size:.82rem;margin-top:5px;display:none}
+.lg-err.show{display:block}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: var(--bg-grad);
-            min-height: 100vh;
-            color: var(--text);
-            overflow-x: hidden;
-            display: flex; flex-direction: column; gap: 15px;
-            padding: 10px; padding-bottom: 90px;
-        }
+.btn{padding:12px 26px;border:none;border-radius:13px;font-family:'Tajawal',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.btn:active{transform:scale(.96)}
+.btn-a{background:linear-gradient(135deg,var(--accent),#c0392b);color:#fff;box-shadow:0 4px 18px var(--accent-g)}
+.btn-g{background:linear-gradient(135deg,var(--gold),#b8860b);color:#1a1520;box-shadow:0 4px 18px var(--gold-g)}
+.btn-gh{background:var(--card2);color:var(--txt);border:1px solid var(--border)}
+.btn-f{width:100%}.btn-sm{padding:10px 18px;font-size:.88rem;border-radius:10px}
 
-        /* --- Toast Notification --- */
-        #toast-container {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 10000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 350px;
-        }
-        .toast {
-            background: rgba(30, 30, 30, 0.95); border-right: 4px solid var(--mahmoud);
-            color: #fff; padding: 12px 20px; border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 0.9rem;
-            display: flex; align-items: center; gap: 10px;
-            animation: slideIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        .toast.error { border-color: #e74c3c; }
-        .toast.success { border-color: var(--money-color); }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-        /* --- Selection Screen --- */
-        #select-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 12, 41, 0.98); z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 30px;
-        }
-        #select-screen h1 { color: #fff; font-size: 2rem; text-shadow: 0 0 15px var(--mahmoud); text-align: center; }
-        .role-btn {
-            padding: 20px 40px; border: none; border-radius: 15px; color: #fff;
-            font-size: 1.3rem; font-weight: bold; width: 200px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3); font-family: 'Tajawal';
-            transition: transform 0.2s; cursor: pointer;
-        }
-        .role-btn:active { transform: scale(0.95); }
-        .btn-m { background: var(--mahmoud); }
-        .btn-n { background: var(--nagham); }
+/* === نافبار === */
+.top-nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:10px 14px}
+.nav-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.nav-brand{font-size:1.1rem;font-weight:900}.nav-brand .nm{color:var(--accent)}.nav-brand .nn{color:var(--gold)}
+.nav-u{display:flex;align-items:center;gap:6px;font-size:.82rem}
+.nav-badge{padding:4px 10px;border-radius:18px;font-size:.78rem;font-weight:700}
+.nav-badge.mb{background:var(--accent);color:#fff}
+.nav-badge.nb{background:var(--gold);color:#1a1520}
+.nav-logout{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.95rem;padding:4px 7px}
+.nav-tabs{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex-shrink:0;padding:7px 13px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .25s;white-space:nowrap}
+.nav-tab.active{color:var(--txt);background:var(--card2);border-color:var(--accent);box-shadow:0 0 10px var(--accent-g)}
+.nav-tab i{margin-left:4px}
 
-        /* --- Top Navigation --- */
-        .top-nav {
-            display: flex; justify-content: center; gap: 5px; background: rgba(0,0,0,0.3);
-            padding: 5px; border-radius: 15px; margin-bottom: 10px;
-        }
-        .nav-tab {
-            background: transparent; border: 1px solid rgba(255,255,255,0.2);
-            color: #aaa; padding: 6px 10px; border-radius: 15px; cursor: pointer;
-            font-family: 'Tajawal'; font-weight: bold; transition: 0.3s; flex: 1;
-            font-size: 0.9rem; text-align: center;
-        }
-        .nav-tab.active {
-            background: var(--text); color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3);
-            border-color: #fff;
-        }
+.tab-c{display:none;padding:18px 14px 70px;max-width:560px;margin:0 auto}
+.tab-c.active{display:block;animation:fu .3s ease}
 
-        /* --- Views --- */
-        .view-section { display: none; width: 100%; animation: fadeIn 0.4s ease; }
-        .view-section.active { display: block; }
+/* === عداد الحب === */
+.love-hero{text-align:center;padding:16px 0 12px}
+.love-names{font-size:2.2rem;font-weight:900;line-height:1.2}
+.love-since{color:var(--muted);margin-top:4px;font-size:.9rem}
+.love-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:16px 0}
+.love-cell{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 4px;text-align:center}
+.love-v{font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.love-l{font-size:.7rem;color:var(--muted);margin-top:1px}
+.love-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}
+.st-c{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 6px;text-align:center}
+.st-i{font-size:1.2rem;margin-bottom:4px}.st-i.r{color:var(--accent)}.st-i.g{color:var(--gold)}
+.st-v{font-size:.95rem;font-weight:800}.st-l{font-size:.65rem;color:var(--muted);margin-top:1px}
+#hbCanvas{width:100%;max-width:460px;height:45px;margin:16px auto 0;display:block}
 
-        /* --- Timer --- */
-        #love-counter {
-            background: rgba(0, 0, 0, 0.3); padding: 10px 15px; border-radius: 15px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.1);
-            margin-top: 10px; backdrop-filter: blur(5px);
-        }
-        .love-title { font-size: 0.8rem; color: #fab1a0; margin-bottom: 2px; }
-        .timer-display { font-family: 'Courier New', monospace; font-size: 1rem; font-weight: bold; letter-spacing: 1px; }
+/* === لعبة الشجاعة === */
+.gh{text-align:center;margin-bottom:14px}
+.gh h2{font-size:1.4rem;font-weight:900}.gh p{color:var(--muted);font-size:.85rem;margin-top:2px}
+.chicken-status{text-align:center;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;font-weight:700;font-size:.95rem;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px}
+.chicken-timer{text-align:center;font-size:2.8rem;font-weight:900;margin:10px 0;letter-spacing:2px;font-variant-numeric:tabular-nums}
+.chicken-timer.ready{color:var(--ok)}
+.chicken-timer.running{color:var(--gold);animation:tPulse 1s ease infinite}
+@keyframes tPulse{0%,100%{opacity:1}50%{opacity:.7}}
 
-        /* --- Wallets --- */
-        .wallets-container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            position: relative; margin-bottom: 5px;
-        }
-        .wallet-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px; padding: 15px; text-align: center;
-            border: 2px solid transparent; backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .w-mahmoud { border-color: var(--mahmoud); }
-        .w-nagham { border-color: var(--nagham); }
-        .wallet-name { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
-        .wallet-balance { font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); font-family: sans-serif; }
-        
-        .fine-float-btn {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 50px; height: 50px; border-radius: 50%;
-            background: #e74c3c; border: 3px solid #222;
-            color: #fff; font-size: 1.4rem;
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10; cursor: pointer;
-        }
-        .fine-float-btn:active { transform: translateX(-50%) scale(0.9); }
+.chicken-btn-wrap{display:flex;justify-content:center;margin:16px 0}
+.chicken-btn{width:180px;height:180px;border-radius:50%;border:3px solid var(--border);background:var(--card2);color:var(--txt);font-family:'Tajawal',sans-serif;font-size:1.1rem;font-weight:800;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;touch-action:none;user-select:none;-webkit-user-select:none;position:relative;overflow:hidden}
+.chicken-btn i{font-size:2rem;transition:all .2s}
+.chicken-btn:active{transform:scale(.96)}
+.chicken-btn.holding{border-color:var(--ok);box-shadow:0 0 40px rgba(46,204,113,.4);background:rgba(46,204,113,.1)}
+.chicken-btn.holding i{color:var(--ok)}
+.chicken-btn.holding-m{border-color:var(--accent);box-shadow:0 0 40px var(--accent-g);background:rgba(230,57,70,.1)}
+.chicken-btn.holding-m i{color:var(--accent)}
+.chicken-btn.holding-n{border-color:var(--gold);box-shadow:0 0 40px var(--gold-g);background:rgba(212,165,116,.1)}
+.chicken-btn.holding-n i{color:var(--gold)}
+.chicken-btn.lost{border-color:var(--danger);box-shadow:0 0 30px rgba(231,76,60,.3);background:rgba(231,76,60,.1)}
+.chicken-btn.won{border-color:var(--gold);box-shadow:0 0 50px var(--gold-g);background:rgba(212,165,116,.15)}
+.chicken-btn .ripple-c{position:absolute;border-radius:50%;background:rgba(255,255,255,.15);transform:scale(0);animation:rplA .6s ease-out;pointer-events:none}
+@keyframes rplA{to{transform:scale(4);opacity:0}}
 
-        /* --- Series Score for Race --- */
-        .series-score-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 15px;
-            margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .series-text { font-size: 0.9rem; color: #ddd; }
-        .series-values { font-weight: bold; font-size: 1.1rem; }
-        .s-val-m { color: var(--mahmoud); margin-left: 5px; }
-        .s-val-n { color: var(--nagham); margin-right: 5px; }
+.chicken-scores{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-top:14px}
+.ch-sc{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}
+.ch-sc h4{font-weight:800;font-size:.82rem;margin-bottom:2px}.ch-sc .sv{font-size:1.4rem;font-weight:900}
+.ch-vs{font-size:1rem;font-weight:900;color:var(--muted)}
 
-        /* --- Logs --- */
-        #log-container {
-            background: rgba(0,0,0,0.3); border-radius: 15px; padding: 10px;
-            height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        #log-container::-webkit-scrollbar { width: 4px; }
-        #log-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        .log-header { font-size: 0.9rem; color: #888; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
-        .log-item {
-            background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px;
-            border-right: 3px solid #555; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;
-            animation: fadeIn 0.3s ease;
-        }
-        .tag { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
-        .log-win { border-color: var(--money-color); background: rgba(0, 184, 148, 0.1); color: #fff; }
-        .tag-money { background: var(--money-color); color: #000; }
-        .log-fine { border-color: #e74c3c; background: rgba(231, 76, 60, 0.1); color: #ffcccc; }
-        .tag-fine { background: #e74c3c; color: #fff; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.other-status{text-align:center;margin-bottom:10px;font-size:.85rem;font-weight:600;padding:8px 14px;border-radius:10px;background:var(--card)}
+.other-status.waiting{color:var(--muted)}
+.other-status.holding{color:var(--ok)}
+.other-status.released{color:var(--danger)}
 
-        /* --- Game Area (3D Race) --- */
-        #game-container {
-            position: relative; width: 100%; height: 300px;
-            background: #000; border-radius: 20px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid #333;
-        }
-        canvas { display: block; width: 100%; height: 100%; outline: none; }
-        #game-hud {
-            position: absolute; top: 0; left: 0; width: 100%; padding: 10px;
-            display: flex; justify-content: space-between; pointer-events: none;
-            text-shadow: 0 2px 4px #000; font-weight: bold; font-size: 1rem;
-            color: var(--points-color);
-        }
-        #game-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 10; text-align: center; padding: 20px;
-            backdrop-filter: blur(4px);
-        }
-        .btn-game {
-            background: linear-gradient(to right, #00d2ff, #3a7bd5); color: #fff;
-            border: none; padding: 12px 30px; border-radius: 30px;
-            font-weight: bold; font-size: 1.1rem; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
-            margin-top: 15px; width: 80%;
-        }
-        .btn-game:active { transform: scale(0.95); }
-        .btn-game:disabled { background: #555; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+/* === XO === */
+.xo-scores{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:14px}
+.xo-sc{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}
+.xo-sc h4{font-weight:800;font-size:.82rem;margin-bottom:2px}.xo-sc .sv{font-size:1.4rem;font-weight:900}
+.xo-vs{font-size:1rem;font-weight:900;color:var(--muted)}
+.xo-turn{text-align:center;font-size:.92rem;font-weight:700;padding:9px;background:var(--card);border-radius:10px;border:1px solid var(--border);margin-bottom:12px}
+.xo-board{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:280px;margin:0 auto 14px}
+.xo-cell{aspect-ratio:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;cursor:pointer;transition:all .2s}
+.xo-cell:hover:not(.taken){background:var(--card2);transform:scale(1.04)}
+.xo-cell.taken{cursor:default}
+.xo-cell.xm{color:var(--accent)}.xo-cell.om{color:var(--gold)}
+.xo-cell.wc{animation:wP .5s ease infinite alternate;border-color:var(--gold);box-shadow:0 0 18px var(--gold-g)}
+@keyframes wP{from{transform:scale(1)}to{transform:scale(1.06)}}
 
-        /* Controls */
-        #controls-area {
-            position: fixed; bottom: 20px; left: 0; width: 100%;
-            display: flex; justify-content: center; z-index: 100; pointer-events: none;
-        }
-        #jump-btn-large {
-            pointer-events: all; width: 85px; height: 85px; border-radius: 50%;
-            background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center;
-            font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5); cursor: pointer;
-        }
-        #jump-btn-large:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
+/* === غرامات === */
+.fh{text-align:center;margin-bottom:16px}
+.fh h2{font-size:1.4rem;font-weight:900}.fh p{color:var(--muted);font-size:.85rem}
+.fc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.f-card{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:18px 12px;text-align:center;position:relative;overflow:hidden}
+.f-card::before{content:'';position:absolute;top:-40%;right:-40%;width:80%;height:80%;border-radius:50%;opacity:.12}
+.f-card.mc::before{background:var(--accent)}.f-card.nc::before{background:var(--gold)}
+.f-ring{position:relative;width:90px;height:90px;margin:0 auto 8px}
+.f-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.f-ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:6}
+.f-ring-prog{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.f-ring-prog.mp{stroke:var(--accent)}.f-ring-prog.np{stroke:var(--gold)}
+.f-ring-prog.positive{stroke:var(--ok)}
+.f-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.f-ring-val{font-size:1.15rem;font-weight:900}
+.f-ring-lbl{font-size:.6rem;color:var(--muted)}
+.f-card-name{font-size:.95rem;font-weight:800;margin-bottom:2px;position:relative;z-index:1}
+.f-card-sub{font-size:.75rem;color:var(--muted);position:relative;z-index:1}
+.f-card-sub.owes{color:var(--danger)}
+.f-card-sub.owed{color:var(--ok)}
 
-        /* --- Notebook --- */
-        .notebook-container {
-            background: var(--notebook-bg); color: #333; border-radius: 10px;
-            padding: 15px; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-            min-height: 400px;
-            background-image: linear-gradient(var(--notebook-lines) 1px, transparent 1px);
-            background-size: 100% 30px;
-        }
-        .notebook-title {
-            background: #e74c3c; color: #fff; padding: 5px 15px;
-            display: inline-block; border-radius: 0 0 10px 10px; font-weight: bold;
-            margin-bottom: 10px; font-size: 1.1rem; text-align: center; width: 100%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .score-row {
-            display: flex; justify-content: space-around; margin-bottom: 20px;
-            background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; border: 1px dashed #888;
-        }
-        .score-box { text-align: center; }
-        .score-val { font-size: 1.5rem; font-weight: 900; }
-        .s-mahmoud { color: var(--mahmoud); }
-        .s-nagham { color: var(--nagham); }
-        .input-group {
-            display: flex; gap: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.8);
-            padding: 5px; border-radius: 8px;
-        }
-        .goal-input {
-            flex: 2; border: none; background: transparent; padding: 8px; font-family: 'Tajawal'; font-size: 1rem; outline: none;
-            border-bottom: 2px solid #ccc;
-        }
-        .points-input {
-            flex: 1; border: none; background: transparent; padding: 8px; font-family: 'Tajawal'; font-size: 1rem; text-align: center; font-weight: bold; outline: none;
-            border-bottom: 2px solid var(--points-color); width: 60px;
-        }
-        .add-btn {
-            background: var(--money-color); color: #fff; border: none; padding: 0 15px; border-radius: 5px; font-size: 1.2rem; cursor: pointer;
-        }
-        .tasks-list { list-style: none; padding-bottom: 50px; }
-        .task-item {
-            background: #fff; padding: 10px; margin-bottom: 8px; border-radius: 5px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-right: 4px solid #ccc;
-            animation: fadeIn 0.3s;
-        }
-        .task-item.done-m { border-right-color: var(--mahmoud); opacity: 0.6; text-decoration: line-through; background: #f0faff; }
-        .task-item.done-n { border-right-color: var(--nagham); opacity: 0.6; text-decoration: line-through; background: #fff0f0; }
-        .task-text { flex: 1; padding-left: 10px; font-weight: 500; font-size: 1.05rem; line-height: 30px;}
-        .task-points { color: var(--points-color); font-weight: bold; font-size: 0.9rem; margin-left: 5px; }
-        .check-btn {
-            width: 35px; height: 35px; border: 2px solid #ddd; border-radius: 50%;
-            background: #fff; color: #ccc; cursor: pointer; font-size: 1.2rem;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .check-btn:hover { border-color: var(--money-color); color: var(--money-color); }
-        .winner-banner {
-            display: none; text-align: center; padding: 15px;
-            background: linear-gradient(45deg, #ffd700, #ffaa00);
-            color: #000; border-radius: 10px; margin-bottom: 15px;
-            font-weight: bold; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+.net-bal{text-align:center;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;font-weight:700;font-size:.9rem}
 
-        /* --- TIC TAC TOE GAME --- */
-        .ttt-container {
-            background: rgba(0,0,0,0.3); border-radius: 20px; padding: 20px;
-            text-align: center;
-        }
-        .ttt-stats {
-            display: flex; justify-content: space-between; margin-bottom: 15px;
-            background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;
-        }
-        .ttt-stat-box { font-weight: bold; }
-        .ttt-stat-box span { display: block; font-size: 0.8rem; color: #aaa; }
-        .ttt-stat-box strong { font-size: 1.2rem; }
-        
-        .ttt-board {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            margin-bottom: 20px; max-width: 300px; margin-left: auto; margin-right: auto;
-        }
-        .ttt-cell {
-            background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);
-            aspect-ratio: 1/1; border-radius: 10px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 2.5rem; font-weight: 900; cursor: pointer;
-            transition: 0.2s;
-        }
-        .ttt-cell:hover { background: rgba(255,255,255,0.2); }
-        .ttt-cell.mahmoud { color: var(--mahmoud); text-shadow: 0 0 10px var(--mahmoud); }
-        .ttt-cell.nagham { color: var(--nagham); text-shadow: 0 0 10px var(--nagham); }
-        .ttt-cell.win { background: rgba(255, 215, 0, 0.2); border-color: #ffd700; }
-        .ttt-status { margin-bottom: 15px; font-weight: bold; min-height: 1.5rem; }
+.add-f{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+.add-f h3{font-weight:800;margin-bottom:10px;font-size:.95rem}
+.fg{margin-bottom:8px}
+.fi{width:100%;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;color:var(--txt);font-family:'Tajawal',sans-serif;font-size:.88rem;outline:none;transition:border .3s}
+.fi:focus{border-color:var(--gold);box-shadow:0 0 10px var(--gold-g)}
+.fi-sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%237a7268' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L2 5h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 10px center;padding-left:26px}
+.fg-r{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 
-        /* --- Modals --- */
-        #setup-modal, #setup-ttt-modal, #fine-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 5000;
-            display: none; justify-content: center; align-items: center;
-        }
-        .setup-content, .fine-content {
-            background: #1e1e1e; border: 1px solid #444; padding: 25px; border-radius: 20px;
-            width: 85%; text-align: center; color: #fff;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-        }
-        .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #555; background: #333; color: #fff; margin-top: 5px; font-family: 'Tajawal'; text-align: center; font-size: 1.1rem; }
-        .money-input { border-color: var(--money-color); color: var(--money-color); font-weight: bold; }
-        
-        textarea.form-input {
-            resize: none; height: 80px; text-align: right;
-        }
+.fi-item{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px;margin-bottom:5px}
+.fi-av{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.82rem;flex-shrink:0}
+.fi-av.ma{background:var(--accent);color:#fff}.fi-av.na{background:var(--gold);color:#1a1520}
+.fi-info{flex:1;min-width:0}
+.fi-reason{font-weight:600;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fi-date{font-size:.68rem;color:var(--muted)}
+.fi-amt{font-weight:900;font-size:.88rem;flex-shrink:0}
+.fi-amt.mc{color:var(--accent)}.fi-amt.nc{color:var(--gold)}
 
-        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { background: #555; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; }
-        .btn-confirm { background: #e74c3c; color: #fff; flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+/* === مودال الحكم === */
+.m-ov{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:14px}
+.m-ov.hidden{display:none}
+.m-box{background:var(--bg2);border:1px solid var(--border);border-radius:22px;padding:28px 20px;max-width:380px;width:100%;text-align:center;position:relative;overflow:hidden}
+.m-box::before{content:'';position:absolute;top:-60%;left:-30%;width:160%;height:160%;background:radial-gradient(circle,var(--accent-g),transparent 60%);opacity:.2;pointer-events:none}
+.m-title{font-size:1.4rem;font-weight:900;margin-bottom:6px;position:relative}
+.m-sub{color:var(--muted);font-size:.85rem;margin-bottom:16px;position:relative}
 
-        /* Result Modal */
-        #result-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); z-index: 6000;
-            display: none; justify-content: center; align-items: center;
-        }
-        .result-content {
-            background: #1e1e1e; border: 2px solid var(--money-color); padding: 30px; border-radius: 25px;
-            width: 90%; text-align: center; color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        }
-        .money-change { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--money-color); }
-        .money-change.negative { color: #e74c3c; }
-        
-        .punishment-box {
-            background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; margin: 15px 0;
-            border: 1px dashed #ff4b1f; font-size: 1.1rem; color: #ffcccc;
-        }
-        .punishment-label { font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 5px; }
+.rev-box{text-align:center;max-width:380px;width:100%;animation:revIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes revIn{from{opacity:0;transform:scale(.5) translateY(25px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.rev-icon{font-size:3rem;margin-bottom:10px;animation:tB 1s ease infinite}
+@keyframes tB{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.rev-name{font-size:1.6rem;font-weight:900;margin-bottom:6px}
+.rev-lbl{color:var(--muted);font-size:.85rem;margin-bottom:5px}
+.rev-rule{font-size:1.2rem;font-weight:800;padding:16px 18px;background:var(--card2);border:2px solid var(--gold);border-radius:16px;margin-bottom:16px;box-shadow:0 0 30px var(--gold-g)}
 
-    </style>
-
-    <script type="importmap">
-        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
-    </script>
+.toast-w{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:4000;display:flex;flex-direction:column;gap:5px;align-items:center;pointer-events:none}
+.toast{padding:9px 20px;border-radius:11px;background:rgba(20,18,28,.95);border:1px solid var(--border);backdrop-filter:blur(8px);font-weight:600;font-size:.82rem;animation:tI .3s ease,tO .3s ease 2.3s forwards;box-shadow:0 5px 20px rgba(0,0,0,.4);pointer-events:auto}
+@keyframes tI{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tO{to{opacity:0;transform:translateY(-14px)}}
+.conf-box{position:fixed;inset:0;z-index:2999;pointer-events:none}
+.conf-p{position:absolute;animation:confF 2s ease-out forwards}
+@keyframes confF{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes hP{0%,100%{transform:scale(1)}15%{transform:scale(1.1)}30%{transform:scale(1)}45%{transform:scale(1.07)}}
+.hp{animation:hP 1.5s ease infinite;display:inline-block}
+@media(max-width:420px){.love-grid{grid-template-columns:repeat(2,1fr)}.love-names{font-size:1.7rem}.love-v{font-size:1.3rem}.chicken-btn{width:150px;height:150px;font-size:1rem}.chicken-btn i{font-size:1.6rem}.chicken-timer{font-size:2.2rem}.fg-r{grid-template-columns:1fr}.fc{gap:8px}.f-ring{width:75px;height:75px}}
+</style>
 </head>
 <body>
+<canvas id="heartsBg"></canvas>
 
-<div id="toast-container"></div>
-
-<div id="select-screen">
-    <h1>النظام الشامل</h1>
-    <button onclick="selectChar('mahmoud')" class="role-btn btn-m">أنا محمود</button>
-    <button onclick="selectChar('nagham')" class="role-btn btn-n">أنا نجوم</button>
+<!-- ===== لوجين ===== -->
+<div id="loginScreen">
+<div class="lg-brand"><span class="nm">محمود</span> & <span class="nn">نغم</span></div>
+<div class="lg-sub">مين اللي داخل؟ ادخل كلمة السر</div>
+<div class="lg-cards">
+<div class="lg-card mc" id="lcM" onclick="selLogin('mahmoud')">
+<div class="lg-av ma">م</div>
+<div class="lg-name" style="color:var(--accent)">محمود</div>
+<div class="lg-pw" id="pwM">
+<input type="password" class="lg-inp" id="inpM" placeholder="كلمة السر" autocomplete="off">
+<div class="lg-hint" id="hintM">اول مرة؟ ضيف كلمة سر</div>
+<div class="lg-err" id="errM">كلمة السر غلط!</div>
+<button class="btn btn-a btn-f btn-sm" onclick="doLogin('mahmoud')" style="margin-top:6px">دخول</button>
+</div>
+</div>
+<div class="lg-card nc" id="lcN" onclick="selLogin('nagham')">
+<div class="lg-av na">ن</div>
+<div class="lg-name" style="color:var(--gold)">نغم</div>
+<div class="lg-pw" id="pwN">
+<input type="password" class="lg-inp" id="inpN" placeholder="كلمة السر" autocomplete="off">
+<div class="lg-hint" id="hintN">اول مرة؟ ضيفي كلمة سر</div>
+<div class="lg-err" id="errN">كلمة السر غلط!</div>
+<button class="btn btn-g btn-f btn-sm" onclick="doLogin('nagham')" style="margin-top:6px">دخول</button>
+</div>
+</div>
+</div>
 </div>
 
-<div id="main-app" style="display:none;">
-    
-    <div id="love-counter">
-        <div class="love-title">❤️ ده يوم حبنا (من 20/11/2024)</div>
-        <div class="timer-display" id="timer">Loading...</div>
-    </div>
-
-    <!-- Navigation with 3 Tabs -->
-    <div class="top-nav" style="grid-template-columns: 1fr 1fr 1fr;">
-        <div class="nav-tab active" id="tab-game" onclick="switchTab('game')">
-            <i class="fas fa-gamepad"></i> البطولة
-        </div>
-        <div class="nav-tab" id="tab-notebook" onclick="switchTab('notebook')">
-            <i class="fas fa-book-open"></i> أهداف
-        </div>
-        <div class="nav-tab" id="tab-tictactoe" onclick="switchTab('tictactoe')">
-            <i class="fas fa-chess-board"></i> إكس أو
-        </div>
-    </div>
-
-    <!-- VIEW 1: RACING GAME -->
-    <div id="view-game" class="view-section active">
-        <div class="wallets-container">
-            <button class="fine-float-btn" onclick="window.openFineModal()"><i class="fas fa-gavel"></i></button>
-            <div class="wallet-card w-mahmoud"><div class="wallet-name">Mahmoud</div><div class="wallet-balance" id="score-m">0</div></div>
-            <div class="wallet-card w-nagham"><div class="wallet-name">Nagham</div><div class="wallet-balance" id="score-n">0</div></div>
-        </div>
-
-        <!-- Series Score Bar -->
-        <div class="series-score-bar">
-            <div class="series-text">نتيجة الأدوار:</div>
-            <div class="series-values">
-                <span class="s-val-m" id="round-score-m">0</span>
-                <span style="color:#666"> - </span>
-                <span class="s-val-n" id="round-score-n">0</span>
-                <span style="font-size:0.8rem; color:#aaa; margin-right:10px;" id="target-display">(الهدف: 3)</span>
-            </div>
-        </div>
-
-        <div id="game-container">
-            <div id="game-hud">
-                <div>🏁 المسافة: <span id="target-val">50</span>m</div>
-            </div>
-            <div id="game-overlay">
-                <h2 id="overlay-msg" style="color:#fff; margin-bottom:10px;">ضبط البطولة</h2>
-                <p id="sub-msg" style="color:#aaa; font-size:0.8rem;">حدد الهدف والعقاب السري</p>
-                <button id="start-btn" class="btn-game" onclick="window.openSetup()">ضبط الشروط والعقاب</button>
-            </div>
-        </div>
-        <div id="log-container">
-            <div class="log-header"><span><i class="fas fa-scroll"></i> السجل المالي</span><span style="font-size:0.7rem; color:#666;">Live</span></div>
-        </div>
-    </div>
-
-    <!-- VIEW 2: NOTEBOOK / KASHKUL -->
-    <div id="view-notebook" class="view-section">
-        <div class="notebook-container">
-            <div class="notebook-title">📓 كشكول المهام والعقوبات</div>
-            <div id="goal-winner-banner" class="winner-banner">
-                🏆 مبروك! أنت الفائز.. <br>
-                <span style="font-size:0.9rem; font-weight:normal;">اذهب لكتابة العقاب الآن</span>
-                <button class="add-btn" style="margin-top:10px; width:100%; border-radius:5px;" onclick="window.openFineModal()">تنفيذ العقاب ⚖️</button>
-            </div>
-            <div class="score-row">
-                <div class="score-box"><div style="font-size:0.8rem;">Mahmoud</div><div id="k-score-m" class="score-val s-mahmoud">0</div></div>
-                <div style="display:flex; align-items:center; font-weight:bold; color:#888;">VS</div>
-                <div class="score-box"><div style="font-size:0.8rem;">Nagham</div><div id="k-score-n" class="score-val s-nagham">0</div></div>
-            </div>
-            <div style="text-align:center; margin-bottom:10px; font-size:0.8rem; color:#555;">الهدف: أول من يجمع <span id="kashkul-target-display" style="font-weight:bold; color:#000;">500</span> نقطة يفوز!</div>
-            <div class="input-group">
-                <button class="add-btn" onclick="window.addGoal()"><i class="fas fa-plus"></i></button>
-                <input type="number" id="goal-points" class="points-input" placeholder="نقاط" value="10">
-                <input type="text" id="goal-text" class="goal-input" placeholder="اكتب المهمة هنا...">
-            </div>
-            <ul id="tasks-list" class="tasks-list"></ul>
-        </div>
-    </div>
-
-    <!-- VIEW 3: TIC TAC TOE (NEW GAME) -->
-    <div id="view-tictactoe" class="view-section">
-        <div class="ttt-container">
-            <h2 style="margin-bottom:15px; text-shadow: 0 0 10px rgba(255,255,255,0.2);">إكس أو (X & O)</h2>
-            
-            <!-- Wins Counter (Points) -->
-            <div class="ttt-stats">
-                <div class="ttt-stat-box s-mahmoud"><span>Mahmoud Wins</span><strong id="ttt-wins-m">0</strong></div>
-                <div class="ttt-stat-box s-nagham"><span>Nagham Wins</span><strong id="ttt-wins-n">0</strong></div>
-            </div>
-
-            <div class="ttt-status" id="ttt-msg">في انتظار ضبط الرهان...</div>
-
-            <!-- Game Board -->
-            <div class="ttt-board" id="ttt-board">
-                <!-- Generated by JS -->
-            </div>
-
-            <button id="ttt-action-btn" class="btn-game" onclick="window.openTTTSetup()">ضبط الرهان</button>
-        </div>
-    </div>
-
+<!-- ===== مودال الحكم ===== -->
+<div id="ruleModal" class="m-ov hidden">
+<div class="m-box">
+<div class="m-title" id="rmTitle">اكتب حكمك السري</div>
+<div class="m-sub" id="rmSub">الحكم ده هيترضى لو كسبت... التاني مش هيشوفه!</div>
+<div style="position:relative;z-index:1;margin-bottom:14px">
+<input type="password" class="fi" id="ruleInp" placeholder="اكتب الحكم السري..." style="text-align:center;font-size:1.05rem" autocomplete="off">
+</div>
+<button class="btn btn-a btn-f" onclick="saveRule()">قفل الحكم <i class="fas fa-lock"></i></button>
+</div>
 </div>
 
-<!-- Modal: Race Setup (Series & Punishment) -->
-<div id="setup-modal">
-    <div class="setup-content">
-        <h3 style="color:var(--mahmoud); margin-bottom:15px;">🏆 شروط البطولة</h3>
-        
-        <!-- Series Target -->
-        <div style="text-align:right;">
-            <label style="color:#aaa; font-size:0.8rem;">الفوز بكم دور؟</label>
-            <input type="number" id="input-series-target" class="form-input" value="3" min="1">
-        </div>
-        
-        <!-- Distance Target -->
-        <div style="text-align:right; margin-top:10px;">
-            <label style="color:#aaa; font-size:0.8rem;">مسافة السباق (متر)</label>
-            <input type="number" id="input-target" class="form-input" value="50">
-        </div>
-
-        <!-- Secret Punishment -->
-        <div style="text-align:right; margin-top:15px;">
-            <label style="color:#e74c3c; font-weight:bold;">عقابي لو خسرت (سري):</label>
-            <textarea id="input-secret-punishment" class="form-input" placeholder="اكتب العقاب هنا... مثلاً: إحضار قهوة"></textarea>
-        </div>
-
-        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #00b894, #00cec9);" onclick="window.submitSetup()">حفظ وابدأ</button>
-    </div>
+<!-- ===== كشف الحكم ===== -->
+<div id="ruleReveal" class="m-ov hidden">
+<div class="rev-box">
+<div class="rev-icon" id="revIcon"></div>
+<div class="rev-name" id="revName"></div>
+<div class="rev-lbl">الحكم السري:</div>
+<div class="rev-rule" id="revRule"></div>
+<button class="btn btn-a" onclick="closeRev()">فهمت، يلا نكمل</button>
+</div>
 </div>
 
-<!-- Modal: TTT Setup -->
-<div id="setup-ttt-modal">
-    <div class="setup-content">
-        <h3 style="color:#ff9f43; margin-bottom:15px;">🏆 رهان إكس أو</h3>
-        <div style="text-align:right; margin-top:15px;"><label style="color:var(--money-color); font-size:0.9rem; font-weight:bold;">الرهان (جنيه)</label><input type="number" id="ttt-input-wager" class="form-input money-input" value="10"></div>
-        <button class="btn-game" style="width:100%; margin-top:25px; background:linear-gradient(to right, #ff9f43, #f0932b);" onclick="window.submitTTTSetup()">حفظ الرهان</button>
-    </div>
+<div id="confBox" class="conf-box"></div>
+<div class="toast-w" id="toastW"></div>
+
+<!-- ===== التطبيق ===== -->
+<div id="mainApp" style="display:none">
+<nav class="top-nav">
+<div class="nav-top">
+<div class="nav-brand"><span class="nm">محمود</span> & <span class="nn">نغم</span></div>
+<div class="nav-u"><span class="nav-badge" id="nBadge">--</span><button class="nav-logout" onclick="doLogout()" title="تبديل"><i class="fas fa-right-from-bracket"></i></button></div>
+</div>
+<div class="nav-tabs" id="navTabs">
+<button class="nav-tab active" data-tab="love"><i class="fas fa-heart"></i> حبنا</button>
+<button class="nav-tab" data-tab="chicken"><i class="fas fa-hand-fist"></i> شجاعة</button>
+<button class="nav-tab" data-tab="xo"><i class="fas fa-hashtag"></i> XO</button>
+<button class="nav-tab" data-tab="fines"><i class="fas fa-gavel"></i> غرامات</button>
+</div>
+</nav>
+
+<!-- عداد الحب -->
+<section id="loveTab" class="tab-c active">
+<div class="love-hero">
+<div class="love-names"><span style="color:var(--accent)">محمود</span> <span class="hp" style="color:var(--accent);margin:0 5px"><i class="fas fa-heart"></i></span> <span style="color:var(--gold)">نغم</span></div>
+<div class="love-since">مع بعض من 20 نوفمبر 2024</div>
+</div>
+<div class="love-grid">
+<div class="love-cell"><div class="love-v" id="lD">0</div><div class="love-l">يوم</div></div>
+<div class="love-cell"><div class="love-v" id="lH">0</div><div class="love-l">ساعة</div></div>
+<div class="love-cell"><div class="love-v" id="lM">0</div><div class="love-l">دقيقة</div></div>
+<div class="love-cell"><div class="love-v" id="lS">0</div><div class="love-l">ثانية</div></div>
+</div>
+<div class="love-stats">
+<div class="st-c"><div class="st-i r"><i class="fas fa-heartbeat"></i></div><div class="st-v" id="sHB">0</div><div class="st-l">نبضة قلب</div></div>
+<div class="st-c"><div class="st-i g"><i class="fas fa-wind"></i></div><div class="st-v" id="sBR">0</div><div class="st-l">نفس</div></div>
+<div class="st-c"><div class="st-i r"><i class="fas fa-sun"></i></div><div class="st-v" id="sSR">0</div><div class="st-l">شروق</div></div>
+</div>
+<canvas id="hbCanvas"></canvas>
+</section>
+
+<!-- لعبة الشجاعة -->
+<section id="chickenTab" class="tab-c">
+<div class="gh"><h2><i class="fas fa-hand-fist"></i> لعبة الشجاعة</h2><p>اتنين نضغط ونستنى... اللي يسيب الاول يخسر!</p></div>
+<div class="other-status waiting" id="otherStat"><i class="fas fa-hourglass-half"></i> مستني التاني يضغط...</div>
+<div class="chicken-timer" id="chTimer">0.00</div>
+<div class="chicken-btn-wrap">
+<button class="chicken-btn" id="chBtn" touch-action="none">
+<i class="fas fa-hand-point-up"></i>
+<span>اضغط واستنى</span>
+</button>
+</div>
+<div class="chicken-scores">
+<div class="ch-sc"><h4 style="color:var(--accent)">محمود</h4><div class="sv" style="color:var(--accent)" id="chSM">0</div></div>
+<div class="ch-vs">VS</div>
+<div class="ch-sc"><h4 style="color:var(--gold)">نغم</h4><div class="sv" style="color:var(--gold)" id="chSN">0</div></div>
+</div>
+<div style="text-align:center;margin-top:10px">
+<button class="btn btn-gh btn-sm" onclick="resetChicken()"><i class="fas fa-redo"></i> جولة جديدة</button>
+</div>
+</section>
+
+<!-- XO -->
+<section id="xoTab" class="tab-c">
+<div class="gh"><h2>لعبة XO</h2><p>اللي يكسب حكمه يتطبق</p></div>
+<div class="xo-scores">
+<div class="xo-sc"><h4 style="color:var(--accent)">محمود (X)</h4><div class="sv" style="color:var(--accent)" id="xoSM">0</div></div>
+<div class="xo-vs">VS</div>
+<div class="xo-sc"><h4 style="color:var(--gold)">نغم (O)</h4><div class="sv" style="color:var(--gold)" id="xoSN">0</div></div>
+</div>
+<div class="xo-turn" id="xoTurn">دور محمود (X)</div>
+<div class="xo-board" id="xoBoard"></div>
+<div style="text-align:center"><button class="btn btn-gh btn-sm" onclick="resetXo()"><i class="fas fa-redo"></i> جولة جديدة</button></div>
+</section>
+
+<!-- غرامات -->
+<section id="finesTab" class="tab-c">
+<div class="fh"><h2><i class="fas fa-gavel" style="color:var(--gold)"></i> غرامات الحب</h2><p>اللي يزعل التاني يدفع الغرامة للتاني</p></div>
+<div class="fc">
+<div class="f-card mc">
+<div class="f-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" class="f-ring-bg"/><circle cx="50" cy="50" r="42" class="f-ring-prog mp" id="fProM" stroke-dasharray="263.89" stroke-dashoffset="263.89"/></svg><div class="f-ring-inner"><div class="f-ring-val" id="fValM">0</div><div class="f-ring-lbl">ج.م</div></div></div>
+<div class="f-card-name" style="color:var(--accent)">محمود</div>
+<div class="f-card-sub" id="fSubM">متساوي</div>
+</div>
+<div class="f-card nc">
+<div class="f-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" class="f-ring-bg"/><circle cx="50" cy="50" r="42" class="f-ring-prog np" id="fProN" stroke-dasharray="263.89" stroke-dashoffset="263.89"/></svg><div class="f-ring-inner"><div class="f-ring-val" id="fValN">0</div><div class="f-ring-lbl">ج.م</div></div></div>
+<div class="f-card-name" style="color:var(--gold)">نغم</div>
+<div class="f-card-sub" id="fSubN">متساوي</div>
+</div>
+</div>
+<div class="net-bal" id="netBal">الحساب متساوي</div>
+<div class="add-f">
+<h3><i class="fas fa-plus-circle"></i> ضيف غرامة</h3>
+<div class="fg fg-r">
+<select class="fi fi-sel" id="fineP"><option value="mahmoud">محمود هو اللي زعل</option><option value="nagham">نغم هي اللي زعلت</option></select>
+<input class="fi" type="number" id="fineA" placeholder="المبلغ (ج.م)" min="1">
+</div>
+<div class="fg"><input class="fi" type="text" id="fineR" placeholder="السبب..."></div>
+<button class="btn btn-g btn-f btn-sm" onclick="addFine()"><i class="fas fa-stamp"></i> حكمت الغرامة</button>
+</div>
+<div>
+<h3 style="font-weight:800;margin-bottom:8px;font-size:.95rem"><i class="fas fa-scroll"></i> سجل الغرامات</h3>
+<div id="fList"></div>
+</div>
+</section>
 </div>
 
-<!-- Modal: Fine -->
-<div id="fine-modal">
-    <div class="fine-content">
-        <h3 style="margin-bottom:20px; color:#e74c3c;">⚖️ العقاب والغرامة</h3>
-        <div style="margin-bottom:15px; text-align:right;"><label style="color:#aaa; font-size:0.9rem;">مين اللي هيدفع؟</label><select id="fine-target" class="form-input"><option value="partner">الشريك (عقاب)</option><option value="me">أنا (اعتذار)</option></select></div>
-        <div style="margin-bottom:15px; text-align:right;"><label style="color:#aaa; font-size:0.9rem;">المبلغ (جنيه)</label><input type="number" id="fine-amount" class="form-input" value="10"></div>
-        <div style="margin-bottom:15px; text-align:right;"><label style="color:#aaa; font-size:0.9rem;">السبب</label><input type="text" id="fine-reason" class="form-input" placeholder="مثلاً: خسر الرهان..."></div>
-        <div class="modal-btns"><button class="btn-cancel" onclick="window.closeFineModal()">إلغاء</button><button class="btn-confirm" onclick="window.submitFine()">تنفيذ التحويل</button></div>
-    </div>
-</div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-<!-- Result Modal -->
-<div id="result-modal">
-    <div class="result-content">
-        <div id="res-icon" style="font-size:4rem; margin-bottom:10px;"></div>
-        <h2 id="res-title" style="font-size:1.5rem;"></h2>
-        
-        <!-- Punishment Reveal Section -->
-        <div id="punishment-section" style="display:none;">
-            <div class="punishment-box">
-                <span class="punishment-label">العقاب المفروض على الخاسر:</span>
-                <span id="res-punishment-text" style="font-weight:bold;"></span>
-            </div>
-        </div>
+<script>
+/* ============ Firebase ============ */
+const fbConfig={apiKey:"AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",authDomain:"nagam-12f98.firebaseapp.com",databaseURL:"https://nagam-12f98-default-rtdb.firebaseio.com",projectId:"nagam-12f98",storageBucket:"nagam-12f98.firebasestorage.app",messagingSenderId:"489197943984",appId:"1:489197943984:web:2b1823691e8e525b288f75",measurementId:"G-LB7V0QWTYP"};
+firebase.initializeApp(fbConfig);
+const db=firebase.database();
 
-        <div id="res-money" class="money-change"></div>
-        <button class="btn-game" style="background:#444;" onclick="window.resetCurrentGame()">تم / الدور التالي</button>
-    </div>
-</div>
+/* ============ حالة التطبيق ============ */
+let curUser=null;
+const S={
+    mRule:'',nRule:'',
+    chicken:{mHolding:false,nHolding:false,status:'idle',winner:null},
+    xo:{board:Array(9).fill(null),cur:'X',sc:{mahmoud:0,nagham:0},over:false,wc:[]},
+    fines:[],mBal:0,nBal:0
+};
 
-<div id="controls-area"><div id="jump-btn-large"><i class="fas fa-plane"></i></div></div>
+/* ============ لوجين ============ */
+let selUser=null;
+function selLogin(w){
+    selUser=w;
+    document.getElementById('pwM').classList.toggle('show',w==='mahmoud');
+    document.getElementById('pwN').classList.toggle('show',w==='nagham');
+    document.getElementById('lcM').classList.toggle('sel',w==='mahmoud');
+    document.getElementById('lcN').classList.toggle('sel',w==='nagham');
+    document.getElementById('errM').classList.remove('show');
+    document.getElementById('errN').classList.remove('show');
+    chkPw(w);
+}
+function chkPw(w){
+    db.ref('users/'+w+'/password').once('value').then(s=>{
+        const ex=s.val()!==null;
+        document.getElementById(w==='mahmoud'?'hintM':'hintN').textContent=ex?'ادخل كلمة السر':'اول مرة؟ ضيف كلمة سر جديدة';
+    }).catch(()=>{
+        const st=localStorage.getItem('pw_'+w);
+        document.getElementById(w==='mahmoud'?'hintM':'hintN').textContent=st?'ادخل كلمة السر':'اول مرة؟ ضيف كلمة سر جديدة';
+    });
+}
+function doLogin(w){
+    const inp=document.getElementById(w==='mahmoud'?'inpM':'inpN');
+    const err=document.getElementById(w==='mahmoud'?'errM':'errN');
+    const pw=inp.value.trim();
+    if(!pw){err.textContent='اكتب كلمة السر!';err.classList.add('show');return}
+    db.ref('users/'+w+'/password').once('value').then(s=>{
+        const stored=s.val();
+        if(stored===null){db.ref('users/'+w+'/password').set(pw);doneLogin(w)}
+        else if(stored===pw)doneLogin(w);
+        else{err.textContent='كلمة السر غلط!';err.classList.add('show')}
+    }).catch(()=>{
+        const stored=localStorage.getItem('pw_'+w);
+        if(!stored){localStorage.setItem('pw_'+w,pw);doneLogin(w)}
+        else if(stored===pw)doneLogin(w);
+        else{err.textContent='كلمة السر غلط!';err.classList.add('show')}
+    });
+}
+function doneLogin(w){
+    curUser=w;
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainApp').style.display='block';
+    const b=document.getElementById('nBadge');
+    b.textContent=w==='mahmoud'?'محمود':'نغم';
+    b.className='nav-badge '+(w==='mahmoud'?'mb':'nb');
+    loadFb();
+    chkRule(w);
+    startLove();
+    initHB();
+    initXoBoard();
+    listenChicken();
+    updateFinesUI();
+}
+function doLogout(){
+    // تنظيف حالة الشجاعة
+    if(chickenLocal.myHolding)releaseChicken();
+    curUser=null;
+    document.getElementById('mainApp').style.display='none';
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('inpM').value='';
+    document.getElementById('inpN').value='';
+    document.getElementById('pwM').classList.remove('show');
+    document.getElementById('pwN').classList.remove('show');
+    document.getElementById('lcM').classList.remove('sel');
+    document.getElementById('lcN').classList.remove('sel');
+    selUser=null;
+}
 
-<script type="module">
-    import * as THREE from 'three';
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, runTransaction, push } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",
-        authDomain: "nagam-12f98.firebaseapp.com",
-        projectId: "nagam-12f98",
-        storageBucket: "nagam-12f98.firebasestorage.app",
-        messagingSenderId: "489197943984",
-        appId: "1:489197943984:web:2b1823691e8e525b288f75",
-        measurementId: "G-LB7V0QWTYP"
-    };
-    
-    let app, db;
-    try {
-        app = initializeApp(firebaseConfig);
-        db = getDatabase(app);
-    } catch (e) { console.error("Firebase Error:", e); alert("Error connecting to Database. Check console."); }
-
-    // Global Vars
-    let myRole = null;
-    let currentMode = 'game';
-    
-    // Refs
-    const walletRef = ref(db, 'bank_coins');
-    const logsRef = ref(db, 'activity_logs');
-    
-    // Game 1: Race
-    const gameRef = ref(db, 'race_room');
-    let gameRunning = false, myScore = 0;
-    
-    // Game 2: Kashkul
-    const goalsRef = ref(db, 'kashkul_tasks');
-    const kashkulScoreRef = ref(db, 'kashkul_scores');
-    const kashkulSettingsRef = ref(db, 'kashkul_settings');
-    let currentKashkulScores = { mahmoud: 0, nagham: 0 };
-    let kashkulTarget = 500;
-
-    // Game 3: Tic Tac Toe
-    const tttRef = ref(db, 'tictactoe_room');
-    // Cache for TTT local state to prevent reading issues
-    let tttLocalData = null; 
-
-    // --- Toast ---
-    window.showToast = function(msg, type = 'normal') {
-        const container = document.getElementById('toast-container');
-        const div = document.createElement('div'); div.className = `toast ${type}`;
-        let icon = type === 'error' ? '<i class="fas fa-circle-exclamation"></i>' : type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-info-circle"></i>';
-        div.innerHTML = `${icon} <span>${msg}</span>`; container.appendChild(div);
-        setTimeout(() => { div.style.opacity = '0'; div.style.transform = 'translateY(-20px)'; setTimeout(() => div.remove(), 300); }, 3000);
-    };
-
-    // --- Tab Switching ---
-    window.switchTab = function(tab) {
-        currentMode = tab;
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        document.getElementById(`view-${tab}`).classList.add('active');
-        
-        document.getElementById('controls-area').style.display = (tab === 'game') ? 'flex' : 'none';
-    };
-
-    window.selectChar = function(role) {
-        myRole = role;
-        document.getElementById('select-screen').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        initGame(); // Init 3D
-        listenToDB();
-        listenToKashkul();
-        listenToTTT();
-    };
-
-    // --- Timer ---
-    const START_DATE = new Date('2024-11-20T00:00:00');
-    function updateTimer() {
-        const now = new Date(); const diff = now - START_DATE;
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / 1000 / 60) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-        document.getElementById('timer').innerHTML = `${days} يوم | ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-    }
-    setInterval(updateTimer, 1000); updateTimer();
-
-    // ================= GAME 1: RACE (3D) =================
-    let scene, camera, renderer, playerMesh;
-    let obstacles = [], speed = 0.2; // Reduced speed from 0.4 to 0.2 (Easier)
-    let playerY = 0, playerVelY = 0, isJumping = false;
-
-    function initGame() {
-        const container = document.getElementById('game-container');
-        const width = container.clientWidth; const height = container.clientHeight;
-        scene = new THREE.Scene(); scene.background = new THREE.Color(0x111111); scene.fog = new THREE.Fog(0x111111, 10, 50);
-        camera = new THREE.PerspectiveCamera(60, width/height, 0.1, 100); camera.position.set(0, 3, 6); camera.lookAt(0, 0, -5);
-        renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(width, height); renderer.shadowMap.enabled = true;
-        container.appendChild(renderer.domElement);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8); dirLight.position.set(5, 10, 5); scene.add(dirLight);
-        scene.add(new THREE.GridHelper(200, 200, 0x444444, 0x222222));
-        const pColor = myRole === 'mahmoud' ? 0x00d2ff : 0xff4b1f;
-        const pGeo = new THREE.BoxGeometry(1, 1, 1);
-        const pMat = new THREE.MeshStandardMaterial({ color: pColor, emissive: pColor, emissiveIntensity: 0.5 });
-        playerMesh = new THREE.Mesh(pGeo, pMat); playerMesh.position.set(-1.5, 0.5, 0); scene.add(playerMesh);
-        window.addEventListener('resize', () => { if(currentMode !== 'game') return; const cWidth = container.clientWidth; const cHeight = container.clientHeight; camera.aspect = cWidth/cHeight; camera.updateProjectionMatrix(); renderer.setSize(cWidth, cHeight); });
-        animate();
-    }
-
-    function animate() {
-        if(currentMode !== 'game') requestAnimationFrame(animate); else requestAnimationFrame(animate);
-        if (gameRunning && currentMode === 'game') {
-            myScore++; 
-            
-            const target = parseInt(document.getElementById('target-val').innerText);
-            if (myScore >= target * 10) { iWonRace(); return; } 
-
-            // FIX: Increased obstacle spacing (was 40, now 80) to make it easier
-            if (myScore % 80 === 0) createObstacle(myScore);
-            
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                const obs = obstacles[i]; obs.mesh.position.z += speed;
-                
-                // Slightly more forgiving collision logic
-                const dz = Math.abs(obs.mesh.position.z - playerMesh.position.z);
-                if (dz < 0.9) { 
-                    // If jumping high enough (0.6 instead of 0.5), avoid collision
-                    if (!isJumping || playerY < 0.6) crashRace(); 
-                }
-                
-                if (obs.mesh.position.z > 10) { scene.remove(obs.mesh); obstacles.splice(i, 1); }
-            }
-            // Jump Physics
-            if (isJumping) { 
-                playerVelY -= 0.012; // Reduced gravity slightly for floatier feel
-                playerY += playerVelY; 
-                if (playerY <= 0) { playerY = 0; isJumping = false; } 
-                playerMesh.position.y = 0.5 + playerY; 
-            }
+/* ============ تحميل Firebase ============ */
+function loadFb(){
+    db.ref('users/mahmoud/rule').once('value').then(s=>{S.mRule=s.val()||''}).catch(()=>{S.mRule=localStorage.getItem('rule_mahmoud')||''});
+    db.ref('users/nagham/rule').once('value').then(s=>{S.nRule=s.val()||''}).catch(()=>{S.nRule=localStorage.getItem('rule_nagham')||''});
+    db.ref('fines').on('value',snap=>{
+        S.fines=[];S.mBal=0;S.nBal=0;
+        const d=snap.val();
+        if(d){Object.keys(d).forEach(k=>{const f=d[k];f._id=k;S.fines.push(f);
+            // الخصم من اللي زعل والإضافة للتاني
+            if(f.person==='mahmoud'){S.mBal-=f.amount;S.nBal+=f.amount}
+            else{S.nBal-=f.amount;S.mBal+=f.amount}
+        });S.fines.reverse()}
+        updateFinesUI();
+    });
+    db.ref('scores').once('value').then(s=>{
+        const d=s.val();if(d){
+            S.xo.sc.mahmoud=d.xoM||0;S.xo.sc.nagham=d.xoN||0;
+            document.getElementById('xoSM').textContent=S.xo.sc.mahmoud;
+            document.getElementById('xoSN').textContent=S.xo.sc.nagham;
+            document.getElementById('chSM').textContent=d.chM||0;
+            document.getElementById('chSN').textContent=d.chN||0;
         }
-        if(currentMode === 'game') renderer.render(scene, camera);
-    }
+    });
+}
 
-    function createObstacle(seed) {
-        const h = (Math.sin(seed * 12.9898) * 43758.5453 % 1 > 0.5) ? 1 : 2;
-        const geo = new THREE.BoxGeometry(1.5, h, 1);
-        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xff0000 }));
-        mesh.position.set(-1.5, h/2, -50); scene.add(mesh); obstacles.push({mesh});
-    }
+/* ============ الحكم السري ============ */
+function chkRule(w){
+    db.ref('users/'+w+'/rule').once('value').then(s=>{
+        if(!s.val())showRuleModal(w);
+        else{if(w==='mahmoud')S.mRule=s.val();else S.nRule=s.val()}
+    }).catch(()=>{
+        const r=localStorage.getItem('rule_'+w);
+        if(!r)showRuleModal(w);else{if(w==='mahmoud')S.mRule=r;else S.nRule=r}
+    });
+}
+function showRuleModal(w){
+    const m=document.getElementById('ruleModal');
+    const n=w==='mahmoud'?'محمود':'نغم';
+    const c=w==='mahmoud'?'var(--accent)':'var(--gold)';
+    document.getElementById('rmTitle').innerHTML='<span style="color:'+c+'">'+n+'</span>، اكتب حكمك السري';
+    document.getElementById('ruleInp').value='';
+    m.classList.remove('hidden');m._who=w;
+}
+function saveRule(){
+    const w=document.getElementById('ruleModal')._who;
+    const r=document.getElementById('ruleInp').value.trim();
+    if(!r){toast('اكتب حكم الاول!');return}
+    if(w==='mahmoud')S.mRule=r;else S.nRule=r;
+    db.ref('users/'+w+'/rule').set(r).catch(()=>{localStorage.setItem('rule_'+w,r)});
+    document.getElementById('ruleModal').classList.add('hidden');
+    toast('الحكم اتقفل!');
+}
 
-    window.jumpAction = function() { if (!isJumping && gameRunning) { isJumping = true; playerVelY = 0.45; } }; // Increased jump force
-    document.getElementById('jump-btn-large').addEventListener('touchstart', e => { e.preventDefault(); window.jumpAction(); });
-    document.getElementById('jump-btn-large').addEventListener('mousedown', e => { e.preventDefault(); window.jumpAction(); });
-    window.addEventListener('keydown', e => { if(e.code === 'Space' && currentMode === 'game') window.jumpAction(); });
+/* ============ كشف الحكم ============ */
+function showReveal(winner){
+    db.ref('users/'+winner+'/rule').once('value').then(s=>{
+        const rule=s.val()||(winner==='mahmoud'?S.mRule:S.nRule);
+        doReveal(winner,rule);
+    }).catch(()=>{doReveal(winner,winner==='mahmoud'?S.mRule:S.nRule)});
+}
+function doReveal(w,rule){
+    const n=w==='mahmoud'?'محمود':'نغم';
+    const c=w==='mahmoud'?'var(--accent)':'var(--gold)';
+    document.getElementById('revIcon').innerHTML='<i class="fas fa-trophy" style="color:'+c+'"></i>';
+    document.getElementById('revName').innerHTML='<span style="color:'+c+'">'+n+'</span> كسب!';
+    document.getElementById('revRule').textContent=rule;
+    document.getElementById('revRule').style.borderColor=c;
+    document.getElementById('ruleReveal').classList.remove('hidden');
+    confetti();
+}
+function closeRev(){document.getElementById('ruleReveal').classList.add('hidden')}
 
-    window.openSetup = function() { document.getElementById('setup-modal').style.display = 'flex'; };
-    
-    window.submitSetup = function() {
-        const seriesTarget = document.getElementById('input-series-target').value;
-        const distanceTarget = document.getElementById('input-target').value;
-        const secretHokm = document.getElementById('input-secret-punishment').value;
-        
-        if(!seriesTarget || seriesTarget <= 0) { window.showToast('حدد رقم الفوز!', 'error'); return; }
-        if(!secretHokm) { window.showToast('لازم تكتب العقاب السري!', 'error'); return; }
+/* ============ عداد الحب ============ */
+const loveStart=new Date('2024-11-20T00:00:00');
+let loveInt=null;
+function startLove(){if(loveInt)return;updLove();loveInt=setInterval(updLove,1000)}
+function updLove(){
+    const d=Date.now()-loveStart.getTime();
+    const dy=Math.floor(d/864e5),h=Math.floor(d%864e5/36e5),m=Math.floor(d%36e5/6e4),s=Math.floor(d%6e4/1e3);
+    document.getElementById('lD').textContent=dy;document.getElementById('lH').textContent=h;
+    document.getElementById('lM').textContent=m;document.getElementById('lS').textContent=s;
+    const ts=Math.floor(d/1e3);
+    document.getElementById('sHB').textContent=fN(ts*1.2);
+    document.getElementById('sBR').textContent=fN(ts*.25);
+    document.getElementById('sSR').textContent=dy;
+}
+function fN(n){if(n>=1e6)return(n/1e6).toFixed(1)+'م';if(n>=1e3)return(n/1e3).toFixed(1)+'ألف';return Math.floor(n)}
 
-        const updates = {};
-        updates[`race_room/seriesTarget`] = parseInt(seriesTarget);
-        updates[`race_room/distanceTarget`] = parseInt(distanceTarget);
-        updates[`race_room/secretHokm/${myRole}`] = secretHokm;
-        updates[`race_room/status`] = 'ready'; 
+/* ===== خط النبض ===== */
+function initHB(){
+    const c=document.getElementById('hbCanvas');if(!c)return;
+    const ctx=c.getContext('2d');c.width=c.offsetWidth*2;c.height=90;let o=0;
+    function draw(){ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle='#e63946';ctx.lineWidth=2;ctx.shadowColor='rgba(230,57,70,.4)';ctx.shadowBlur=8;ctx.beginPath();const mid=c.height/2;for(let x=0;x<c.width;x++){const t=(x+o)*.02;const cy=t%(Math.PI*2);let y=mid;if(cy>1.8&&cy<2.2)y=mid-30;else if(cy>2.2&&cy<2.5)y=mid+16;else if(cy>2.5&&cy<2.8)y=mid-10;else y=mid+Math.sin(t*.5);x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();o+=2;requestAnimationFrame(draw)}draw()
+}
 
-        update(ref(db), updates);
-        document.getElementById('setup-modal').style.display = 'none';
-        window.showToast('تم حفظ الشروط! اضغط ابدأ.', 'success');
-    };
+/* ============ لعبة الشجاعة (عن بعد) ============ */
+const chickenLocal={myHolding:false,timerRunning:false,startTime:null,timerInt:null,elapsed:0};
 
-    function iWonRace() { 
-        if(!gameRunning) return; 
-        gameRunning = false; 
-        finishRound(myRole); 
-    }
-    
-    function crashRace() { 
-        if(!gameRunning) return; 
-        gameRunning = false; 
-        playerMesh.rotation.x = 1.5; 
-        const winner = myRole === 'mahmoud' ? 'nagham' : 'mahmoud'; 
-        finishRound(winner); 
-    }
+function listenChicken(){
+    db.ref('chickenGame').on('value',snap=>{
+        const d=snap.val();if(!d)return;
+        S.chicken.status=d.status||'idle';
+        S.chicken.winner=d.winner||null;
+        S.chicken.mHolding=d.mahmoudHolding||false;
+        S.chicken.nHolding=d.naghamHolding||false;
 
-    function finishRound(winnerRole) {
-        // CRITICAL FIX: Increment the round score in DB so "Best of X" logic works
-        const scoreRef = ref(db, `race_room/roundScores/${winnerRole}`);
-        runTransaction(scoreRef, (currentScore) => (currentScore || 0) + 1);
-
-        update(ref(db), { 
-            'race_room/lastRoundWinner': winnerRole, 
-            'race_room/status': 'round_finished' 
-        });
-    }
-
-    // ================= GAME 2: KASHKUL =================
-    window.addGoal = function() {
-        const text = document.getElementById('goal-text').value; const points = parseInt(document.getElementById('goal-points').value) || 0;
-        if(!text || points <= 0) { window.showToast("اكتب المهمة ونقاطها بشكل صحيح", 'error'); return; }
-        push(goalsRef, { text: text, points: points, addedBy: myRole, done: false, doneBy: null, timestamp: Date.now() });
-        document.getElementById('goal-text').value = ''; window.showToast("تمت إضافة المهمة للدفتر", 'success');
-    };
-
-    window.completeGoal = function(key, points) {
-        const updates = {}; updates[`kashkul_tasks/${key}/done`] = true; updates[`kashkul_tasks/${key}/doneBy`] = myRole;
-        updates[`kashkul_scores/${myRole}`] = (currentKashkulScores[myRole] || 0) + points;
-        update(ref(db), updates); window.showToast(`أحسنت! حصلت على ${points} نقطة`, 'success');
-    };
-
-    function listenToKashkul() {
-        onValue(kashkulSettingsRef, snap => { const data = snap.val(); if(data && data.target) { kashkulTarget = data.target; document.getElementById('kashkul-target-display').innerText = kashkulTarget; } });
-        onValue(kashkulScoreRef, snap => {
-            const data = snap.val() || { mahmoud: 0, nagham: 0 }; currentKashkulScores = data;
-            document.getElementById('k-score-m').innerText = data.mahmoud; document.getElementById('k-score-n').innerText = data.nagham;
-            const banner = document.getElementById('goal-winner-banner');
-            const iWon = (myRole === 'mahmoud' && data.mahmoud >= kashkulTarget) || (myRole === 'nagham' && data.nagham >= kashkulTarget);
-            const partnerWon = (myRole !== 'mahmoud' && data.mahmoud >= kashkulTarget) || (myRole !== 'nagham' && data.nagham >= kashkulTarget);
-            if(iWon) {
-                banner.style.display = 'block'; banner.style.background = 'linear-gradient(45deg, #ffd700, #ffaa00)';
-                banner.innerHTML = `🏆 مبروك! أنت جمعت ${kashkulTarget} نقطة أولاً!<br><button class="add-btn" style="margin-top:10px; width:100%; border-radius:5px; color:#000; font-weight:bold;" onclick="window.openFineModal()">🖊️ اكتب العقاب الآن</button>`;
-            } else if (partnerWon) {
-                banner.style.display = 'block'; banner.style.background = '#555'; banner.innerHTML = `😞 للأسف، الشريك وصل للهدف أولاً.<br>انتظر العقاب.`;
-            } else { banner.style.display = 'none'; }
-        });
-        onValue(goalsRef, snap => {
-            const data = snap.val(); const list = document.getElementById('tasks-list'); list.innerHTML = '';
-            if(!data) return;
-            const tasks = Object.entries(data).sort((a,b) => b[1].timestamp - a[1].timestamp);
-            tasks.forEach(([key, task]) => {
-                if(task.done) {
-                    const li = document.createElement('li'); const doneClass = task.doneBy === 'mahmoud' ? 'done-m' : 'done-n';
-                    li.className = `task-item ${doneClass}`; li.innerHTML = `<span class="task-text">${task.text} (${task.points} pts)</span> <i class="fas fa-check"></i>`; list.appendChild(li);
-                } else {
-                    const li = document.createElement('li'); li.className = 'task-item';
-                    li.innerHTML = `<div style="display:flex; align-items:center; flex:1;"><span class="task-text">${task.text}</span><span class="task-points">+${task.points}</span></div><button class="check-btn" onclick="window.completeGoal('${key}', ${task.points})"><i class="fas fa-check"></i></button>`; list.appendChild(li);
-                }
-            });
-        });
-    }
-
-    // ================= GAME 3: TIC TAC TOE (FIXED) =================
-    window.openTTTSetup = function() { document.getElementById('setup-ttt-modal').style.display = 'flex'; };
-    
-    window.submitTTTSetup = function() {
-        const wager = document.getElementById('ttt-input-wager').value;
-        if(!wager || wager <= 0) { window.showToast('اكتب قيمة الرهان صح!', 'error'); return; }
-        
-        // Reset Board
-        update(tttRef, { 
-            wager: wager, 
-            state: 'ready', 
-            board: Array(9).fill(null), 
-            currentTurn: 'mahmoud', 
-            winner: null, 
-            wins: {mahmoud: 0, nagham: 0} 
-        });
-        document.getElementById('setup-ttt-modal').style.display = 'none'; 
-        window.showToast('تم ضبط الرهان', 'success');
-    };
-
-    // FIXED MOVE LOGIC: Removed nested onValue listener
-    window.makeTTTMove = function(index) {
-        // Use local cache to check rules immediately
-        if (!tttLocalData || tttLocalData.state !== 'playing') { 
-            window.showToast("اللعبة غير جاهزة", "error");
-            return; 
+        // تحديث حالة الطرف التاني
+        const other=curUser==='mahmoud'?'nagham':'mahmoud';
+        const otherHolding=other==='mahmoud'?d.mahmoudHolding:d.naghamHolding;
+        const os=document.getElementById('otherStat');
+        if(S.chicken.winner){
+            os.className='other-status released';
+            os.innerHTML='<i class="fas fa-flag-checkered"></i> اللعبة خلصت!';
+        }else if(otherHolding){
+            os.className='other-status holding';
+            os.innerHTML='<i class="fas fa-hand-fist"></i> '+(other==='mahmoud'?'محمود':'نغم')+' ضاغط ومستنيك!';
+        }else{
+            os.className='other-status waiting';
+            os.innerHTML='<i class="fas fa-hourglass-half"></i> مستني '+(other==='mahmoud'?'محمود':'نغم')+' يضغط...';
         }
-        if (tttLocalData.currentTurn !== myRole) { 
-            window.showToast("مش دورك!", "error"); 
-            return; 
+
+        // لو الاتنين ضاغطين - ابدأ العد
+        if(d.mahmoudHolding&&d.naghamHolding&&S.chicken.status==='running'&&!chickenLocal.timerRunning){
+            startChickenTimer();
         }
-        if (tttLocalData.board[index] !== null) return;
 
-        // Calculate updates locally
-        const newBoard = [...tttLocalData.board];
-        newBoard[index] = myRole === 'mahmoud' ? 'mahmoud' : 'nagham';
-        let nextTurn = tttLocalData.currentTurn === 'mahmoud' ? 'nagham' : 'mahmoud';
-        
-        const winner = checkTTTWinner(newBoard);
-        
-        const updates = { board: newBoard, currentTurn: nextTurn };
-        if(winner) {
-            updates.winner = winner;
-            updates.state = 'finished';
-            const currentWins = tttLocalData.wins || {mahmoud:0, nagham:0};
-            updates.wins = { ...currentWins, [winner]: (currentWins[winner] || 0) + 1 };
-        } else if(!newBoard.includes(null)) {
-            updates.state = 'finished';
-            updates.winner = 'draw';
+        // لو حد سيب وفي فائز
+        if(S.chicken.winner&&S.chicken.winner!==curUser&&!chickenLocal.myHolding){
+            // أنا خسرت
+            const btn=document.getElementById('chBtn');
+            btn.classList.remove('holding','holding-m','holding-n');
+            btn.classList.add('lost');
+            btn.innerHTML='<i class="fas fa-face-sad-tear"></i><span>خسرت!</span>';
+            stopChickenTimer();
         }
-        
-        // Send to DB once
-        update(tttRef, updates);
-    };
-
-    function checkTTTWinner(board) {
-        const wins = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
-        for(let combo of wins) {
-            const [a,b,c] = combo;
-            if(board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+        if(S.chicken.winner&&S.chicken.winner===curUser){
+            const btn=document.getElementById('chBtn');
+            btn.classList.remove('holding','holding-m','holding-n');
+            btn.classList.add('won');
+            btn.innerHTML='<i class="fas fa-trophy"></i><span>كسبت!</span>';
+            stopChickenTimer();
         }
-        return null;
+    });
+}
+
+function startHolding(){
+    if(S.chicken.winner)return;
+    chickenLocal.myHolding=true;
+    const field=curUser+'Holding';
+    db.ref('chickenGame/'+field).set(true);
+    db.ref('chickenGame/'+field).onDisconnect().set(false);
+
+    const btn=document.getElementById('chBtn');
+    btn.classList.add('holding',curUser==='mahmoud'?'holding-m':'holding-n');
+    btn.innerHTML='<i class="fas fa-hand-fist"></i><span>مستنى... متسيبش!</span>';
+
+    // لو التاني ضاغط كمان، ابدا اللعبة
+    const otherH=curUser==='mahmoud'?S.chicken.nHolding:S.chicken.mHolding;
+    if(otherH){
+        db.ref('chickenGame/status').set('running');
+        startChickenTimer();
     }
+}
 
-    function listenToTTT() {
-        onValue(tttRef, snap => {
-            const data = snap.val();
-            tttLocalData = data; // Update local cache
+function releaseChicken(){
+    if(!chickenLocal.myHolding)return;
+    chickenLocal.myHolding=false;
+    const field=curUser+'Holding';
+    db.ref('chickenGame/'+field).set(false);
+    db.ref('chickenGame/'+field).onDisconnect().cancel();
 
-            const boardEl = document.getElementById('ttt-board');
-            const msgEl = document.getElementById('ttt-msg');
-            const actionBtn = document.getElementById('ttt-action-btn');
+    const btn=document.getElementById('chBtn');
+    btn.classList.remove('holding','holding-m','holding-n');
 
-            if(!data) return;
-            const wins = data.wins || {mahmoud: 0, nagham: 0};
-            document.getElementById('ttt-wins-m').innerText = wins.mahmoud;
-            document.getElementById('ttt-wins-n').innerText = wins.nagham;
+    // لو اللعبة كانت شغالة، يبقى أنا خسرت
+    if(chickenLocal.timerRunning){
+        stopChickenTimer();
+        const other=curUser==='mahmoud'?'nagham':'mahmoud';
+        db.ref('chickenGame/winner').set(other);
+        db.ref('chickenGame/status').set('finished');
 
-            // Render Board
-            boardEl.innerHTML = '';
-            (data.board || Array(9).fill(null)).forEach((cell, idx) => {
-                const div = document.createElement('div');
-                div.className = 'ttt-cell';
-                if(cell === 'mahmoud') { div.classList.add('mahmoud'); div.innerText = 'X'; }
-                if(cell === 'nagham') { div.classList.add('nagham'); div.innerText = 'O'; }
-                div.onclick = () => window.makeTTTMove(idx);
-                boardEl.appendChild(div);
-            });
+        btn.classList.add('lost');
+        btn.innerHTML='<i class="fas fa-face-sad-tear"></i><span>خسرت!</span>';
 
-            // State Management
-            if(!data.wager) {
-                msgEl.innerText = "في انتظار ضبط الرهان...";
-                actionBtn.innerText = "ضبط الرهان";
-                actionBtn.onclick = window.openTTTSetup;
-                actionBtn.disabled = false;
-            } else if(data.state === 'ready') {
-                msgEl.innerText = "الرهان محدد.. ابدأ اللعب";
-                actionBtn.innerText = "ابدأ اللعبة";
-                actionBtn.onclick = () => update(tttRef, { state: 'playing' });
-                actionBtn.disabled = false;
-            } else if(data.state === 'playing') {
-                msgEl.innerText = `الدور: ${data.currentTurn === 'mahmoud' ? 'Mahmoud (X)' : 'Nagham (O)'}`;
-                actionBtn.innerText = "جاري اللعب...";
-                actionBtn.disabled = true;
-            } else if(data.state === 'finished') {
-                const iWon = data.winner === myRole;
-                const isDraw = data.winner === 'draw';
-                const wager = parseInt(data.wager);
-
-                // Handle Money (only once ideally, but here on view update is okay for simplicity, 
-                // ideally add a flag 'rewardClaimed')
-                if(wager > 0 && !isDraw && !data.claimed) {
-                    const loser = data.winner === 'mahmoud' ? 'nagham' : 'mahmoud';
-                    runTransaction(ref(db, `bank_coins/${data.winner}`), c => (c||0) + wager);
-                    runTransaction(ref(db, `bank_coins/${loser}`), c => Math.max(0, (c||0) - wager));
-                    push(logsRef, {
-                        text: `لعبة إكس أو: ${data.winner} كسب +${wager} جنيه`,
-                        type: 'win', role: 'system', time: Date.now()
-                    });
-                    // Mark as claimed to prevent double counting on re-renders
-                    update(tttRef, { claimed: true });
-                }
-
-                const resModal = document.getElementById('result-modal');
-                document.getElementById('punishment-section').style.display = 'none'; 
-                document.getElementById('res-icon').innerText = isDraw ? "🤝" : iWon ? "🏆" : "😭";
-                document.getElementById('res-title').innerText = isDraw ? "تعادل!" : iWon ? "مبروك كسبت!" : "خسرت!";
-                document.getElementById('res-money').innerHTML = isDraw ? "No Money Transfer" : iWon ? `+${wager} جنيه` : `-${wager} جنيه`;
-                document.getElementById('res-money').className = `money-change ${iWon ? '' : 'negative'}`;
-                resModal.style.display = 'flex';
-
-                msgEl.innerText = isDraw ? "تعادل!" : `الفائز: ${data.winner}`;
-                actionBtn.innerText = "لعبة جديدة";
-                actionBtn.disabled = false;
-                actionBtn.onclick = () => {
-                    update(tttRef, { 
-                        state: 'ready', 
-                        board: Array(9).fill(null), 
-                        currentTurn: 'mahmoud', 
-                        winner: null,
-                        claimed: false 
-                    });
-                    resModal.style.display = 'none';
-                };
-            }
+        // تحديث النتيجة
+        db.ref('scores/ch'+other.charAt(0).toUpperCase()+other.slice(1)).once('value').then(s=>{
+            db.ref('scores/ch'+other.charAt(0).toUpperCase()+other.slice(1)).set((s.val()||0)+1);
         });
-    }
-
-    // ================= SHARED: WALLET, FINES, LOGS =================
-    window.openFineModal = () => { document.getElementById('fine-modal').style.display = 'flex'; };
-    window.closeFineModal = () => document.getElementById('fine-modal').style.display = 'none';
-
-    window.submitFine = function() {
-        const target = document.getElementById('fine-target').value; const amount = parseInt(document.getElementById('fine-amount').value) || 0; const reason = document.getElementById('fine-reason').value || "بدون سبب";
-        if(amount <= 0) { window.showToast('اكتب مبلغ صحيح!', 'error'); return; }
-        let victimRole = target === 'me' ? myRole : (myRole === 'mahmoud' ? 'nagham' : 'mahmoud'); let receiverRole = victimRole === 'mahmoud' ? 'nagham' : 'mahmoud';
-        let victimName = victimRole === 'mahmoud' ? 'Mahmoud' : 'Nagham'; let receiverName = receiverRole === 'mahmoud' ? 'Mahmoud' : 'Nagham';
-        runTransaction(ref(db, `bank_coins/${victimRole}`), c => Math.max(0, (c||0) - amount));
-        runTransaction(ref(db, `bank_coins/${receiverRole}`), c => (c||0) + amount);
-        push(logsRef, { text: `غرامة: خصم ${amount} من ${victimName} وإضافتهم لـ ${receiverName} (${reason})`, type: 'fine', role: myRole, time: Date.now() });
-        window.showToast(`تم تحويل ${amount} جنيه لصالح ${receiverName}`, 'success'); window.closeFineModal();
-    };
-
-    function listenToDB() {
-        // Wallets
-        onValue(walletRef, snap => {
-            const d = snap.val() || {mahmoud:0, nagham:0}; const elM = document.getElementById('score-m'); const elN = document.getElementById('score-n');
-            elM.innerText = d.mahmoud || 0; elN.innerText = d.nagham || 0;
+        const el=other==='mahmoud'?'chSM':'chSN';
+        db.ref('scores/ch'+other.charAt(0).toUpperCase()+other.slice(1)).once('value').then(s=>{
+            document.getElementById(el).textContent=s.val()||0;
         });
 
-        // Logs
-        onValue(logsRef, snap => {
-            const logs = snap.val(); const container = document.getElementById('log-container');
-            container.innerHTML = '<div class="log-header"><span><i class="fas fa-scroll"></i> السجل المالي</span><span style="font-size:0.7rem; color:#666;">Live</span></div>';
-            if(!logs) return;
-            Object.values(logs).reverse().slice(0, 10).forEach(l => {
-                const div = document.createElement('div'); let tagClass = l.type === 'win' ? 'tag-money' : 'tag-fine'; let tagText = l.type === 'win' ? 'فوز' : 'غرامة';
-                div.className = `log-item ${l.type === 'win' ? 'log-win' : 'log-fine'}`; div.innerHTML = `<span>${l.text}</span> <span class="tag ${tagClass}">${tagText}</span>`; container.appendChild(div);
-            });
-        });
-
-        // Race Logic
-        onValue(gameRef, snap => {
-            const d = snap.val(); if(!d) return;
-            
-            if(d.distanceTarget) document.getElementById('target-val').innerText = d.distanceTarget;
-            if(d.seriesTarget) document.getElementById('target-display').innerText = `(الهدف: ${d.seriesTarget})`;
-            
-            // Score updating is now handled in finishRound via transaction
-            
-            const scores = d.roundScores || {mahmoud: 0, nagham: 0};
-            document.getElementById('round-score-m').innerText = scores.mahmoud;
-            document.getElementById('round-score-n').innerText = scores.nagham;
-
-            const btn = document.getElementById('start-btn');
-            const overlayMsg = document.getElementById('overlay-msg');
-            const subMsg = document.getElementById('sub-msg');
-
-            if (d.status === 'ready') {
-                overlayMsg.innerText = "جاهز للسباق";
-                subMsg.innerText = "ضغطت على زر البدء؟";
-                btn.innerText = "ابدأ السباق";
-                btn.disabled = false;
-                btn.onclick = () => {
-                    update(ref(db), { 'race_room/status': 'playing' });
-                };
-                document.getElementById('game-overlay').style.display = 'flex';
-
-            } else if (d.status === 'round_finished') {
-                document.getElementById('game-overlay').style.display = 'flex';
-                overlayMsg.innerText = "انتهى الدور!";
-                btn.innerText = "عرض النتيجة";
-                btn.disabled = false;
-                btn.onclick = () => showRaceResult(d);
-
-            } else if (d.status === 'playing') {
-                document.getElementById('game-overlay').style.display = 'none';
-                if(!gameRunning) startRace();
-            } else {
-                // Initial state
-                document.getElementById('game-overlay').style.display = 'flex';
-                overlayMsg.innerText = "ضبط البطولة";
-                subMsg.innerText = "حدد الهدف والعقاب السري";
-                btn.innerText = "ضبط الشروط والعقاب";
-                btn.disabled = false;
-                btn.onclick = window.openSetup;
-            }
-        });
+        // كشف حكم الفائز
+        setTimeout(()=>showReveal(other),600);
+    }else{
+        btn.innerHTML='<i class="fas fa-hand-point-up"></i><span>اضغط واستنى</span>';
     }
+}
 
-    function showRaceResult(data) {
-        const winner = data.lastRoundWinner;
-        const loser = winner === 'mahmoud' ? 'nagham' : 'mahmoud';
-        const seriesScores = data.roundScores || {mahmoud:0, nagham:0};
-        const target = data.seriesTarget || 3;
+function startChickenTimer(){
+    if(chickenLocal.timerRunning)return;
+    chickenLocal.timerRunning=true;
+    chickenLocal.startTime=Date.now();
+    const tmr=document.getElementById('chTimer');
+    tmr.classList.add('running');
+    chickenLocal.timerInt=setInterval(()=>{
+        chickenLocal.elapsed=Date.now()-chickenLocal.startTime;
+        tmr.textContent=(chickenLocal.elapsed/1000).toFixed(2);
+    },30);
+}
+function stopChickenTimer(){
+    chickenLocal.timerRunning=false;
+    if(chickenLocal.timerInt)clearInterval(chickenLocal.timerInt);
+    chickenLocal.timerInt=null;
+    document.getElementById('chTimer').classList.remove('running');
+}
 
-        const iWon = winner === myRole;
-        const iLost = loser === myRole;
-        
-        const punishmentText = data.secretHokm && data.secretHokm[loser] ? data.secretHokm[loser] : "لا يوجد عقاب مسجل";
-        
-        const resModal = document.getElementById('result-modal');
-        const resTitle = document.getElementById('res-title');
-        const resIcon = document.getElementById('res-icon');
-        const punishSection = document.getElementById('punishment-section');
-        const punishText = document.getElementById('res-punishment-text');
+// أحداث الزرار
+const chBtn=document.getElementById('chBtn');
+chBtn.addEventListener('pointerdown',e=>{e.preventDefault();startHolding()});
+chBtn.addEventListener('pointerup',e=>{e.preventDefault();releaseChicken()});
+chBtn.addEventListener('pointerleave',e=>{if(chickenLocal.myHolding)releaseChicken()});
+chBtn.addEventListener('pointercancel',e=>{if(chickenLocal.myHolding)releaseChicken()});
 
-        // FIX: Correctly check if series is over based on incremented scores
-        const isSeriesOver = seriesScores[winner] >= target;
+function resetChicken(){
+    stopChickenTimer();
+    chickenLocal.myHolding=false;
+    chickenLocal.elapsed=0;
+    db.ref('chickenGame').set({status:'idle',mahmoudHolding:false,naghamHolding:false,winner:null});
+    const btn=document.getElementById('chBtn');
+    btn.className='chicken-btn';
+    btn.innerHTML='<i class="fas fa-hand-point-up"></i><span>اضغط واستنى</span>';
+    document.getElementById('chTimer').textContent='0.00';
+    document.getElementById('chTimer').classList.remove('running');
+    // تحديث النتائج
+    db.ref('scores').once('value').then(s=>{
+        const d=s.val()||{};
+        document.getElementById('chSM').textContent=d.chM||0;
+        document.getElementById('chSN').textContent=d.chN||0;
+    });
+}
 
-        resTitle.innerText = isSeriesOver 
-            ? `🏆 انتهت البطولة! ${winner === 'mahmoud' ? 'Mahmoud' : 'Nagham'} فاز بالمجموع!`
-            : `فاز الدور: ${winner === 'mahmoud' ? 'Mahmoud' : 'Nagham'}`;
-        
-        resIcon.innerText = iWon ? "🏆" : "😭";
+/* ============ XO ============ */
+const xoW=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function initXoBoard(){
+    const b=document.getElementById('xoBoard');b.innerHTML='';
+    for(let i=0;i<9;i++){const c=document.createElement('div');c.className='xo-cell';c.dataset.i=i;c.addEventListener('click',()=>xoMove(i));b.appendChild(c)}
+}
+function xoMove(i){
+    const st=S.xo;if(st.over||st.board[i])return;
+    st.board[i]=st.cur;
+    const cells=document.querySelectorAll('.xo-cell');
+    cells[i].textContent=st.cur;cells[i].classList.add('taken',st.cur==='X'?'xm':'om');
+    const w=xoWin();
+    if(w){st.over=true;st.wc.forEach(j=>cells[j].classList.add('wc'));
+        const p=w==='X'?'mahmoud':'nagham';st.sc[p]++;
+        document.getElementById('xoSM').textContent=st.sc.mahmoud;document.getElementById('xoSN').textContent=st.sc.nagham;
+        db.ref('scores/xoM').set(st.sc.mahmoud);db.ref('scores/xoN').set(st.sc.nagham);
+        document.getElementById('xoTurn').textContent=(w==='X'?'محمود':'نغم')+' كسب!';
+        setTimeout(()=>showReveal(p),700);return}
+    if(st.board.every(c=>c)){st.over=true;document.getElementById('xoTurn').textContent='تعادل!';toast('تعادل!');return}
+    st.cur=st.cur==='X'?'O':'X';
+    document.getElementById('xoTurn').textContent=st.cur==='X'?'دور محمود (X)':'دور نغم (O)';
+}
+function xoWin(){for(const p of xoW){const[a,b,c]=p;if(S.xo.board[a]&&S.xo.board[a]===S.xo.board[b]&&S.xo.board[a]===S.xo.board[c]){S.xo.wc=p;return S.xo.board[a]}}return null}
+function resetXo(){S.xo.board=Array(9).fill(null);S.xo.cur='X';S.xo.over=false;S.xo.wc=[];document.getElementById('xoTurn').textContent='دور محمود (X)';initXoBoard()}
 
-        punishSection.style.display = 'block';
-        punishText.innerText = punishmentText;
-        document.getElementById('res-money').innerText = ""; // No money in race, just punishment
+/* ============ غرامات ============ */
+const F_C=2*Math.PI*42;
+function addFine(){
+    const person=document.getElementById('fineP').value;
+    const amount=parseInt(document.getElementById('fineA').value);
+    const reason=document.getElementById('fineR').value.trim();
+    if(!amount||amount<=0){toast('اكتب المبلغ!');return}
+    if(!reason){toast('اكتب السبب!');return}
+    const fine={person,amount,reason,date:new Date().toLocaleDateString('ar-EG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})};
+    db.ref('fines').push(fine);
+    document.getElementById('fineA').value='';document.getElementById('fineR').value='';
+    toast('تم حكم الغرامة - الخصم من '+(person==='mahmoud'?'محمود':'نغم')+'!');
+}
+function updateFinesUI(){
+    const mB=S.mBal,nB=S.nBal;
+    const maxV=Math.max(Math.abs(mB),Math.abs(nB),1);
+    document.getElementById('fValM').textContent=mB;document.getElementById('fValN').textContent=nB;
+    const mOff=mB===0?F_C:F_C*(1-Math.min(Math.abs(mB)/Math.max(maxV*1.5,50),1));
+    const nOff=nB===0?F_C:F_C*(1-Math.min(Math.abs(nB)/Math.max(maxV*1.5,50),1));
+    document.getElementById('fProM').style.strokeDashoffset=mOff;
+    document.getElementById('fProN').style.strokeDashoffset=nOff;
+    // لون البروجرس
+    document.getElementById('fProM').classList.toggle('positive',mB>0);
+    document.getElementById('fProN').classList.toggle('positive',nB>0);
+    // وصف الكارت
+    const ms=document.getElementById('fSubM');
+    const ns=document.getElementById('fSubN');
+    if(mB>0){ms.textContent='عندك '+mB+' ج.م';ms.className='f-card-sub owed'}
+    else if(mB<0){ms.textContent='عليك '+Math.abs(mB)+' ج.م';ms.className='f-card-sub owes'}
+    else{ms.textContent='متساوي';ms.className='f-card-sub'}
+    if(nB>0){ns.textContent='عندك '+nB+' ج.م';ns.className='f-card-sub owed'}
+    else if(nB<0){ns.textContent='عليك '+Math.abs(nB)+' ج.م';ns.className='f-card-sub owes'}
+    else{ns.textContent='متساوي';ns.className='f-card-sub'}
+    // صافي الحساب
+    const net=mB-nB; // محمود - نغم
+    // لو محمود عنده أكتر، يبقى نغم مديونة
+    const nb=document.getElementById('netBal');
+    if(mB>0&&nB<0){nb.innerHTML='نغم مديونة لمحمود بـ '+Math.abs(nB)+' ج.م'}
+    else if(nB>0&&mB<0){nb.innerHTML='محمود مديون لنغم بـ '+Math.abs(mB)+' ج.م'}
+    else if(mB===0&&nB===0){nb.textContent='الحساب متساوي'}
+    else{nb.textContent='الحساب متساوي'}
+    // القائمة
+    const list=document.getElementById('fList');
+    if(!S.fines.length){list.innerHTML='<div style="text-align:center;color:var(--muted);padding:14px;font-size:.85rem">مفيش غرامات لسه...</div>';return}
+    list.innerHTML=S.fines.map(f=>{
+        const isM=f.person==='mahmoud';
+        const other=isM?'نغم':'محمود';
+        return `<div class="fi-item">
+            <div class="fi-av ${isM?'ma':'na'}">${isM?'م':'ن'}</div>
+            <div class="fi-info"><div class="fi-reason">${f.reason} ← ${other}</div><div class="fi-date">${f.date}</div></div>
+            <div class="fi-amt ${isM?'mc':'nc'}">${f.amount} ج.م</div>
+        </div>`;
+    }).join('');
+}
 
-        const resetBtn = document.querySelector('#result-modal .btn-game');
-        resetBtn.onclick = () => {
-            if (isSeriesOver) {
-                // Full Reset
-                update(ref(db), {
-                    'race_room/status': 'setup',
-                    'race_room/roundScores': { mahmoud: 0, nagham: 0 },
-                    'race_room/secretHokm': { mahmoud: null, nagham: null }
-                });
-            } else {
-                // Next Round: Keep scores, just reset status and secret hokm for new inputs
-                update(ref(db), {
-                    'race_room/status': 'ready',
-                    'race_room/secretHokm': { mahmoud: null, nagham: null }
-                });
-            }
-            resModal.style.display = 'none';
-        };
+/* ============ تنقل التابات ============ */
+document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+        document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+        document.querySelectorAll('.tab-c').forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById(t.dataset.tab+'Tab').classList.add('active');
+    })
+});
 
-        resModal.style.display = 'flex';
-    }
+/* ============ تنبيهات ============ */
+function toast(m){const w=document.getElementById('toastW'),t=document.createElement('div');t.className='toast';t.textContent=m;w.appendChild(t);setTimeout(()=>t.remove(),3000)}
 
-    function startRace() {
-        gameRunning = true; myScore = 0; obstacles.forEach(o => scene.remove(o.mesh)); obstacles = [];
-        playerMesh.position.y = 0.5; playerY = 0; isJumping = false; playerMesh.rotation.x = 0;
-    }
-    
-    window.resetCurrentGame = function() {
-        // Handled inline
-    }
+/* ============ كونفيتي ============ */
+function confetti(){
+    const b=document.getElementById('confBox'),cols=['#e63946','#d4a574','#f5ebe0','#ff6b6b','#f0c987','#2ecc71'];
+    for(let i=0;i<45;i++){const p=document.createElement('div');p.className='conf-p';
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${Math.random()*7+4}px;height:${Math.random()*7+4}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${Math.random()*1.5+1.5}s;animation-delay:${Math.random()*.4}s`;
+    b.appendChild(p);setTimeout(()=>p.remove(),3500)}
+}
 
+/* ============ خلفية القلوب ============ */
+(function(){
+    const c=document.getElementById('heartsBg'),ctx=c.getContext('2d');let hs=[];
+    function rs(){c.width=innerWidth;c.height=innerHeight}rs();addEventListener('resize',rs);
+    function mk(){return{x:Math.random()*c.width,y:c.height+20,sz:Math.random()*9+4,sp:Math.random()*.5+.2,op:Math.random()*.18+.04,sw:Math.random()*1.2-.6,swS:Math.random()*.012+.004,swO:Math.random()*Math.PI*2,t:0}}
+    for(let i=0;i<18;i++){const h=mk();h.y=Math.random()*c.height;hs.push(h)}
+    function dH(h){ctx.save();ctx.globalAlpha=h.op;ctx.translate(h.x,h.y);const s=h.sz/11;ctx.scale(s,s);ctx.beginPath();ctx.moveTo(0,-3);ctx.bezierCurveTo(-7,-12,-14,-3,0,7);ctx.moveTo(0,-3);ctx.bezierCurveTo(7,-12,14,-3,0,7);ctx.fillStyle='#e63946';ctx.fill();ctx.restore()}
+    function anim(){ctx.clearRect(0,0,c.width,c.height);hs.forEach(h=>{h.t+=h.swS;h.y-=h.sp;h.x+=Math.sin(h.t+h.swO)*h.sw*.3;dH(h);if(h.y<-20){h.y=c.height+20;h.x=Math.random()*c.width}});requestAnimationFrame(anim)}anim()
+})();
 </script>
 </body>
 </html>
