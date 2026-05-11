@@ -36,7 +36,6 @@ body {
 
 canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
-/* ===== LOGIN ===== */
 #loginScreen {
     position:fixed; inset:0; z-index:5000;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -97,7 +96,6 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
 @keyframes fu { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-/* ===== NAV ===== */
 .top-nav {
     position:sticky; top:0; z-index:100;
     background:rgba(10,10,15,0.85); backdrop-filter:blur(16px);
@@ -130,11 +128,9 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 }
 .nav-tab i { margin-left:4px; }
 
-/* ===== TABS ===== */
 .tab-c { display:none; padding:18px 14px 80px; max-width:560px; margin:0 auto; }
 .tab-c.active { display:block; animation:fu 0.3s ease; }
 
-/* ===== LOVE ===== */
 .love-hero { text-align:center; padding:16px 0 12px; }
 .love-names { font-size:2.2rem; font-weight:900; line-height:1.2; }
 .love-since { color:var(--muted); margin-top:4px; font-size:0.9rem; }
@@ -155,7 +151,6 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 .st-l { font-size:0.65rem; color:var(--muted); margin-top:1px; }
 #hbCanvas { width:100%; max-width:460px; height:45px; margin:16px auto 0; display:block; }
 
-/* ===== CHICKEN ===== */
 .gh { text-align:center; margin-bottom:14px; }
 .gh h2 { font-size:1.4rem; font-weight:900; }
 .gh p { color:var(--muted); font-size:0.85rem; margin-top:2px; }
@@ -209,7 +204,8 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 .ch-sc .sv { font-size:1.4rem; font-weight:900; }
 .ch-vs { font-size:1rem; font-weight:900; color:var(--muted); }
 
-/* ===== XO ===== */
+.game-actions { display:flex; gap:8px; justify-content:center; margin-top:10px; flex-wrap:wrap; }
+
 .xo-players { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
 .xo-pc {
     background:var(--card2); border:2px solid var(--border);
@@ -254,7 +250,6 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 .xo-cell.wc { animation:wP 0.5s ease infinite alternate; border-color:var(--gold); box-shadow:0 0 18px var(--gold-g); opacity:1!important; }
 @keyframes wP { from{transform:scale(1)} to{transform:scale(1.06)} }
 
-/* ===== FINES ===== */
 .fh { text-align:center; margin-bottom:16px; }
 .fh h2 { font-size:1.4rem; font-weight:900; }
 .fh p { color:var(--muted); font-size:0.85rem; }
@@ -329,7 +324,6 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 .fi-amt.mc { color:var(--accent); }
 .fi-amt.nc { color:var(--gold); }
 
-/* ===== MODALS ===== */
 .mov {
     position:fixed; inset:0; z-index:3000;
     background:rgba(0,0,0,0.88); backdrop-filter:blur(14px);
@@ -347,6 +341,8 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 }
 .mtitle { font-size:1.4rem; font-weight:900; margin-bottom:6px; position:relative; }
 .msub { color:var(--muted); font-size:0.85rem; margin-bottom:16px; position:relative; }
+.mfg { margin-bottom:12px; text-align:right; position:relative; z-index:1; }
+.mfl { display:block; font-size:0.85rem; font-weight:700; margin-bottom:5px; }
 
 .revbox { text-align:center; max-width:380px; width:100%; animation:revIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
 @keyframes revIn { from{opacity:0;transform:scale(0.5) translateY(25px)} to{opacity:1;transform:scale(1) translateY(0)} }
@@ -402,7 +398,7 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
     <div class="lg-brand"><span class="nm">محمود</span> & <span class="nn">نغم</span></div>
     <div class="lg-sub">مين اللي داخل؟ ادخل كلمة السر</div>
     <div class="lg-cards">
-        <div class="lg-card mc" onclick="selLogin('mahmoud')">
+        <div class="lg-card mc" id="lcM" onclick="selLogin('mahmoud')">
             <div class="lg-av ma">م</div>
             <div class="lg-name" style="color:var(--accent)">محمود</div>
             <div class="lg-pw" id="pwM">
@@ -412,7 +408,7 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
                 <button class="btn btn-a btn-f btn-sm" onclick="doLogin('mahmoud')" style="margin-top:6px">دخول</button>
             </div>
         </div>
-        <div class="lg-card nc" onclick="selLogin('nagham')">
+        <div class="lg-card nc" id="lcN" onclick="selLogin('nagham')">
             <div class="lg-av na">ن</div>
             <div class="lg-name" style="color:var(--gold)">نغم</div>
             <div class="lg-pw" id="pwN">
@@ -425,15 +421,32 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
     </div>
 </div>
 
-<!-- RULE MODAL -->
-<div id="ruleModal" class="mov hidden">
+<!-- SETUP MATCH MODAL -->
+<div id="setupMatchModal" class="mov hidden">
     <div class="mbox">
-        <div class="mtitle" id="rmTitle">اكتب حكمك السري</div>
-        <div class="msub" id="rmSub">الحكم ده هيترضى لو كسبت... التاني مش هيشوفه!</div>
-        <div style="position:relative;z-index:1;margin-bottom:14px">
-            <input type="password" class="fi" id="ruleInp" placeholder="اكتب الحكم السري..." style="text-align:center;font-size:1.05rem" autocomplete="off">
+        <div class="mtitle">ماتش جديد</div>
+        <div class="msub">حدد عدد الجولات واكتب حكمك السري (التاني مش هيشوفه غير لو كسبت الماتش كله)</div>
+        <div class="mfg">
+            <label class="mfl">الفوزة من كام جولة؟</label>
+            <input type="number" class="fi" id="setupTarget" value="3" min="1" max="20" style="text-align:center">
         </div>
-        <button class="btn btn-a btn-f" onclick="saveRule()">قفل الحكم <i class="fas fa-lock"></i></button>
+        <div class="mfg">
+            <label class="mfl">الحكم السري (لو كسبت، التاني يعمل إيه؟)</label>
+            <input type="text" class="fi" id="setupRule" placeholder="اكتب حكمك السري..." style="text-align:center">
+        </div>
+        <button class="btn btn-a btn-f" onclick="confirmSetup()">يلا نلعب!</button>
+    </div>
+</div>
+
+<!-- ADD RULE MODAL -->
+<div id="addRuleModal" class="mov hidden">
+    <div class="mbox">
+        <div class="mtitle">اكتب حكمك السري</div>
+        <div class="msub">الماتش بدأ بالفعل، اكتب حكمك عشان لو كسبت الماتش التاني ينفذه!</div>
+        <div class="mfg">
+            <input type="text" class="fi" id="addRuleInp" placeholder="اكتب الحكم السري..." style="text-align:center">
+        </div>
+        <button class="btn btn-g btn-f" onclick="submitMyRule()">قفل الحكم <i class="fas fa-lock"></i></button>
     </div>
 </div>
 
@@ -442,7 +455,7 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
     <div class="revbox">
         <div class="rev-icon" id="revIcon"></div>
         <div class="rev-name" id="revName"></div>
-        <div class="rev-lbl">الحكم السري:</div>
+        <div class="rev-lbl">والحكم السري اللي التاني لازم ينفذه:</div>
         <div class="rev-rule" id="revRule"></div>
         <button class="btn btn-a" onclick="closeRev()">فهمت، يلا نكمل</button>
     </div>
@@ -495,7 +508,7 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
     <!-- CHICKEN -->
     <section id="chickenTab" class="tab-c">
-        <div class="gh"><h2><i class="fas fa-hand-fist"></i> لعبة الشجاعة</h2><p>اتنين نضغط ونستنى... اللي يسيب الاول يخسر!</p></div>
+        <div class="gh"><h2><i class="fas fa-hand-fist"></i> لعبة الشجاعة</h2><p>اتنين نضغط ونستنى... اللي يسيب الاول يخسر الجولة!</p></div>
         <div class="other-status waiting" id="otherStat"><i class="fas fa-hourglass-half"></i> مستني التاني يضغط...</div>
         <div class="chicken-timer" id="chTimer">0.00</div>
         <div class="chicken-btn-wrap">
@@ -505,12 +518,13 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
             </button>
         </div>
         <div class="chicken-scores">
-            <div class="ch-sc"><h4 style="color:var(--accent)">محمود</h4><div class="sv" style="color:var(--accent)" id="chSM">0</div></div>
+            <div class="ch-sc"><h4 style="color:var(--accent)">محمود</h4><div class="sv" style="color:var(--accent)" id="chSM">0/0</div></div>
             <div class="ch-vs">VS</div>
-            <div class="ch-sc"><h4 style="color:var(--gold)">نغم</h4><div class="sv" style="color:var(--gold)" id="chSN">0</div></div>
+            <div class="ch-sc"><h4 style="color:var(--gold)">نغم</h4><div class="sv" style="color:var(--gold)" id="chSN">0/0</div></div>
         </div>
-        <div style="text-align:center;margin-top:10px">
-            <button class="btn btn-gh btn-sm" onclick="resetChicken()"><i class="fas fa-redo"></i> جولة جديدة</button>
+        <div class="game-actions">
+            <button class="btn btn-gh btn-sm" onclick="openSetup('chicken')"><i class="fas fa-plus"></i> ماتش جديد</button>
+            <button class="btn btn-gh btn-sm" id="chAddRuleBtn" style="display:none" onclick="openAddRule('chicken')"><i class="fas fa-lock"></i> اكتب حكمك</button>
         </div>
     </section>
 
@@ -522,19 +536,21 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
                 <div class="ptb">دورك</div>
                 <div class="ps" style="color:var(--accent)">X</div>
                 <div class="pn" style="color:var(--accent)">محمود</div>
-                <div class="psc">فوز: <span id="xoSM">0</span></div>
+                <div class="psc">فوز: <span id="xoSM">0/0</span></div>
             </div>
             <div class="xo-pc pn" id="xoCardN">
                 <div class="ptb">دورك</div>
                 <div class="ps" style="color:var(--gold)">O</div>
                 <div class="pn" style="color:var(--gold)">نغم</div>
-                <div class="psc">فوز: <span id="xoSN">0</span></div>
+                <div class="psc">فوز: <span id="xoSN">0/0</span></div>
             </div>
         </div>
         <div class="xo-msg wait" id="xoMsg">استني دورك...</div>
         <div class="xo-board" id="xoBoard"></div>
-        <div style="text-align:center">
-            <button class="btn btn-gh btn-sm" onclick="resetXo()"><i class="fas fa-redo"></i> جولة جديدة</button>
+        <div class="game-actions">
+            <button class="btn btn-gh btn-sm" onclick="resetXoRound()"><i class="fas fa-redo"></i> جولة جديدة</button>
+            <button class="btn btn-gh btn-sm" onclick="openSetup('xo')"><i class="fas fa-plus"></i> ماتش جديد</button>
+            <button class="btn btn-gh btn-sm" id="xoAddRuleBtn" style="display:none" onclick="openAddRule('xo')"><i class="fas fa-lock"></i> اكتب حكمك</button>
         </div>
     </section>
 
@@ -575,9 +591,6 @@ canvas#heartsBg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
-/* ================================================
-   FIREBASE SETUP
-================================================ */
 firebase.initializeApp({
     apiKey: "AIzaSyDhQDPwYPwPPWUnFaeVga9iGejDNkLgXH0",
     authDomain: "nagam-12f98.firebaseapp.com",
@@ -590,20 +603,12 @@ firebase.initializeApp({
 });
 var db = firebase.database();
 
-/* ================================================
-   APP STATE
-================================================ */
-var curUser = null; // 'mahmoud' or 'nagham'
-var mRule = '';
-var nRule = '';
-var mBal = 0;
-var nBal = 0;
-var finesArr = [];
+var curUser = null;
+var mBal = 0, nBal = 0, finesArr = [];
 var loveInt = null;
+var activeGameType = null; 
+var ruleGameType = null;
 
-/* ================================================
-   LOGIN
-================================================ */
 function selLogin(who) {
     document.getElementById('pwM').classList.toggle('show', who === 'mahmoud');
     document.getElementById('pwN').classList.toggle('show', who === 'nagham');
@@ -611,7 +616,6 @@ function selLogin(who) {
     document.getElementById('lcN').classList.toggle('sel', who === 'nagham');
     document.getElementById('errM').classList.remove('show');
     document.getElementById('errN').classList.remove('show');
-
     db.ref('users/' + who + '/password').once('value').then(function(s) {
         var exists = s.val() !== null;
         var hintEl = document.getElementById(who === 'mahmoud' ? 'hintM' : 'hintN');
@@ -627,35 +631,17 @@ function doLogin(who) {
     var inp = document.getElementById(who === 'mahmoud' ? 'inpM' : 'inpN');
     var err = document.getElementById(who === 'mahmoud' ? 'errM' : 'errN');
     var pw = inp.value.trim();
-
-    if (!pw) {
-        err.textContent = 'اكتب كلمة السر!';
-        err.classList.add('show');
-        return;
-    }
-
+    if (!pw) { err.textContent = 'اكتب كلمة السر!'; err.classList.add('show'); return; }
     db.ref('users/' + who + '/password').once('value').then(function(s) {
         var stored = s.val();
-        if (stored === null) {
-            db.ref('users/' + who + '/password').set(pw);
-            completeLogin(who);
-        } else if (stored === pw) {
-            completeLogin(who);
-        } else {
-            err.textContent = 'كلمة السر غلط!';
-            err.classList.add('show');
-        }
+        if (stored === null) { db.ref('users/' + who + '/password').set(pw); completeLogin(who); }
+        else if (stored === pw) { completeLogin(who); }
+        else { err.textContent = 'كلمة السر غلط!'; err.classList.add('show'); }
     }).catch(function() {
         var stored = localStorage.getItem('pw_' + who);
-        if (!stored) {
-            localStorage.setItem('pw_' + who, pw);
-            completeLogin(who);
-        } else if (stored === pw) {
-            completeLogin(who);
-        } else {
-            err.textContent = 'كلمة السر غلط!';
-            err.classList.add('show');
-        }
+        if (!stored) { localStorage.setItem('pw_' + who, pw); completeLogin(who); }
+        else if (stored === pw) { completeLogin(who); }
+        else { err.textContent = 'كلمة السر غلط!'; err.classList.add('show'); }
     });
 }
 
@@ -663,17 +649,10 @@ function completeLogin(who) {
     curUser = who;
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('mainApp').style.display = 'block';
-
     var badge = document.getElementById('nBadge');
     badge.textContent = who === 'mahmoud' ? 'محمود' : 'نغم';
     badge.className = 'nav-badge ' + (who === 'mahmoud' ? 'mb' : 'nb');
-
-    loadAllData();
-    checkRule(who);
-    startLoveCounter();
-    initHeartbeat();
-    listenChickenGame();
-    listenXoGame();
+    loadAllData(); startLoveCounter(); initHeartbeat(); listenChickenGame(); listenXoGame();
 }
 
 function doLogout() {
@@ -681,92 +660,72 @@ function doLogout() {
     curUser = null;
     document.getElementById('mainApp').style.display = 'none';
     document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('inpM').value = '';
-    document.getElementById('inpN').value = '';
-    document.getElementById('pwM').classList.remove('show');
-    document.getElementById('pwN').classList.remove('show');
-    document.getElementById('lcM').classList.remove('sel');
-    document.getElementById('lcN').classList.remove('sel');
+    document.getElementById('inpM').value = ''; document.getElementById('inpN').value = '';
+    document.getElementById('pwM').classList.remove('show'); document.getElementById('pwN').classList.remove('show');
+    document.getElementById('lcM').classList.remove('sel'); document.getElementById('lcN').classList.remove('sel');
 }
 
-/* ================================================
-   LOAD DATA
-================================================ */
 function loadAllData() {
-    // Rules
-    db.ref('users/mahmoud/rule').once('value').then(function(s) { mRule = s.val() || ''; });
-    db.ref('users/nagham/rule').once('value').then(function(s) { nRule = s.val() || ''; });
-
-    // Fines
     db.ref('fines').on('value', function(snap) {
-        finesArr = [];
-        mBal = 0;
-        nBal = 0;
-        var d = snap.val();
+        finesArr = []; mBal = 0; nBal = 0; var d = snap.val();
         if (d) {
             var keys = Object.keys(d);
             for (var i = 0; i < keys.length; i++) {
-                var f = d[keys[i]];
-                f._id = keys[i];
-                finesArr.push(f);
+                var f = d[keys[i]]; f._id = keys[i]; finesArr.push(f);
                 if (f.person === 'mahmoud') { mBal -= f.amount; nBal += f.amount; }
                 else { nBal -= f.amount; mBal += f.amount; }
-            }
-            finesArr.reverse();
-        }
-        updateFinesUI();
-    });
-
-    // Scores
-    db.ref('scores').once('value').then(function(s) {
-        var d = s.val() || {};
-        document.getElementById('xoSM').textContent = d.xoM || 0;
-        document.getElementById('xoSN').textContent = d.xoN || 0;
-        document.getElementById('chSM').textContent = d.chM || 0;
-        document.getElementById('chSN').textContent = d.chN || 0;
+            } finesArr.reverse();
+        } updateFinesUI();
     });
 }
 
-/* ================================================
-   RULES
-================================================ */
-function checkRule(who) {
-    db.ref('users/' + who + '/rule').once('value').then(function(s) {
-        if (!s.val()) showRuleModal(who);
-        else { if (who === 'mahmoud') mRule = s.val(); else nRule = s.val(); }
-    }).catch(function() {
-        var r = localStorage.getItem('rule_' + who);
-        if (!r) showRuleModal(who);
+/* ===== MATCH SETUP & RULES ===== */
+function openSetup(gameType) {
+    activeGameType = gameType;
+    document.getElementById('setupTarget').value = 3;
+    document.getElementById('setupRule').value = '';
+    document.getElementById('setupMatchModal').classList.remove('hidden');
+}
+
+function confirmSetup() {
+    var target = parseInt(document.getElementById('setupTarget').value);
+    var rule = document.getElementById('setupRule').value.trim();
+    if (!target || target < 1) return toast('حدد عدد الجولات!');
+    if (!rule) return toast('اكتب حكمك السري!');
+    var ref = activeGameType === 'chicken' ? 'chickenGame' : 'xoGame';
+    var myRuleField = curUser === 'mahmoud' ? 'mRule' : 'nRule';
+    var otherRuleField = curUser === 'mahmoud' ? 'nRule' : 'mRule';
+    var updates = { targetScore: target, matchOver: false, mScore: 0, nScore: 0, status: 'idle', roundWinner: null };
+    updates[myRuleField] = rule; updates[otherRuleField] = null;
+    db.ref(ref).update(updates).then(function() {
+        document.getElementById('setupMatchModal').classList.add('hidden');
+        toast('الماتش بدأ! الفوز من ' + target + ' جولات');
+        if (activeGameType === 'xo') resetXoBoardAndUI(); else resetChickenUI();
     });
 }
 
-function showRuleModal(who) {
-    var name = who === 'mahmoud' ? 'محمود' : 'نغم';
-    var color = who === 'mahmoud' ? 'var(--accent)' : 'var(--gold)';
-    document.getElementById('rmTitle').innerHTML = '<span style="color:' + color + '">' + name + '</span>، اكتب حكمك السري';
-    document.getElementById('ruleInp').value = '';
-    var m = document.getElementById('ruleModal');
-    m.classList.remove('hidden');
-    m.dataset.who = who;
+function openAddRule(gameType) {
+    ruleGameType = gameType;
+    document.getElementById('addRuleInp').value = '';
+    document.getElementById('addRuleModal').classList.remove('hidden');
 }
 
-function saveRule() {
-    var m = document.getElementById('ruleModal');
-    var who = m.dataset.who;
-    var r = document.getElementById('ruleInp').value.trim();
-    if (!r) { toast('اكتب حكم!'); return; }
-    if (who === 'mahmoud') mRule = r; else nRule = r;
-    db.ref('users/' + who + '/rule').set(r).catch(function() { localStorage.setItem('rule_' + who, r); });
-    m.classList.add('hidden');
-    toast('الحكم اتقفل!');
+function submitMyRule() {
+    var rule = document.getElementById('addRuleInp').value.trim();
+    if (!rule) return toast('اكتب حكم!');
+    var ref = ruleGameType === 'chicken' ? 'chickenGame' : 'xoGame';
+    var myRuleField = curUser === 'mahmoud' ? 'mRule' : 'nRule';
+    db.ref(ref + '/' + myRuleField).set(rule);
+    document.getElementById('addRuleModal').classList.add('hidden');
+    toast('حكمك اتقفل!');
 }
 
-function showReveal(winner) {
-    db.ref('users/' + winner + '/rule').once('value').then(function(s) {
-        var rule = s.val() || (winner === 'mahmoud' ? mRule : nRule);
+function showGameReveal(winner, gameType) {
+    var ref = gameType === 'chicken' ? 'chickenGame' : 'xoGame';
+    var ruleField = winner === 'mahmoud' ? 'mRule' : 'nRule';
+    db.ref(ref + '/' + ruleField).once('value').then(function(s) {
+        var rule = s.val() || 'مفيش حكم محدد!';
         doReveal(winner, rule);
-    }).catch(function() {
-        doReveal(winner, winner === 'mahmoud' ? mRule : nRule);
     });
 }
 
@@ -774,7 +733,7 @@ function doReveal(w, rule) {
     var name = w === 'mahmoud' ? 'محمود' : 'نغم';
     var color = w === 'mahmoud' ? 'var(--accent)' : 'var(--gold)';
     document.getElementById('revIcon').innerHTML = '<i class="fas fa-trophy" style="color:' + color + '"></i>';
-    document.getElementById('revName').innerHTML = '<span style="color:' + color + '">' + name + '</span> كسب!';
+    document.getElementById('revName').innerHTML = '<span style="color:' + color + '">' + name + '</span> كسب الماتش!';
     document.getElementById('revRule').textContent = rule;
     document.getElementById('revRule').style.borderColor = color;
     document.getElementById('ruleReveal').classList.remove('hidden');
@@ -783,573 +742,275 @@ function doReveal(w, rule) {
 
 function closeRev() { document.getElementById('ruleReveal').classList.add('hidden'); }
 
-/* ================================================
-   LOVE COUNTER
-================================================ */
+/* ===== LOVE COUNTER ===== */
 var loveStart = new Date('2024-11-20T00:00:00');
-
-function startLoveCounter() {
-    if (loveInt) return;
-    updateLove();
-    loveInt = setInterval(updateLove, 1000);
-}
-
+function startLoveCounter() { if (loveInt) return; updateLove(); loveInt = setInterval(updateLove, 1000); }
 function updateLove() {
     var diff = Date.now() - loveStart.getTime();
-    var d = Math.floor(diff / 86400000);
-    var h = Math.floor((diff % 86400000) / 3600000);
-    var m = Math.floor((diff % 3600000) / 60000);
-    var s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('lD').textContent = d;
-    document.getElementById('lH').textContent = h;
-    document.getElementById('lM').textContent = m;
-    document.getElementById('lS').textContent = s;
+    var d = Math.floor(diff / 86400000); var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000); var s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('lD').textContent = d; document.getElementById('lH').textContent = h;
+    document.getElementById('lM').textContent = m; document.getElementById('lS').textContent = s;
     var ts = Math.floor(diff / 1000);
-    document.getElementById('sHB').textContent = fmtN(ts * 1.2);
-    document.getElementById('sBR').textContent = fmtN(ts * 0.25);
-    document.getElementById('sSR').textContent = d;
+    document.getElementById('sHB').textContent = fmtN(ts * 1.2); document.getElementById('sBR').textContent = fmtN(ts * 0.25); document.getElementById('sSR').textContent = d;
 }
-
-function fmtN(n) {
-    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'م';
-    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'ألف';
-    return Math.floor(n);
-}
-
+function fmtN(n) { if (n >= 1e6) return (n / 1e6).toFixed(1) + 'م'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'ألف'; return Math.floor(n); }
 function initHeartbeat() {
-    var c = document.getElementById('hbCanvas');
-    if (!c) return;
-    var ctx = c.getContext('2d');
-    c.width = c.offsetWidth * 2;
-    c.height = 90;
-    var off = 0;
-
+    var c = document.getElementById('hbCanvas'); if (!c) return;
+    var ctx = c.getContext('2d'); c.width = c.offsetWidth * 2; c.height = 90; var off = 0;
     function draw() {
-        ctx.clearRect(0, 0, c.width, c.height);
-        ctx.strokeStyle = '#e63946';
-        ctx.lineWidth = 2;
-        ctx.shadowColor = 'rgba(230,57,70,0.4)';
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        var mid = c.height / 2;
+        ctx.clearRect(0, 0, c.width, c.height); ctx.strokeStyle = '#e63946'; ctx.lineWidth = 2;
+        ctx.shadowColor = 'rgba(230,57,70,0.4)'; ctx.shadowBlur = 8; ctx.beginPath(); var mid = c.height / 2;
         for (var x = 0; x < c.width; x++) {
-            var t = (x + off) * 0.02;
-            var cy = t % (Math.PI * 2);
-            var y = mid;
-            if (cy > 1.8 && cy < 2.2) y = mid - 30;
-            else if (cy > 2.2 && cy < 2.5) y = mid + 16;
-            else if (cy > 2.5 && cy < 2.8) y = mid - 10;
-            else y = mid + Math.sin(t * 0.5);
+            var t = (x + off) * 0.02; var cy = t % (Math.PI * 2); var y = mid;
+            if (cy > 1.8 && cy < 2.2) y = mid - 30; else if (cy > 2.2 && cy < 2.5) y = mid + 16;
+            else if (cy > 2.5 && cy < 2.8) y = mid - 10; else y = mid + Math.sin(t * 0.5);
             if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-        off += 2;
-        requestAnimationFrame(draw);
-    }
-    draw();
+        } ctx.stroke(); off += 2; requestAnimationFrame(draw);
+    } draw();
 }
 
-/* ================================================
-   CHICKEN GAME
-================================================ */
+/* ===== CHICKEN GAME ===== */
 var chLoc = { myHolding: false, timerOn: false, startT: null, tInt: null, el: 0 };
-
 function listenChickenGame() {
     db.ref('chickenGame').on('value', function(snap) {
-        var d = snap.val();
-        if (!d) return;
-
+        var d = snap.val(); if (!d) return;
+        var target = d.targetScore || 0; var mScore = d.mScore || 0; var nScore = d.nScore || 0; var matchOver = d.matchOver || false;
+        document.getElementById('chSM').textContent = mScore + '/' + target;
+        document.getElementById('chSN').textContent = nScore + '/' + target;
+        var myRuleField = curUser === 'mahmoud' ? 'mRule' : 'nRule';
+        var addRuleBtn = document.getElementById('chAddRuleBtn');
+        if (target > 0 && !d[myRuleField] && !matchOver) { addRuleBtn.style.display = 'inline-block'; } else { addRuleBtn.style.display = 'none'; }
+        if (matchOver) {
+            stopChTimer(); var ultimateWinner = mScore >= target ? 'mahmoud' : 'nagham';
+            var btn = document.getElementById('chBtn'); btn.classList.remove('hm', 'hn');
+            if (ultimateWinner === curUser) { btn.className = 'chicken-btn won'; btn.innerHTML = '<i class="fas fa-crown"></i><span>كسبت الماتش!</span>'; }
+            else { btn.className = 'chicken-btn lost'; btn.innerHTML = '<i class="fas fa-face-sad-tear"></i><span>خسرت الماتش!</span>'; }
+            return;
+        }
         var other = curUser === 'mahmoud' ? 'nagham' : 'mahmoud';
         var otherH = other === 'mahmoud' ? (d.mahmoudHolding || false) : (d.naghamHolding || false);
         var bothH = (d.mahmoudHolding || false) && (d.naghamHolding || false);
-        var winner = d.winner || null;
-        var status = d.status || 'idle';
-
-        // Update other status
         var osEl = document.getElementById('otherStat');
-        if (winner) {
-            osEl.className = 'other-status done';
-            osEl.innerHTML = '<i class="fas fa-flag-checkered"></i> اللعبة خلصت!';
-        } else if (otherH) {
-            osEl.className = 'other-status holding';
-            osEl.innerHTML = '<i class="fas fa-hand-fist"></i> ' + (other === 'mahmoud' ? 'محمود' : 'نغم') + ' ضاغط ومستنيك!';
-        } else {
-            osEl.className = 'other-status waiting';
-            osEl.innerHTML = '<i class="fas fa-hourglass-half"></i> مستني ' + (other === 'mahmoud' ? 'محمود' : 'نغم') + ' يضغط...';
-        }
-
-        // Start timer when both holding
-        if (bothH && status === 'running' && !chLoc.timerOn) {
-            startChTimer();
-        }
-
-        // Handle winner
-        if (winner) {
-            stopChTimer();
+        if (d.roundWinner) { osEl.className = 'other-status done'; osEl.innerHTML = '<i class="fas fa-flag-checkered"></i> ' + (d.roundWinner === 'mahmoud' ? 'محمود' : 'نغم') + ' كسب الجولة!'; }
+        else if (otherH) { osEl.className = 'other-status holding'; osEl.innerHTML = '<i class="fas fa-hand-fist"></i> مستنيك تضغط!'; }
+        else { osEl.className = 'other-status waiting'; osEl.innerHTML = '<i class="fas fa-hourglass-half"></i> مستني التاني يضغط...'; }
+        if (bothH && d.status === 'running' && !chLoc.timerOn) { startChTimer(); }
+        if (d.roundWinner && !chLoc.myHolding) {
             var btn = document.getElementById('chBtn');
-            btn.classList.remove('hm', 'hn');
-            if (winner === curUser) {
-                btn.classList.add('won');
-                btn.innerHTML = '<i class="fas fa-trophy"></i><span>كسبت!</span>';
-            } else {
-                btn.classList.add('lost');
-                btn.innerHTML = '<i class="fas fa-face-sad-tear"></i><span>خسرت!</span>';
-            }
+            if (d.roundWinner === curUser) { btn.className = 'chicken-btn won'; btn.innerHTML = '<i class="fas fa-trophy"></i><span>كسبت الجولة!</span>'; }
+            else { btn.className = 'chicken-btn lost'; btn.innerHTML = '<i class="fas fa-face-sad-tear"></i><span>خسرت الجولة!</span>'; }
+            setTimeout(function() { btn.className = 'chicken-btn'; btn.innerHTML = '<i class="fas fa-hand-point-up"></i><span>اضغط واستنى</span>'; db.ref('chickenGame/roundWinner').set(null); }, 1500);
         }
     });
 }
-
 function startHolding() {
     if (!curUser) return;
-    var d = db.ref('chickenGame').once('value').then(function(snap) {
-        var d = snap.val();
-        if (d && d.winner) return; // game finished
-
-        chLoc.myHolding = true;
-        var field = curUser + 'Holding';
-        var updates = {};
-        updates[field] = true;
-        db.ref('chickenGame').update(updates);
-        db.ref('chickenGame/' + field).onDisconnect().set(false);
-
-        var btn = document.getElementById('chBtn');
-        btn.classList.add(curUser === 'mahmoud' ? 'hm' : 'hn');
+    db.ref('chickenGame').once('value').then(function(snap) {
+        var d = snap.val(); if (d && d.matchOver) return; if (d && d.roundWinner) return;
+        chLoc.myHolding = true; var field = curUser + 'Holding';
+        var updates = {}; updates[field] = true; updates.roundWinner = null;
+        db.ref('chickenGame').update(updates); db.ref('chickenGame/' + field).onDisconnect().set(false);
+        var btn = document.getElementById('chBtn'); btn.classList.add(curUser === 'mahmoud' ? 'hm' : 'hn');
         btn.innerHTML = '<i class="fas fa-hand-fist"></i><span>مستنى... متسيبش!</span>';
-
-        // Check if other is holding
-        var other = curUser === 'mahmoud' ? 'nagham' : 'mahmoud';
-        var otherField = other + 'Holding';
-        db.ref('chickenGame/' + otherField).once('value').then(function(s) {
-            if (s.val()) {
-                db.ref('chickenGame/status').set('running');
-                startChTimer();
-            }
+        var other = curUser === 'mahmoud' ? 'nagham' : 'mahmoud'; var otherField = other + 'Holding';
+        db.ref('chickenGame/' + otherField).once('value').then(function(s) { if (s.val()) { db.ref('chickenGame/status').set('running'); startChTimer(); } });
+    });
+}
+function releaseChicken() {
+    if (!chLoc.myHolding) return; chLoc.myHolding = false;
+    var loser = curUser; var winner = curUser === 'mahmoud' ? 'nagham' : 'mahmoud';
+    var updates = { status: 'idle', mahmoudHolding: false, naghamHolding: false, roundWinner: winner };
+    db.ref('chickenGame').update(updates); db.ref('chickenGame/' + loser + 'Holding').onDisconnect().cancel();
+    stopChTimer(); var btn = document.getElementById('chBtn'); btn.classList.remove('hm', 'hn');
+    btn.classList.add('lost'); btn.innerHTML = '<i class="fas fa-face-sad-tear"></i><span>خسرت الجولة!</span>';
+    var scoreField = winner === 'mahmoud' ? 'mScore' : 'nScore';
+    db.ref('chickenGame/' + scoreField).transaction(function(current) { return (current || 0) + 1; }).then(function(result) {
+        var newScore = result.snapshot.val();
+        db.ref('chickenGame/targetScore').once('value').then(function(tsSnap) {
+            var target = tsSnap.val() || 3;
+            if (newScore >= target) { db.ref('chickenGame/matchOver').set(true); setTimeout(function() { showGameReveal(winner, 'chicken'); }, 600); }
         });
     });
 }
-
-function releaseChicken() {
-    if (!chLoc.myHolding) return;
-    chLoc.myHolding = false;
-    var field = curUser + 'Holding';
-    db.ref('chickenGame/' + field).set(false);
-    db.ref('chickenGame/' + field).onDisconnect().cancel();
-
-    var btn = document.getElementById('chBtn');
-    btn.classList.remove('hm', 'hn');
-
-    if (chLoc.timerOn) {
-        // I lost
-        stopChTimer();
-        var other = curUser === 'mahmoud' ? 'nagham' : 'mahmoud';
-        db.ref('chickenGame/winner').set(other);
-        db.ref('chickenGame/status').set('finished');
-
-        btn.classList.add('lost');
-        btn.innerHTML = '<i class="fas fa-face-sad-tear"></i><span>خسرت!</span>';
-
-        // Update score
-        var scoreField = other === 'mahmoud' ? 'chM' : 'chN';
-        var scoreEl = other === 'mahmoud' ? 'chSM' : 'chSN';
-        db.ref('scores/' + scoreField).once('value').then(function(s) {
-            var nv = (s.val() || 0) + 1;
-            db.ref('scores/' + scoreField).set(nv);
-            document.getElementById(scoreEl).textContent = nv;
-        });
-
-        setTimeout(function() { showReveal(other); }, 600);
-    } else {
-        btn.innerHTML = '<i class="fas fa-hand-point-up"></i><span>اضغط واستنى</span>';
-    }
-}
-
 function startChTimer() {
-    if (chLoc.timerOn) return;
-    chLoc.timerOn = true;
-    chLoc.startT = Date.now();
-    var tmr = document.getElementById('chTimer');
-    tmr.classList.add('running');
-    chLoc.tInt = setInterval(function() {
-        chLoc.el = Date.now() - chLoc.startT;
-        tmr.textContent = (chLoc.el / 1000).toFixed(2);
-    }, 30);
+    if (chLoc.timerOn) return; chLoc.timerOn = true; chLoc.startT = Date.now();
+    var tmr = document.getElementById('chTimer'); tmr.classList.add('running');
+    chLoc.tInt = setInterval(function() { chLoc.el = Date.now() - chLoc.startT; tmr.textContent = (chLoc.el / 1000).toFixed(2); }, 30);
 }
-
-function stopChTimer() {
-    chLoc.timerOn = false;
-    if (chLoc.tInt) clearInterval(chLoc.tInt);
-    chLoc.tInt = null;
-    document.getElementById('chTimer').classList.remove('running');
-}
-
-// Chicken button events
+function stopChTimer() { chLoc.timerOn = false; if (chLoc.tInt) clearInterval(chLoc.tInt); chLoc.tInt = null; document.getElementById('chTimer').classList.remove('running'); }
 var chBtn = document.getElementById('chBtn');
 chBtn.addEventListener('pointerdown', function(e) { e.preventDefault(); startHolding(); });
 chBtn.addEventListener('pointerup', function(e) { e.preventDefault(); releaseChicken(); });
 chBtn.addEventListener('pointerleave', function() { if (chLoc.myHolding) releaseChicken(); });
 chBtn.addEventListener('pointercancel', function() { if (chLoc.myHolding) releaseChicken(); });
-
-function resetChicken() {
-    stopChTimer();
-    chLoc.myHolding = false;
-    chLoc.el = 0;
-    db.ref('chickenGame').set({ status: 'idle', mahmoudHolding: false, naghamHolding: false, winner: null });
-    var btn = document.getElementById('chBtn');
-    btn.className = 'chicken-btn';
-    btn.innerHTML = '<i class="fas fa-hand-point-up"></i><span>اضغط واستنى</span>';
-    document.getElementById('chTimer').textContent = '0.00';
-    document.getElementById('chTimer').classList.remove('running');
+function resetChickenUI() {
+    stopChTimer(); chLoc.myHolding = false; chLoc.el = 0; var btn = document.getElementById('chBtn');
+    btn.className = 'chicken-btn'; btn.innerHTML = '<i class="fas fa-hand-point-up"></i><span>اضغط واستنى</span>';
+    document.getElementById('chTimer').textContent = '0.00'; document.getElementById('chTimer').classList.remove('running');
 }
 
-/* ================================================
-   XO GAME - محمود X فقط، نغم O فقط
-================================================ */
+/* ===== XO GAME ===== */
 var xoWins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-var xoBoard = Array(9).fill(null);
-var xoCur = 'X'; // whose turn
-var xoOver = false;
-var xoWinCells = [];
-var xoRevealed = false;
-
-function mySymbol() {
-    return curUser === 'mahmoud' ? 'X' : 'O';
-}
-
-function isMyTurn() {
-    return xoCur === mySymbol() && !xoOver;
-}
-
+var xoBoard = Array(9).fill(null); var xoCur = 'X'; var xoOver = false; var xoWinCells = [];
+function mySymbol() { return curUser === 'mahmoud' ? 'X' : 'O'; }
+function isMyTurn() { return xoCur === mySymbol() && !xoOver; }
 function buildXoBoard() {
-    var board = document.getElementById('xoBoard');
-    board.innerHTML = '';
-    for (var i = 0; i < 9; i++) {
-        var cell = document.createElement('div');
-        cell.className = 'xo-cell';
-        cell.dataset.idx = i;
-        cell.addEventListener('click', handleXoClick);
-        board.appendChild(cell);
-    }
+    var board = document.getElementById('xoBoard'); board.innerHTML = '';
+    for (var i = 0; i < 9; i++) { var cell = document.createElement('div'); cell.className = 'xo-cell'; cell.dataset.idx = i; cell.addEventListener('click', handleXoClick); board.appendChild(cell); }
 }
-
 function renderXoBoard() {
-    var cells = document.querySelectorAll('.xo-cell');
-    var canPlay = isMyTurn();
-
+    var cells = document.querySelectorAll('.xo-cell'); var canPlay = isMyTurn();
     for (var i = 0; i < 9; i++) {
-        var cell = cells[i];
-        var val = xoBoard[i];
-
-        // Reset classes
-        cell.className = 'xo-cell';
-        cell.textContent = val || '';
-
-        if (val) {
-            cell.classList.add('taken');
-            cell.classList.add(val === 'X' ? 'xm' : 'om');
-        } else if (!canPlay || xoOver) {
-            cell.classList.add('dis');
-        }
-
-        if (xoWinCells.indexOf(i) !== -1) {
-            cell.classList.add('wc');
-        }
+        var cell = cells[i]; var val = xoBoard[i]; cell.className = 'xo-cell'; cell.textContent = val || '';
+        if (val) { cell.classList.add('taken'); cell.classList.add(val === 'X' ? 'xm' : 'om'); }
+        else if (!canPlay || xoOver) { cell.classList.add('dis'); }
+        if (xoWinCells.indexOf(i) !== -1) { cell.classList.add('wc'); }
     }
 }
-
 function updateXoUI() {
-    var cardM = document.getElementById('xoCardM');
-    var cardN = document.getElementById('xoCardN');
-    var msg = document.getElementById('xoMsg');
-
-    cardM.classList.remove('at');
-    cardN.classList.remove('at');
-    msg.className = 'xo-msg';
-
+    var cardM = document.getElementById('xoCardM'); var cardN = document.getElementById('xoCardN');
+    var msg = document.getElementById('xoMsg'); cardM.classList.remove('at'); cardN.classList.remove('at'); msg.className = 'xo-msg';
     if (xoOver) {
-        if (xoWinCells.length > 0) {
-            var winnerSym = xoBoard[xoWinCells[0]];
-            var winnerName = winnerSym === 'X' ? 'محمود' : 'نغم';
-            msg.classList.add('won');
-            msg.textContent = winnerName + ' كسب!';
-        } else {
-            msg.classList.add('draw');
-            msg.textContent = 'تعادل!';
-        }
+        if (xoWinCells.length > 0) { var winnerSym = xoBoard[xoWinCells[0]]; var winnerName = winnerSym === 'X' ? 'محمود' : 'نغم'; msg.classList.add('won'); msg.textContent = winnerName + ' كسب الجولة!'; }
+        else { msg.classList.add('draw'); msg.textContent = 'تعادل!'; }
     } else if (isMyTurn()) {
-        if (curUser === 'mahmoud') cardM.classList.add('at');
-        else cardN.classList.add('at');
-        msg.classList.add('my');
-        msg.innerHTML = '<i class="fas fa-hand-pointer"></i> دورك! العب ' + mySymbol();
+        if (curUser === 'mahmoud') cardM.classList.add('at'); else cardN.classList.add('at');
+        msg.classList.add('my'); msg.innerHTML = '<i class="fas fa-hand-pointer"></i> دورك! العب ' + mySymbol();
     } else {
         var otherName = curUser === 'mahmoud' ? 'نغم' : 'محمود';
-        if (xoCur === 'X') cardM.classList.add('at');
-        else cardN.classList.add('at');
-        msg.classList.add('wait');
-        msg.innerHTML = '<i class="fas fa-hourglass-half"></i> مستني ' + otherName + ' يلعب...';
+        if (xoCur === 'X') cardM.classList.add('at'); else cardN.classList.add('at');
+        msg.classList.add('wait'); msg.innerHTML = '<i class="fas fa-hourglass-half"></i> مستني ' + otherName + ' يلعب...';
     }
 }
-
 function handleXoClick() {
-    if (!isMyTurn()) {
-        toast('مش دورك! استني');
-        return;
-    }
-    if (xoOver) return;
-
-    var idx = parseInt(this.dataset.idx);
-    if (xoBoard[idx]) {
-        toast('المكان ده مأخوذ!');
-        return;
-    }
-
-    var sym = mySymbol();
-    xoBoard[idx] = sym;
-    xoCur = sym === 'X' ? 'O' : 'X';
-
-    // Check win
+    db.ref('xoGame').once('value').then(function(snap) { var d = snap.val(); if (d && d.matchOver) return toast('الماتش خلص! اضغط ماتش جديد'); if (d && d.roundWinner) return toast('الجولة خلصت!'); });
+    if (!isMyTurn()) return toast('مش دورك! استني'); if (xoOver) return;
+    var idx = parseInt(this.dataset.idx); if (xoBoard[idx]) return toast('المكان ده مأخوذ!');
+    var sym = mySymbol(); xoBoard[idx] = sym; xoCur = sym === 'X' ? 'O' : 'X';
     var winResult = checkXoWin();
     if (winResult) {
-        xoOver = true;
-        xoWinCells = winResult;
-        var winner = xoBoard[xoWinCells[0]] === 'X' ? 'mahmoud' : 'nagham';
-        var scField = winner === 'mahmoud' ? 'xoM' : 'xoN';
-        var scEl = winner === 'mahmoud' ? 'xoSM' : 'xoSN';
-        db.ref('scores/' + scField).once('value').then(function(s) {
-            var nv = (s.val() || 0) + 1;
-            db.ref('scores/' + scField).set(nv);
-            document.getElementById(scEl).textContent = nv;
+        xoOver = true; xoWinCells = winResult; var winner = xoBoard[xoWinCells[0]] === 'X' ? 'mahmoud' : 'nagham';
+        var scField = winner === 'mahmoud' ? 'mScore' : 'nScore';
+        db.ref('xoGame').update({ board: xoBoard, current: xoCur, over: true, winCells: xoWinCells, roundWinner: winner });
+        db.ref('xoGame/' + scField).transaction(function(current) { return (current || 0) + 1; }).then(function(result) {
+            var newScore = result.snapshot.val();
+            db.ref('xoGame/targetScore').once('value').then(function(tsSnap) {
+                var target = tsSnap.val() || 3;
+                if (newScore >= target) { db.ref('xoGame/matchOver').set(true); setTimeout(function() { showGameReveal(winner, 'xo'); }, 700); }
+            });
         });
     } else if (xoBoard.every(function(c) { return c !== null; })) {
-        xoOver = true;
-    }
-
-    // Save to Firebase
-    db.ref('xoGame').set({
-        board: xoBoard,
-        current: xoCur,
-        over: xoOver,
-        winCells: xoWinCells,
-        winner: winResult ? (xoBoard[xoWinCells[0]] === 'X' ? 'mahmoud' : 'nagham') : null
-    });
-
-    renderXoBoard();
-    updateXoUI();
-
-    // Show reveal if won
-    if (winResult && !xoRevealed) {
-        xoRevealed = true;
-        var w = xoBoard[xoWinCells[0]] === 'X' ? 'mahmoud' : 'nagham';
-        setTimeout(function() { showReveal(w); }, 700);
-    }
+        xoOver = true; db.ref('xoGame').update({ board: xoBoard, current: xoCur, over: true, winCells: [], roundWinner: 'draw' });
+    } else { db.ref('xoGame').update({ board: xoBoard, current: xoCur, over: false, winCells: [] }); }
+    renderXoBoard(); updateXoUI();
 }
-
 function checkXoWin() {
-    for (var i = 0; i < xoWins.length; i++) {
-        var a = xoWins[i][0], b = xoWins[i][1], c = xoWins[i][2];
-        if (xoBoard[a] && xoBoard[a] === xoBoard[b] && xoBoard[a] === xoBoard[c]) {
-            return xoWins[i];
-        }
-    }
-    return null;
+    for (var i = 0; i < xoWins.length; i++) { var a = xoWins[i][0], b = xoWins[i][1], c = xoWins[i][2]; if (xoBoard[a] && xoBoard[a] === xoBoard[b] && xoBoard[a] === xoBoard[c]) return xoWins[i]; } return null;
 }
-
 function listenXoGame() {
-    buildXoBoard();
-    renderXoBoard();
-    updateXoUI();
-
+    buildXoBoard(); renderXoBoard(); updateXoUI();
     db.ref('xoGame').on('value', function(snap) {
-        var d = snap.val();
-        if (!d) return;
-
-        xoBoard = d.board || Array(9).fill(null);
-        xoCur = d.current || 'X';
-        xoOver = d.over || false;
-        xoWinCells = d.winCells || [];
-
-        renderXoBoard();
-        updateXoUI();
-
-        // Reveal on remote win
-        if (d.winner && !xoRevealed) {
-            xoRevealed = true;
-            setTimeout(function() { showReveal(d.winner); }, 700);
-        }
+        var d = snap.val(); if (!d) return;
+        var target = d.targetScore || 0; var mScore = d.mScore || 0; var nScore = d.nScore || 0; var matchOver = d.matchOver || false;
+        document.getElementById('xoSM').textContent = mScore + '/' + target; document.getElementById('xoSN').textContent = nScore + '/' + target;
+        var myRuleField = curUser === 'mahmoud' ? 'mRule' : 'nRule'; var addRuleBtn = document.getElementById('xoAddRuleBtn');
+        if (target > 0 && !d[myRuleField] && !matchOver) { addRuleBtn.style.display = 'inline-block'; } else { addRuleBtn.style.display = 'none'; }
+        if (matchOver) { var ultimateWinner = mScore >= target ? 'mahmoud' : 'nagham'; var msg = document.getElementById('xoMsg'); msg.className = 'xo-msg won'; msg.textContent = (ultimateWinner === 'mahmoud' ? 'محمود' : 'نغم') + ' كسب الماتش!'; }
+        xoBoard = d.board || Array(9).fill(null); xoCur = d.current || 'X'; xoOver = d.over || false; xoWinCells = d.winCells || [];
+        renderXoBoard(); updateXoUI();
     });
 }
-
-function resetXo() {
-    xoBoard = Array(9).fill(null);
-    xoCur = 'X';
-    xoOver = false;
-    xoWinCells = [];
-    xoRevealed = false;
-
-    db.ref('xoGame').set({
-        board: xoBoard,
-        current: 'X',
-        over: false,
-        winCells: [],
-        winner: null
-    });
-
-    renderXoBoard();
-    updateXoUI();
+function resetXoRound() {
+    db.ref('xoGame').once('value').then(function(snap) { var d = snap.val(); if (d && d.matchOver) return toast('الماتش خلص! اضغط ماتش جديد'); db.ref('xoGame').update({ board: Array(9).fill(null), current: 'X', over: false, winCells: [], roundWinner: null }); });
+}
+function resetXoBoardAndUI() {
+    xoBoard = Array(9).fill(null); xoCur = 'X'; xoOver = false; xoWinCells = [];
+    db.ref('xoGame').update({ board: Array(9).fill(null), current: 'X', over: false, winCells: [], roundWinner: null });
+    renderXoBoard(); updateXoUI();
 }
 
-/* ================================================
-   FINES - خصم من اللي زعل وإضافة للتاني
-================================================ */
+/* ===== FINES ===== */
 var F_CIRC = 2 * Math.PI * 42;
-
 function addFine() {
-    var person = document.getElementById('fineP').value;
-    var amount = parseInt(document.getElementById('fineA').value);
-    var reason = document.getElementById('fineR').value.trim();
-
-    if (!amount || amount <= 0) { toast('اكتب المبلغ!'); return; }
-    if (!reason) { toast('اكتب السبب!'); return; }
-
-    db.ref('fines').push({
-        person: person,
-        amount: amount,
-        reason: reason,
-        date: new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
-    });
-
-    document.getElementById('fineA').value = '';
-    document.getElementById('fineR').value = '';
+    var person = document.getElementById('fineP').value; var amount = parseInt(document.getElementById('fineA').value); var reason = document.getElementById('fineR').value.trim();
+    if (!amount || amount <= 0) { toast('اكتب المبلغ!'); return; } if (!reason) { toast('اكتب السبب!'); return; }
+    db.ref('fines').push({ person: person, amount: amount, reason: reason, date: new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) });
+    document.getElementById('fineA').value = ''; document.getElementById('fineR').value = '';
     toast('تم حكم الغرامة - خصم من ' + (person === 'mahmoud' ? 'محمود' : 'نغم') + '!');
 }
-
 function updateFinesUI() {
-    document.getElementById('fValM').textContent = mBal;
-    document.getElementById('fValN').textContent = nBal;
-
+    document.getElementById('fValM').textContent = mBal; document.getElementById('fValN').textContent = nBal;
     var maxV = Math.max(Math.abs(mBal), Math.abs(nBal), 1);
     var mOff = mBal === 0 ? F_CIRC : F_CIRC * (1 - Math.min(Math.abs(mBal) / Math.max(maxV * 1.5, 50), 1));
     var nOff = nBal === 0 ? F_CIRC : F_CIRC * (1 - Math.min(Math.abs(nBal) / Math.max(maxV * 1.5, 50), 1));
-    document.getElementById('fProM').style.strokeDashoffset = mOff;
-    document.getElementById('fProN').style.strokeDashoffset = nOff;
-    document.getElementById('fProM').classList.toggle('pos', mBal > 0);
-    document.getElementById('fProN').classList.toggle('pos', nBal > 0);
-
-    var ms = document.getElementById('fSubM');
-    var ns = document.getElementById('fSubN');
+    document.getElementById('fProM').style.strokeDashoffset = mOff; document.getElementById('fProN').style.strokeDashoffset = nOff;
+    document.getElementById('fProM').classList.toggle('pos', mBal > 0); document.getElementById('fProN').classList.toggle('pos', nBal > 0);
+    var ms = document.getElementById('fSubM'), ns = document.getElementById('fSubN');
     if (mBal > 0) { ms.textContent = 'عندك ' + mBal + ' ج.م'; ms.className = 'fcard-sub owed'; }
     else if (mBal < 0) { ms.textContent = 'عليك ' + Math.abs(mBal) + ' ج.م'; ms.className = 'fcard-sub owes'; }
     else { ms.textContent = 'متساوي'; ms.className = 'fcard-sub'; }
     if (nBal > 0) { ns.textContent = 'عندك ' + nBal + ' ج.م'; ns.className = 'fcard-sub owed'; }
     else if (nBal < 0) { ns.textContent = 'عليك ' + Math.abs(nBal) + ' ج.م'; ns.className = 'fcard-sub owes'; }
     else { ns.textContent = 'متساوي'; ns.className = 'fcard-sub'; }
-
     var nb = document.getElementById('netBal');
     if (mBal > 0 && nBal < 0) nb.innerHTML = 'نغم مديونة لمحمود بـ ' + Math.abs(nBal) + ' ج.م';
     else if (nBal > 0 && mBal < 0) nb.innerHTML = 'محمود مديون لنغم بـ ' + Math.abs(mBal) + ' ج.م';
     else nb.textContent = 'الحساب متساوي';
-
     var list = document.getElementById('fList');
-    if (!finesArr.length) {
-        list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:14px;font-size:0.85rem">مفيش غرامات لسه...</div>';
-        return;
-    }
+    if (!finesArr.length) { list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:14px;font-size:0.85rem">مفيش غرامات لسه...</div>'; return; }
     var html = '';
     for (var i = 0; i < finesArr.length; i++) {
-        var f = finesArr[i];
-        var isM = f.person === 'mahmoud';
-        var other = isM ? 'نغم' : 'محمود';
-        html += '<div class="fi-item">' +
-            '<div class="fi-av ' + (isM ? 'ma' : 'na') + '">' + (isM ? 'م' : 'ن') + '</div>' +
-            '<div class="fi-info"><div class="fi-reason">' + f.reason + ' ← ' + other + '</div><div class="fi-date">' + f.date + '</div></div>' +
-            '<div class="fi-amt ' + (isM ? 'mc' : 'nc') + '">' + f.amount + ' ج.م</div>' +
-            '</div>';
-    }
-    list.innerHTML = html;
+        var f = finesArr[i]; var isM = f.person === 'mahmoud'; var other = isM ? 'نغم' : 'محمود';
+        html += '<div class="fi-item"><div class="fi-av ' + (isM ? 'ma' : 'na') + '">' + (isM ? 'م' : 'ن') + '</div><div class="fi-info"><div class="fi-reason">' + f.reason + ' ← ' + other + '</div><div class="fi-date">' + f.date + '</div></div><div class="fi-amt ' + (isM ? 'mc' : 'nc') + '">' + f.amount + ' ج.م</div></div>';
+    } list.innerHTML = html;
 }
 
-/* ================================================
-   NAV TABS
-================================================ */
+/* ===== NAV TABS ===== */
 document.querySelectorAll('.nav-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
         document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
         document.querySelectorAll('.tab-c').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+        tab.classList.add('active'); document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
     });
 });
 
-/* ================================================
-   TOAST
-================================================ */
+/* ===== TOAST ===== */
 function toast(msg) {
-    var w = document.getElementById('toastW');
-    var t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = msg;
-    w.appendChild(t);
+    var w = document.getElementById('toastW'); var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; w.appendChild(t);
     setTimeout(function() { t.remove(); }, 3000);
 }
 
-/* ================================================
-   CONFETTI
-================================================ */
+/* ===== CONFETTI ===== */
 function confetti() {
-    var b = document.getElementById('confBox');
-    var cols = ['#e63946', '#d4a574', '#f5ebe0', '#ff6b6b', '#f0c987', '#2ecc71'];
+    var b = document.getElementById('confBox'); var cols = ['#e63946', '#d4a574', '#f5ebe0', '#ff6b6b', '#f0c987', '#2ecc71'];
     for (var i = 0; i < 45; i++) {
-        var p = document.createElement('div');
-        p.className = 'conf-p';
+        var p = document.createElement('div'); p.className = 'conf-p';
         p.style.cssText = 'left:' + (Math.random() * 100) + '%;top:-10px;width:' + (Math.random() * 7 + 4) + 'px;height:' + (Math.random() * 7 + 4) + 'px;background:' + cols[Math.floor(Math.random() * cols.length)] + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';animation-duration:' + (Math.random() * 1.5 + 1.5) + 's;animation-delay:' + (Math.random() * 0.4) + 's';
-        b.appendChild(p);
-        setTimeout(function(el) { el.remove(); }, 3500, p);
+        b.appendChild(p); setTimeout(function(el) { el.remove(); }, 3500, p);
     }
 }
 
-/* ================================================
-   HEARTS BACKGROUND
-================================================ */
+/* ===== HEARTS BACKGROUND ===== */
 (function() {
-    var c = document.getElementById('heartsBg');
-    var ctx = c.getContext('2d');
-    var hs = [];
-
-    function rs() { c.width = innerWidth; c.height = innerHeight; }
-    rs();
-    addEventListener('resize', rs);
-
+    var c = document.getElementById('heartsBg'); var ctx = c.getContext('2d'); var hs = [];
+    function rs() { c.width = innerWidth; c.height = innerHeight; } rs(); addEventListener('resize', rs);
     function mk() {
-        return {
-            x: Math.random() * c.width, y: c.height + 20,
-            sz: Math.random() * 9 + 4, sp: Math.random() * 0.5 + 0.2,
-            op: Math.random() * 0.18 + 0.04, sw: Math.random() * 1.2 - 0.6,
-            swS: Math.random() * 0.012 + 0.004, swO: Math.random() * Math.PI * 2, t: 0
-        };
+        return { x: Math.random() * c.width, y: c.height + 20, sz: Math.random() * 9 + 4, sp: Math.random() * 0.5 + 0.2, op: Math.random() * 0.18 + 0.04, sw: Math.random() * 1.2 - 0.6, swS: Math.random() * 0.012 + 0.004, swO: Math.random() * Math.PI * 2, t: 0 };
     }
     for (var i = 0; i < 18; i++) { var h = mk(); h.y = Math.random() * c.height; hs.push(h); }
-
     function dH(h) {
-        ctx.save(); ctx.globalAlpha = h.op; ctx.translate(h.x, h.y);
-        var s = h.sz / 11; ctx.scale(s, s);
-        ctx.beginPath(); ctx.moveTo(0, -3);
-        ctx.bezierCurveTo(-7, -12, -14, -3, 0, 7);
-        ctx.moveTo(0, -3);
-        ctx.bezierCurveTo(7, -12, 14, -3, 0, 7);
-        ctx.fillStyle = '#e63946'; ctx.fill(); ctx.restore();
+        ctx.save(); ctx.globalAlpha = h.op; ctx.translate(h.x, h.y); var s = h.sz / 11; ctx.scale(s, s);
+        ctx.beginPath(); ctx.moveTo(0, -3); ctx.bezierCurveTo(-7, -12, -14, -3, 0, 7); ctx.moveTo(0, -3);
+        ctx.bezierCurveTo(7, -12, 14, -3, 0, 7); ctx.fillStyle = '#e63946'; ctx.fill(); ctx.restore();
     }
-
     function anim() {
         ctx.clearRect(0, 0, c.width, c.height);
         for (var i = 0; i < hs.length; i++) {
-            var h = hs[i];
-            h.t += h.swS; h.y -= h.sp;
-            h.x += Math.sin(h.t + h.swO) * h.sw * 0.3;
-            dH(h);
+            var h = hs[i]; h.t += h.swS; h.y -= h.sp; h.x += Math.sin(h.t + h.swO) * h.sw * 0.3; dH(h);
             if (h.y < -20) { h.y = c.height + 20; h.x = Math.random() * c.width; }
-        }
-        requestAnimationFrame(anim);
-    }
-    anim();
+        } requestAnimationFrame(anim);
+    } anim();
 })();
 </script>
 </body>
