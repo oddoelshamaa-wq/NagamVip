@@ -850,86 +850,244 @@ function resetChickenUI() {
     document.getElementById('chTimer').textContent = '0.00'; document.getElementById('chTimer').classList.remove('running');
 }
 
-/* ===== XO GAME ===== */
+//* ===== XO GAME LOGIC - FIXED & OPTIMIZED ===== */
 var xoWins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-var xoBoard = Array(9).fill(null); var xoCur = 'X'; var xoOver = false; var xoWinCells = [];
+
 function mySymbol() { return curUser === 'mahmoud' ? 'X' : 'O'; }
-function isMyTurn() { return xoCur === mySymbol() && !xoOver; }
+
 function buildXoBoard() {
-    var board = document.getElementById('xoBoard'); board.innerHTML = '';
-    for (var i = 0; i < 9; i++) { var cell = document.createElement('div'); cell.className = 'xo-cell'; cell.dataset.idx = i; cell.addEventListener('click', handleXoClick); board.appendChild(cell); }
-}
-function renderXoBoard() {
-    var cells = document.querySelectorAll('.xo-cell'); var canPlay = isMyTurn();
+    var board = document.getElementById('xoBoard');
+    board.innerHTML = '';
     for (var i = 0; i < 9; i++) {
-        var cell = cells[i]; var val = xoBoard[i]; cell.className = 'xo-cell'; cell.textContent = val || '';
-        if (val) { cell.classList.add('taken'); cell.classList.add(val === 'X' ? 'xm' : 'om'); }
-        else if (!canPlay || xoOver) { cell.classList.add('dis'); }
-        if (xoWinCells.indexOf(i) !== -1) { cell.classList.add('wc'); }
+        var cell = document.createElement('div');
+        cell.className = 'xo-cell';
+        cell.dataset.idx = i;
+        cell.onclick = function() { handleXoClick(parseInt(this.dataset.idx)); };
+        board.appendChild(cell);
     }
-}
-function updateXoUI() {
-    var cardM = document.getElementById('xoCardM'); var cardN = document.getElementById('xoCardN');
-    var msg = document.getElementById('xoMsg'); cardM.classList.remove('at'); cardN.classList.remove('at'); msg.className = 'xo-msg';
-    if (xoOver) {
-        if (xoWinCells.length > 0) { var winnerSym = xoBoard[xoWinCells[0]]; var winnerName = winnerSym === 'X' ? 'محمود' : 'نغم'; msg.classList.add('won'); msg.textContent = winnerName + ' كسب الجولة!'; }
-        else { msg.classList.add('draw'); msg.textContent = 'تعادل!'; }
-    } else if (isMyTurn()) {
-        if (curUser === 'mahmoud') cardM.classList.add('at'); else cardN.classList.add('at');
-        msg.classList.add('my'); msg.innerHTML = '<i class="fas fa-hand-pointer"></i> دورك! العب ' + mySymbol();
-    } else {
-        var otherName = curUser === 'mahmoud' ? 'نغم' : 'محمود';
-        if (xoCur === 'X') cardM.classList.add('at'); else cardN.classList.add('at');
-        msg.classList.add('wait'); msg.innerHTML = '<i class="fas fa-hourglass-half"></i> مستني ' + otherName + ' يلعب...';
-    }
-}
-function handleXoClick() {
-    db.ref('xoGame').once('value').then(function(snap) { var d = snap.val(); if (d && d.matchOver) return toast('الماتش خلص! اضغط ماتش جديد'); if (d && d.roundWinner) return toast('الجولة خلصت!'); });
-    if (!isMyTurn()) return toast('مش دورك! استني'); if (xoOver) return;
-    var idx = parseInt(this.dataset.idx); if (xoBoard[idx]) return toast('المكان ده مأخوذ!');
-    var sym = mySymbol(); xoBoard[idx] = sym; xoCur = sym === 'X' ? 'O' : 'X';
-    var winResult = checkXoWin();
-    if (winResult) {
-        xoOver = true; xoWinCells = winResult; var winner = xoBoard[xoWinCells[0]] === 'X' ? 'mahmoud' : 'nagham';
-        var scField = winner === 'mahmoud' ? 'mScore' : 'nScore';
-        db.ref('xoGame').update({ board: xoBoard, current: xoCur, over: true, winCells: xoWinCells, roundWinner: winner });
-        db.ref('xoGame/' + scField).transaction(function(current) { return (current || 0) + 1; }).then(function(result) {
-            var newScore = result.snapshot.val();
-            db.ref('xoGame/targetScore').once('value').then(function(tsSnap) {
-                var target = tsSnap.val() || 3;
-                if (newScore >= target) { db.ref('xoGame/matchOver').set(true); setTimeout(function() { showGameReveal(winner, 'xo'); }, 700); }
-            });
-        });
-    } else if (xoBoard.every(function(c) { return c !== null; })) {
-        xoOver = true; db.ref('xoGame').update({ board: xoBoard, current: xoCur, over: true, winCells: [], roundWinner: 'draw' });
-    } else { db.ref('xoGame').update({ board: xoBoard, current: xoCur, over: false, winCells: [] }); }
-    renderXoBoard(); updateXoUI();
-}
-function checkXoWin() {
-    for (var i = 0; i < xoWins.length; i++) { var a = xoWins[i][0], b = xoWins[i][1], c = xoWins[i][2]; if (xoBoard[a] && xoBoard[a] === xoBoard[b] && xoBoard[a] === xoBoard[c]) return xoWins[i]; } return null;
-}
-function listenXoGame() {
-    buildXoBoard(); renderXoBoard(); updateXoUI();
-    db.ref('xoGame').on('value', function(snap) {
-        var d = snap.val(); if (!d) return;
-        var target = d.targetScore || 0; var mScore = d.mScore || 0; var nScore = d.nScore || 0; var matchOver = d.matchOver || false;
-        document.getElementById('xoSM').textContent = mScore + '/' + target; document.getElementById('xoSN').textContent = nScore + '/' + target;
-        var myRuleField = curUser === 'mahmoud' ? 'mRule' : 'nRule'; var addRuleBtn = document.getElementById('xoAddRuleBtn');
-        if (target > 0 && !d[myRuleField] && !matchOver) { addRuleBtn.style.display = 'inline-block'; } else { addRuleBtn.style.display = 'none'; }
-        if (matchOver) { var ultimateWinner = mScore >= target ? 'mahmoud' : 'nagham'; var msg = document.getElementById('xoMsg'); msg.className = 'xo-msg won'; msg.textContent = (ultimateWinner === 'mahmoud' ? 'محمود' : 'نغم') + ' كسب الماتش!'; }
-        xoBoard = d.board || Array(9).fill(null); xoCur = d.current || 'X'; xoOver = d.over || false; xoWinCells = d.winCells || [];
-        renderXoBoard(); updateXoUI();
-    });
-}
-function resetXoRound() {
-    db.ref('xoGame').once('value').then(function(snap) { var d = snap.val(); if (d && d.matchOver) return toast('الماتش خلص! اضغط ماتش جديد'); db.ref('xoGame').update({ board: Array(9).fill(null), current: 'X', over: false, winCells: [], roundWinner: null }); });
-}
-function resetXoBoardAndUI() {
-    xoBoard = Array(9).fill(null); xoCur = 'X'; xoOver = false; xoWinCells = [];
-    db.ref('xoGame').update({ board: Array(9).fill(null), current: 'X', over: false, winCells: [], roundWinner: null });
-    renderXoBoard(); updateXoUI();
 }
 
+function handleXoClick(idx) {
+    db.ref('xoGame').once('value').then(function(snap) {
+        var d = snap.val() || {};
+        
+        // منع اللعب لو الماتش خلص أو مش دور اللاعب
+        if (d.matchOver) return toast('الماتش خلص! ابدأ ماتش جديد');
+        if (d.over) return toast('الجولة خلصت! ابدأ جولة جديدة');
+        if (d.current !== mySymbol()) return toast('مش دورك! استنى الطرف التاني');
+        
+        // تجهيز البوردة لضمان عدم وجود خانات "ممسوحة" (Holes)
+        var newBoard = [];
+        for(var i=0; i<9; i++) {
+            newBoard[i] = (d.board && d.board[i]) ? d.board[i] : null;
+        }
+
+        if (newBoard[idx]) return toast('المكان ده مأخوذ!');
+
+        // تنفيذ الحركة
+        newBoard[idx] = mySymbol();
+        var nextTurn = mySymbol() === 'X' ? 'O' : 'X';
+
+        // التأكد من الفوز
+        var winResult = null;
+        for (var i = 0; i < xoWins.length; i++) {
+            var [a, b, c] = xoWins[i];
+            if (newBoard[a] && newBoard[a] === newBoard[b] && newBoard[a] === newBoard[c]) {
+                winResult = xoWins[i];
+                break;
+            }
+        }
+
+        var updates = { board: newBoard, current: nextTurn };
+
+        if (winResult) {
+            updates.over = true;
+            updates.winCells = winResult;
+            updates.roundWinner = curUser;
+            processXoWin(curUser);
+        } else {
+            // طريقة مضمونة للتأكد من التعادل (عد الخانات المليانة)
+            var filledCount = 0;
+            for(var i=0; i<9; i++) { if(newBoard[i]) filledCount++; }
+            
+            if (filledCount === 9) {
+                updates.over = true;
+                updates.winCells = [];
+                updates.roundWinner = 'draw';
+            }
+        }
+
+        db.ref('xoGame').update(updates);
+    });
+}
+
+function processXoWin(winner) {
+    var scField = winner === 'mahmoud' ? 'mScore' : 'nScore';
+    db.ref('xoGame/' + scField).transaction(function(curr) {
+        return (curr || 0) + 1;
+    }).then(function(res) {
+        var newScore = res.snapshot.val();
+        db.ref('xoGame/targetScore').once('value').then(function(ts) {
+            var target = ts.val() || 3;
+            if (newScore >= target) {
+                db.ref('xoGame/matchOver').set(true);
+                setTimeout(function() { showGameReveal(winner, 'xo'); }, 600);
+            }
+        });
+    });
+}
+
+function listenXoGame() {
+    buildXoBoard();
+    db.ref('xoGame').on('value', function(snap) {
+        var d = snap.val();
+        if (!d) return;
+
+        // قراءة البوردة بشكل آمن
+        var safeBoard = [];
+        for(var i=0; i<9; i++) {
+            safeBoard[i] = (d.board && d.board[i]) ? d.board[i] : null;
+        }
+
+        var cells = document.querySelectorAll('.xo-cell');
+        cells.forEach((cell, i) => {
+            var val = safeBoard[i];
+            cell.textContent = val || '';
+            cell.className = 'xo-cell';
+            if (val) cell.classList.add('taken', val === 'X' ? 'xm' : 'om');
+            if (d.winCells && d.winCells.includes(i)) cell.classList.add('wc');
+        });
+
+        // تحديث النصوص والواجهة
+        updateXoUI(d);
+    });
+}
+
+function updateXoUI(d) {
+    var cardM = document.getElementById('xoCardM');
+    var cardN = document.getElementById('xoCardN');
+    var msg = document.getElementById('xoMsg');
+    
+    document.getElementById('xoSM').textContent = (d.mScore || 0) + '/' + (d.targetScore || 3);
+    document.getElementById('xoSN').textContent = (d.nScore || 0) + '/' + (d.targetScore || 3);
+
+    cardM.classList.remove('at'); cardN.classList.remove('at');
+    
+    if (d.matchOver) {
+        msg.className = 'xo-msg won';
+        msg.textContent = 'الماتش خلص! الفائز: ' + (d.mScore > d.nScore ? 'محمود' : 'نغم');
+    } else if (d.over) {
+        msg.className = 'xo-msg draw';
+        msg.textContent = d.roundWinner === 'draw' ? 'تعادل! ابدأ جولة جديدة' : 'كفوو! فاز ' + (d.roundWinner === 'mahmoud' ? 'محمود' : 'نغم');
+    } else {
+        if (d.current === 'X') cardM.classList.add('at'); else cardN.classList.add('at');
+        if (d.current === mySymbol()) {
+            msg.className = 'xo-msg my';
+            msg.innerHTML = '<i class="fas fa-hand-pointer"></i> دورك يا ' + (curUser === 'mahmoud' ? 'بطل' : 'نجمة');
+        } else {
+            msg.className = 'xo-msg wait';
+            msg.textContent = 'مستني ' + (d.current === 'X' ? 'محمود' : 'نغم') + ' يلعب...';
+        }
+    }
+}
+function checkXoWinLocal(board) {
+    for (var i = 0; i < xoWins.length; i++) {
+        var [a, b, c] = xoWins[i];
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) return xoWins[i];
+    }
+    return null;
+}
+
+function processXoWin(winner) {
+    var scField = winner === 'mahmoud' ? 'mScore' : 'nScore';
+    db.ref('xoGame/' + scField).transaction(function(curr) {
+        return (curr || 0) + 1;
+    }).then(function(res) {
+        var newScore = res.snapshot.val();
+        db.ref('xoGame/targetScore').once('value').then(function(ts) {
+            var target = ts.val() || 3;
+            if (newScore >= target) {
+                db.ref('xoGame/matchOver').set(true);
+                setTimeout(function() { showGameReveal(winner, 'xo'); }, 600);
+            }
+        });
+    });
+}
+
+// الاستماع للتغييرات من Firebase وتحديث الشاشة
+function listenXoGame() {
+    buildXoBoard();
+    db.ref('xoGame').on('value', function(snap) {
+        var d = snap.val();
+        if (!d) return;
+
+        xoBoard = d.board || Array(9).fill(null);
+        xoCur = d.current || 'X';
+        xoOver = d.over || false;
+        xoWinCells = d.winCells || [];
+
+        renderXoBoard();
+        updateXoUI(d);
+    });
+}
+
+function renderXoBoard() {
+    var cells = document.querySelectorAll('.xo-cell');
+    cells.forEach((cell, i) => {
+        var val = xoBoard[i];
+        cell.textContent = val || '';
+        cell.className = 'xo-cell';
+        if (val) {
+            cell.classList.add('taken', val === 'X' ? 'xm' : 'om');
+        }
+        if (xoWinCells.includes(i)) {
+            cell.classList.add('wc');
+        }
+    });
+}
+
+function updateXoUI(d) {
+    var cardM = document.getElementById('xoCardM');
+    var cardN = document.getElementById('xoCardN');
+    var msg = document.getElementById('xoMsg');
+    
+    document.getElementById('xoSM').textContent = (d.mScore || 0) + '/' + (d.targetScore || 3);
+    document.getElementById('xoSN').textContent = (d.nScore || 0) + '/' + (d.targetScore || 3);
+
+    cardM.classList.remove('at');
+    cardN.classList.remove('at');
+    
+    if (d.matchOver) {
+        msg.className = 'xo-msg won';
+        msg.textContent = 'الماتش خلص وفاز ' + (d.mScore > d.nScore ? 'محمود' : 'نغم');
+    } else if (d.over) {
+        msg.className = 'xo-msg draw';
+        msg.textContent = d.roundWinner === 'draw' ? 'تعادل! ابدأ جولة جديدة' : 'فاز ' + (d.roundWinner === 'mahmoud' ? 'محمود' : 'نغم') + '!';
+    } else {
+        if (d.current === 'X') cardM.classList.add('at'); else cardN.classList.add('at');
+        if (d.current === mySymbol()) {
+            msg.className = 'xo-msg my';
+            msg.innerHTML = '<i class="fas fa-hand-pointer"></i> دورك يا ' + (curUser === 'mahmoud' ? 'حودة' : 'نغومة');
+        } else {
+            msg.className = 'xo-msg wait';
+            msg.textContent = 'مستنيين ' + (d.current === 'X' ? 'محمود' : 'نغم') + ' يلعب...';
+        }
+    }
+}
+
+function resetXoRound() {
+    db.ref('xoGame').once('value').then(function(snap) {
+        var d = snap.val();
+        if (d && d.matchOver) return toast('الماتش خلص! ابدأ ماتش جديد');
+        db.ref('xoGame').update({
+            board: Array(9).fill(null),
+            current: 'X',
+            over: false,
+            winCells: [],
+            roundWinner: null
+        });
+    });
+}
 /* ===== FINES ===== */
 var F_CIRC = 2 * Math.PI * 42;
 function addFine() {
