@@ -3,1631 +3,1323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معلم الصينية - بوت تفاعلي</title>
+    <title>معلم الصينية الذكي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --bg: #0a0a0f;
-            --bg2: #12121a;
-            --card: #1a1a26;
-            --card2: #222233;
+            --bg: #080810;
+            --bg2: #0e0e1a;
+            --card: #151524;
+            --card2: #1c1c30;
             --accent: #e63946;
+            --accent-glow: rgba(230,57,70,0.25);
             --accent2: #f4a261;
             --gold: #e9c46a;
             --green: #2a9d8f;
-            --fg: #f1faee;
-            --fg2: #a8a8b8;
+            --cyan: #00b4d8;
+            --fg: #f0f0f5;
+            --fg2: #9999b0;
             --muted: #55556a;
-            --border: #2a2a3a;
-            --bot-bg: #1e2a1e;
-            --user-bg: #2a1a1e;
+            --border: #252540;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Cairo', sans-serif;
             background: var(--bg);
             color: var(--fg);
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        /* === الخلفية المتحركة === */
-        .bg-layer {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .bg-layer::before {
-            content: '';
-            position: absolute;
-            top: -30%;
-            right: -20%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(230,57,70,0.08) 0%, transparent 70%);
-            animation: floatBlob 12s ease-in-out infinite;
-        }
-
-        .bg-layer::after {
-            content: '';
-            position: absolute;
-            bottom: -20%;
-            left: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(42,157,143,0.06) 0%, transparent 70%);
-            animation: floatBlob 15s ease-in-out infinite reverse;
-        }
-
-        @keyframes floatBlob {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(40px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.95); }
-        }
-
-        /* === رموز صينية عائمة === */
-        .floating-chars {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .float-char {
-            position: absolute;
-            font-family: 'Noto Sans SC', sans-serif;
-            color: rgba(230,57,70,0.04);
-            font-size: 80px;
-            font-weight: 900;
-            animation: floatUp linear infinite;
-            user-select: none;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
-        }
-
-        /* === التخطيط الرئيسي === */
-        .app-container {
-            position: relative;
-            z-index: 1;
-            display: flex;
             height: 100vh;
-            max-width: 1400px;
-            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        /* === الخلفية === */
+        .bg-effects {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+
+        .bg-orb {
+            position: absolute; border-radius: 50%; filter: blur(100px);
+            animation: orbFloat 18s ease-in-out infinite;
+        }
+        .bg-orb:nth-child(1) {
+            width: 500px; height: 500px; top: -15%; right: -10%;
+            background: radial-gradient(circle, rgba(230,57,70,0.1), transparent 70%);
+        }
+        .bg-orb:nth-child(2) {
+            width: 400px; height: 400px; bottom: -10%; left: -5%;
+            background: radial-gradient(circle, rgba(42,157,143,0.08), transparent 70%);
+            animation-delay: -6s; animation-duration: 22s;
+        }
+        .bg-orb:nth-child(3) {
+            width: 300px; height: 300px; top: 40%; left: 40%;
+            background: radial-gradient(circle, rgba(233,196,106,0.05), transparent 70%);
+            animation-delay: -12s; animation-duration: 25s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.15); }
+            66% { transform: translate(-25px, 25px) scale(0.9); }
+        }
+
+        /* === شبكة خلفية === */
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* === رموز عائمة === */
+        .floating-chars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .float-char {
+            position: absolute; font-family: 'Noto Sans SC', sans-serif;
+            color: rgba(230,57,70,0.035); font-weight: 900;
+            animation: charRise linear infinite;
+        }
+        @keyframes charRise {
+            0% { transform: translateY(105vh) rotate(0deg); opacity: 0; }
+            8% { opacity: 1; }
+            92% { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(15deg); opacity: 0; }
+        }
+
+        /* === التخطيط === */
+        .app {
+            position: relative; z-index: 1;
+            display: flex; height: 100vh; max-width: 1500px; margin: 0 auto;
         }
 
         /* === الشريط الجانبي === */
         .sidebar {
-            width: 320px;
-            background: var(--bg2);
+            width: 300px; background: var(--bg2);
             border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            overflow: hidden;
+            display: flex; flex-direction: column; flex-shrink: 0;
         }
 
-        .sidebar-header {
-            padding: 24px 20px;
+        .sidebar-head {
+            padding: 28px 20px 20px; text-align: center;
             border-bottom: 1px solid var(--border);
-            text-align: center;
         }
 
-        .logo-icon {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 12px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: 36px;
-            font-weight: 900;
-            color: #fff;
-            box-shadow: 0 8px 30px rgba(230,57,70,0.3);
-            animation: logoPulse 3s ease-in-out infinite;
+        .logo-box {
+            width: 72px; height: 72px; margin: 0 auto 14px;
+            background: linear-gradient(135deg, var(--accent), #b71c1c);
+            border-radius: 22px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Noto Sans SC', sans-serif; font-size: 38px; font-weight: 900; color: #fff;
+            box-shadow: 0 10px 40px var(--accent-glow);
+            position: relative; overflow: hidden;
+        }
+        .logo-box::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+            animation: logoShine 4s ease-in-out infinite;
+        }
+        @keyframes logoShine {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
         }
 
-        @keyframes logoPulse {
-            0%, 100% { box-shadow: 0 8px 30px rgba(230,57,70,0.3); }
-            50% { box-shadow: 0 8px 45px rgba(230,57,70,0.5); }
-        }
-
-        .logo-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--fg);
-        }
-
-        .logo-sub {
-            font-size: 12px;
-            color: var(--muted);
-            margin-top: 4px;
-        }
+        .logo-title { font-size: 18px; font-weight: 900; letter-spacing: -0.3px; }
+        .logo-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
 
         /* === التصنيفات === */
-        .categories {
-            padding: 16px 12px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .categories::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .categories::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
+        .cats { padding: 12px 10px; flex: 1; overflow-y: auto; }
+        .cats::-webkit-scrollbar { width: 3px; }
+        .cats::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
         .cat-label {
-            font-size: 11px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 8px 12px;
-            font-weight: 600;
+            font-size: 10px; color: var(--muted); text-transform: uppercase;
+            letter-spacing: 1.5px; padding: 10px 14px 6px; font-weight: 700;
         }
 
         .cat-btn {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 12px 14px;
-            border: none;
-            background: transparent;
-            color: var(--fg2);
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            margin-bottom: 4px;
+            display: flex; align-items: center; gap: 11px; width: 100%;
+            padding: 11px 13px; border: none; background: transparent;
+            color: var(--fg2); font-family: 'Cairo', sans-serif; font-size: 13px;
+            border-radius: 11px; cursor: pointer; transition: all 0.2s; margin-bottom: 3px;
             text-align: right;
         }
-
-        .cat-btn:hover {
-            background: var(--card);
-            color: var(--fg);
-        }
-
+        .cat-btn:hover { background: var(--card); color: var(--fg); }
         .cat-btn.active {
-            background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(244,162,97,0.1));
-            color: var(--accent);
-            font-weight: 600;
+            background: linear-gradient(135deg, rgba(230,57,70,0.12), rgba(230,57,70,0.04));
+            color: var(--accent); font-weight: 700;
         }
-
         .cat-btn i {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--card);
-            border-radius: 8px;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .cat-btn.active i {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        /* === الإحصائيات === */
-        .stats-bar {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-        }
-
-        .stat-item {
-            flex: 1;
-            text-align: center;
-            padding: 10px 0;
-            background: var(--card);
-            border-radius: 10px;
-        }
-
-        .stat-num {
-            font-size: 20px;
-            font-weight: 900;
-            color: var(--gold);
-        }
-
-        .stat-label {
-            font-size: 10px;
-            color: var(--muted);
-            margin-top: 2px;
-        }
-
-        /* === منطقة المحادثة === */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .chat-header {
-            padding: 18px 28px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(18,18,26,0.8);
-            backdrop-filter: blur(20px);
-        }
-
-        .chat-header-info h2 {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .chat-header-info span {
-            font-size: 12px;
-            color: var(--green);
-        }
-
-        .chat-header-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .header-btn {
-            width: 38px;
-            height: 38px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--fg2);
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            background: var(--card); border-radius: 8px; font-size: 12px; flex-shrink: 0;
             transition: all 0.2s;
         }
+        .cat-btn.active i { background: var(--accent); color: #fff; }
 
-        .header-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        .cat-count {
+            margin-right: auto; font-size: 10px; background: var(--card);
+            padding: 2px 7px; border-radius: 6px; color: var(--muted);
+        }
+        .cat-btn.active .cat-count { background: rgba(230,57,70,0.2); color: var(--accent); }
+
+        /* === الإحصائيات === */
+        .stats {
+            padding: 14px 16px; border-top: 1px solid var(--border);
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+        }
+        .stat {
+            text-align: center; padding: 10px 4px;
+            background: var(--card); border-radius: 10px;
+        }
+        .stat-n { font-size: 18px; font-weight: 900; color: var(--gold); }
+        .stat-l { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+        /* === المحادثة === */
+        .chat { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        .chat-head {
+            padding: 16px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(14,14,26,0.85); backdrop-filter: blur(24px);
+            position: relative;
+        }
+        .chat-head h2 { font-size: 15px; font-weight: 700; }
+        .chat-head .online {
+            font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 5px;
+        }
+        .chat-head .online::before {
+            content: ''; width: 6px; height: 6px; background: var(--green);
+            border-radius: 50%; animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(42,157,143,0.4); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(42,157,143,0); }
+        }
+
+        .head-actions { display: flex; gap: 6px; }
+        .h-btn {
+            width: 36px; height: 36px; border: 1px solid var(--border);
+            background: var(--card); color: var(--fg2); border-radius: 9px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 13px; transition: all 0.2s;
+        }
+        .h-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .progress-bar {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--border);
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 3px; transition: width 0.5s ease; width: 0%;
         }
 
         /* === الرسائل === */
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+        .msgs {
+            flex: 1; overflow-y: auto; padding: 20px 24px;
+            display: flex; flex-direction: column; gap: 14px;
             scroll-behavior: smooth;
         }
-
-        .messages::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .messages::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 5px;
-        }
+        .msgs::-webkit-scrollbar { width: 4px; }
+        .msgs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
         .msg {
-            display: flex;
-            gap: 12px;
-            max-width: 85%;
-            animation: msgIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; gap: 10px; max-width: 82%;
+            animation: msgSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
-        @keyframes msgIn {
-            from { opacity: 0; transform: translateY(16px); }
+        @keyframes msgSlide {
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .msg.bot { align-self: flex-start; }
+        .msg.user { align-self: flex-end; flex-direction: row-reverse; }
 
-        .msg.bot {
-            align-self: flex-start;
+        .msg-av {
+            width: 38px; height: 38px; border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0; margin-top: 2px;
+        }
+        .msg.bot .msg-av { background: linear-gradient(135deg, var(--accent), #b71c1c); color: #fff; }
+        .msg.user .msg-av { background: var(--card2); color: var(--fg2); }
+
+        .msg-body {
+            padding: 13px 16px; border-radius: 15px; line-height: 1.85; font-size: 13.5px;
+        }
+        .msg.bot .msg-body {
+            background: var(--card); border: 1px solid var(--border); border-top-right-radius: 4px;
+        }
+        .msg.user .msg-body {
+            background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(230,57,70,0.05));
+            border: 1px solid rgba(230,57,70,0.15); border-top-left-radius: 4px;
         }
 
-        .msg.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
+        .msg-body .zh {
+            font-family: 'Noto Sans SC', sans-serif; font-size: 28px; font-weight: 900;
+            color: var(--fg); display: block; margin-bottom: 4px; line-height: 1.3;
         }
-
-        .msg-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-            margin-top: 2px;
+        .msg-body .py { font-size: 14px; color: var(--accent2); font-style: italic; display: block; }
+        .msg-body .mn { color: var(--fg2); font-size: 13px; }
+        .msg-body .hl { color: var(--gold); font-weight: 700; }
+        .msg-body .note-box {
+            margin-top: 10px; padding: 10px 14px; background: rgba(233,196,106,0.06);
+            border: 1px solid rgba(233,196,106,0.12); border-radius: 10px;
+            font-size: 12px; color: var(--fg2); display: flex; gap: 8px; align-items: flex-start;
         }
+        .msg-body .note-box i { color: var(--gold); margin-top: 2px; flex-shrink: 0; }
 
-        .msg.bot .msg-avatar {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: #fff;
+        /* === بطاقة الكلمة المحسّنة === */
+        .wcard {
+            background: var(--card2); border: 1px solid var(--border); border-radius: 14px;
+            padding: 18px; margin-top: 10px; cursor: pointer;
+            transition: all 0.3s ease; position: relative; overflow: hidden;
         }
-
-        .msg.user .msg-avatar {
-            background: var(--card2);
-            color: var(--fg2);
-        }
-
-        .msg-bubble {
-            padding: 14px 18px;
-            border-radius: 16px;
-            line-height: 1.8;
-            font-size: 14px;
-        }
-
-        .msg.bot .msg-bubble {
-            background: var(--bot-bg);
-            border: 1px solid rgba(42,157,143,0.2);
-            border-top-right-radius: 4px;
-        }
-
-        .msg.user .msg-bubble {
-            background: var(--user-bg);
-            border: 1px solid rgba(230,57,70,0.2);
-            border-top-left-radius: 4px;
-        }
-
-        .msg-bubble .chinese {
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--accent);
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .msg-bubble .pinyin {
-            font-size: 13px;
-            color: var(--accent2);
-            font-style: italic;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .msg-bubble .meaning {
-            color: var(--fg2);
-            font-size: 13px;
-        }
-
-        .msg-bubble .highlight {
-            color: var(--gold);
-            font-weight: 600;
-        }
-
-        /* === بطاقات الكلمات === */
-        .word-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .word-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 4px;
-            height: 100%;
+        .wcard::before {
+            content: ''; position: absolute; top: 0; right: 0;
+            width: 4px; height: 100%;
             background: linear-gradient(to bottom, var(--accent), var(--accent2));
-            border-radius: 0 4px 4px 0;
         }
-
-        .word-card:hover {
+        .wcard:hover {
+            border-color: rgba(230,57,70,0.3); transform: translateX(-3px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+        }
+        .wcard.playing {
             border-color: var(--accent);
-            transform: translateX(-4px);
-            box-shadow: 0 4px 20px rgba(230,57,70,0.1);
+            box-shadow: 0 0 30px var(--accent-glow);
         }
+        .wcard-top { display: flex; align-items: center; justify-content: space-between; }
+        .wcard-char {
+            font-family: 'Noto Sans SC', sans-serif; font-size: 42px; font-weight: 900; color: var(--fg);
+            transition: transform 0.2s;
+        }
+        .wcard.playing .wcard-char { transform: scale(1.08); }
+        .wcard-speak {
+            width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--border);
+            background: transparent; color: var(--accent); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+            transition: all 0.25s; position: relative;
+        }
+        .wcard-speak:hover {
+            background: var(--accent); color: #fff; border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .wcard-speak.speaking::after {
+            content: ''; position: absolute; inset: -6px;
+            border: 2px solid var(--accent); border-radius: 50%;
+            animation: speakRing 1s ease-out infinite;
+        }
+        @keyframes speakRing {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .wcard-py { font-size: 15px; color: var(--accent2); margin-top: 6px; font-weight: 600; }
+        .wcard-mn { font-size: 14px; color: var(--fg2); margin-top: 2px; }
+        .wcard-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+            font-size: 11px; color: var(--muted);
+        }
+        .wcard-nav button {
+            background: var(--card); border: 1px solid var(--border); color: var(--fg2);
+            padding: 5px 12px; border-radius: 7px; font-family: 'Cairo', sans-serif;
+            font-size: 11px; cursor: pointer; transition: all 0.2s;
+        }
+        .wcard-nav button:hover { border-color: var(--accent); color: var(--accent); }
 
-        .word-card .wc-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* === الاختبار === */
+        .quiz-opts { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+        .q-opt {
+            padding: 11px 14px; background: var(--card); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--fg); font-family: 'Cairo', sans-serif;
+            font-size: 13px; cursor: pointer; transition: all 0.2s; text-align: right;
+            display: flex; align-items: center; gap: 10px;
         }
-
-        .word-card .wc-char {
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: 36px;
-            font-weight: 900;
-            color: var(--fg);
+        .q-opt:hover { border-color: var(--gold); background: rgba(233,196,106,0.04); }
+        .q-opt.correct { border-color: var(--green); background: rgba(42,157,143,0.12); color: var(--green); }
+        .q-opt.wrong { border-color: var(--accent); background: rgba(230,57,70,0.08); color: var(--accent); }
+        .q-opt.locked { pointer-events: none; }
+        .q-num {
+            width: 24px; height: 24px; border-radius: 6px; background: var(--card2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; flex-shrink: 0;
         }
-
-        .word-card .wc-speak {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--accent);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .word-card .wc-speak:hover {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .word-card .wc-pinyin {
-            font-size: 14px;
-            color: var(--accent2);
-            margin-top: 4px;
-        }
-
-        .word-card .wc-meaning {
-            font-size: 13px;
-            color: var(--fg2);
-            margin-top: 2px;
-        }
-
-        /* === أزرار الاختبار === */
-        .quiz-options {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .quiz-opt {
-            padding: 12px 16px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--fg);
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: right;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .quiz-opt:hover {
-            border-color: var(--gold);
-            background: rgba(233,196,106,0.05);
-        }
-
-        .quiz-opt.correct {
-            border-color: var(--green);
-            background: rgba(42,157,143,0.15);
-            color: var(--green);
-        }
-
-        .quiz-opt.wrong {
-            border-color: var(--accent);
-            background: rgba(230,57,70,0.1);
-            color: var(--accent);
-        }
-
-        .quiz-opt .opt-num {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            background: var(--card2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .quiz-opt.correct .opt-num {
-            background: var(--green);
-            color: #fff;
-        }
-
-        .quiz-opt.wrong .opt-num {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        /* === حقل الإدخال === */
-        .input-area {
-            padding: 16px 28px 24px;
-            border-top: 1px solid var(--border);
-            background: rgba(18,18,26,0.9);
-            backdrop-filter: blur(20px);
-        }
-
-        .input-wrapper {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-
-        .input-field {
-            flex: 1;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 18px;
-            color: var(--fg);
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            resize: none;
-            outline: none;
-            min-height: 48px;
-            max-height: 120px;
-            transition: border-color 0.2s;
-            line-height: 1.6;
-        }
-
-        .input-field::placeholder {
-            color: var(--muted);
-        }
-
-        .input-field:focus {
-            border-color: var(--accent);
-        }
-
-        .send-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            border: none;
-            background: linear-gradient(135deg, var(--accent), #c62828);
-            color: #fff;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.25s;
-            flex-shrink: 0;
-        }
-
-        .send-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 20px rgba(230,57,70,0.4);
-        }
-
-        .send-btn:active {
-            transform: scale(0.95);
-        }
-
-        .quick-btns {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .quick-btn {
-            padding: 6px 14px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--fg2);
-            font-family: 'Cairo', sans-serif;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .quick-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
+        .q-opt.correct .q-num { background: var(--green); color: #fff; }
+        .q-opt.wrong .q-num { background: var(--accent); color: #fff; }
 
         /* === مؤشر الكتابة === */
-        .typing-indicator {
-            display: flex;
-            gap: 5px;
-            padding: 8px 4px;
+        .typing { display: flex; gap: 5px; padding: 6px 2px; }
+        .typing span {
+            width: 7px; height: 7px; background: var(--green); border-radius: 50%;
+            animation: tdot 1.2s ease-in-out infinite;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.15s; }
+        .typing span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes tdot {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+            30% { transform: translateY(-7px); opacity: 1; }
         }
 
-        .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background: var(--green);
-            border-radius: 50%;
-            animation: typingDot 1.2s ease-in-out infinite;
+        /* === الإدخال === */
+        .input-area {
+            padding: 14px 24px 20px; border-top: 1px solid var(--border);
+            background: rgba(14,14,26,0.9); backdrop-filter: blur(24px);
         }
-
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typingDot {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-            30% { transform: translateY(-8px); opacity: 1; }
+        .input-row { display: flex; gap: 10px; align-items: flex-end; }
+        .inp {
+            flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 13px;
+            padding: 13px 16px; color: var(--fg); font-family: 'Cairo', sans-serif; font-size: 14px;
+            resize: none; outline: none; min-height: 46px; max-height: 110px;
+            transition: border-color 0.2s; line-height: 1.6;
         }
+        .inp::placeholder { color: var(--muted); }
+        .inp:focus { border-color: var(--accent); }
 
-        /* === الإشعارات === */
+        .send {
+            width: 46px; height: 46px; border-radius: 13px; border: none;
+            background: linear-gradient(135deg, var(--accent), #b71c1c); color: #fff;
+            font-size: 17px; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: all 0.2s; flex-shrink: 0;
+        }
+        .send:hover { transform: scale(1.06); box-shadow: 0 4px 24px var(--accent-glow); }
+        .send:active { transform: scale(0.94); }
+
+        .quick-row { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+        .qb {
+            padding: 5px 13px; background: var(--card); border: 1px solid var(--border);
+            border-radius: 18px; color: var(--fg2); font-family: 'Cairo', sans-serif;
+            font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        }
+        .qb:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* === الإشعار === */
         .toast {
-            position: fixed;
-            top: 24px;
-            left: 50%;
+            position: fixed; top: 20px; left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 12px 24px;
-            border-radius: 12px;
-            color: var(--fg);
-            font-size: 14px;
-            z-index: 999;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            background: var(--card2); border: 1px solid var(--border);
+            padding: 10px 22px; border-radius: 11px; color: var(--fg); font-size: 13px;
+            z-index: 999; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast i { color: var(--green); }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
+        /* === مؤشر النطق العائم === */
+        .speak-float {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) scale(0);
+            background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 30px;
+            font-size: 13px; font-weight: 700; z-index: 100;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 8px 30px var(--accent-glow);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
-
-        .toast i {
-            color: var(--green);
-        }
+        .speak-float.show { transform: translateX(-50%) scale(1); }
 
         /* === الاستجابة === */
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .messages {
-                padding: 16px;
-            }
-            .input-area {
-                padding: 12px 16px 16px;
-            }
-            .msg {
-                max-width: 95%;
-            }
+        @media (max-width: 860px) {
+            .sidebar { display: none; }
+            .msgs { padding: 14px; }
+            .input-area { padding: 10px 14px 14px; }
+            .msg { max-width: 95%; }
         }
 
-        /* === تقليل الحركة === */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
                 transition-duration: 0.01ms !important;
             }
         }
-
-        /* === تأثير النقر على بطاقة الكلمة === */
-        .word-card.flash {
-            animation: cardFlash 0.4s ease;
-        }
-
-        @keyframes cardFlash {
-            0% { background: var(--card); }
-            50% { background: rgba(230,57,70,0.15); }
-            100% { background: var(--card); }
-        }
-
-        /* === شريط التقدم في الرأس === */
-        .progress-mini {
-            height: 3px;
-            background: var(--border);
-            border-radius: 3px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-
-        .progress-mini-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--gold));
-            border-radius: 3px;
-            transition: width 0.6s ease;
-        }
     </style>
 </head>
 <body>
 
-    <!-- الخلفية -->
-    <div class="bg-layer"></div>
-    <div class="floating-chars" id="floatingChars"></div>
+<div class="bg-effects">
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+</div>
+<div class="bg-grid"></div>
+<div class="floating-chars" id="floatC"></div>
 
-    <!-- الإشعار -->
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toastText"></span>
-    </div>
+<div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastTxt"></span>
+</div>
 
-    <!-- التطبيق -->
-    <div class="app-container">
+<div class="speak-float" id="speakFloat">
+    <i class="fas fa-volume-high"></i>
+    <span id="speakFloatTxt">جاري النطق...</span>
+</div>
 
-        <!-- الشريط الجانبي -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-icon">语</div>
-                <div class="logo-title">معلم الصينية</div>
-                <div class="logo-sub">تعلّم الماندرين خطوة بخطوة</div>
+<div class="app">
+    <!-- الشريط الجانبي -->
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <div class="logo-box">语</div>
+            <div class="logo-title">معلم الصينية الذكي</div>
+            <div class="logo-sub">ينطق أي كلمة ترسلها</div>
+        </div>
+        <nav class="cats" id="catsNav">
+            <div class="cat-label">الدروس</div>
+        </nav>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-n" id="sWords">0</div>
+                <div class="stat-l">كلمة تعلّمتها</div>
             </div>
-
-            <nav class="categories">
-                <div class="cat-label">التصنيفات</div>
-                <button class="cat-btn active" data-cat="greetings" onclick="switchCategory('greetings', this)">
-                    <i class="fas fa-hand-peace"></i>
-                    <span>التحيات والسلام</span>
-                </button>
-                <button class="cat-btn" data-cat="numbers" onclick="switchCategory('numbers', this)">
-                    <i class="fas fa-hashtag"></i>
-                    <span>الأرقام والعد</span>
-                </button>
-                <button class="cat-btn" data-cat="family" onclick="switchCategory('family', this)">
-                    <i class="fas fa-people-roof"></i>
-                    <span>العائلة والأقارب</span>
-                </button>
-                <button class="cat-btn" data-cat="food" onclick="switchCategory('food', this)">
-                    <i class="fas fa-utensils"></i>
-                    <span>الطعام والمشروبات</span>
-                </button>
-                <button class="cat-btn" data-cat="colors" onclick="switchCategory('colors', this)">
-                    <i class="fas fa-palette"></i>
-                    <span>الألوان</span>
-                </button>
-                <button class="cat-btn" data-cat="travel" onclick="switchCategory('travel', this)">
-                    <i class="fas fa-plane"></i>
-                    <span>السفر والتنقل</span>
-                </button>
-                <button class="cat-btn" data-cat="daily" onclick="switchCategory('daily', this)">
-                    <i class="fas fa-sun"></i>
-                    <span>الحياة اليومية</span>
-                </button>
-                <button class="cat-btn" data-cat="quiz" onclick="switchCategory('quiz', this)">
-                    <i class="fas fa-brain"></i>
-                    <span>اختبر نفسك</span>
-                </button>
-                <button class="cat-btn" data-cat="phrases" onclick="switchCategory('phrases', this)">
-                    <i class="fas fa-comment-dots"></i>
-                    <span>جمل مفيدة</span>
-                </button>
-            </nav>
-
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <div class="stat-num" id="wordsLearned">0</div>
-                    <div class="stat-label">كلمة تعلّمتها</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num" id="quizScore">0</div>
-                    <div class="stat-label">إجابة صحيحة</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num" id="streakCount">0</div>
-                    <div class="stat-label">سلسلة صحيحة</div>
-                </div>
+            <div class="stat">
+                <div class="stat-n" id="sCorrect">0</div>
+                <div class="stat-l">إجابة صحيحة</div>
             </div>
-        </aside>
-
-        <!-- المحادثة -->
-        <main class="chat-area">
-            <header class="chat-header">
-                <div class="chat-header-info">
-                    <h2 id="chatTitle">التحيات والسلام</h2>
-                    <span><i class="fas fa-circle" style="font-size:6px;margin-left:6px;"></i>متصل الآن</span>
-                </div>
-                <div class="chat-header-actions">
-                    <button class="header-btn" onclick="clearChat()" title="مسح المحادثة" aria-label="مسح المحادثة">
-                        <i class="fas fa-trash-can"></i>
-                    </button>
-                    <button class="header-btn" onclick="speakLast()" title="نطق آخر كلمة" aria-label="نطق آخر كلمة">
-                        <i class="fas fa-volume-high"></i>
-                    </button>
-                </div>
-                <div class="progress-mini" style="position:absolute;bottom:0;left:0;right:0;">
-                    <div class="progress-mini-fill" id="progressFill" style="width:0%"></div>
-                </div>
-            </header>
-
-            <div class="messages" id="messages" role="log" aria-live="polite">
-                <!-- الرسائل تُضاف هنا -->
+            <div class="stat">
+                <div class="stat-n" id="sSpoken">0</div>
+                <div class="stat-l">مرة نطق</div>
             </div>
+        </div>
+    </aside>
 
-            <div class="input-area">
-                <div class="input-wrapper">
-                    <textarea class="input-field" id="inputField" placeholder="اكتب هنا... مثلاً: علّمني كلمة، اختبرني، التالي، السابق" rows="1" aria-label="حقل الكتابة"></textarea>
-                    <button class="send-btn" onclick="handleSend()" aria-label="إرسال">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="quick-btns">
-                    <button class="quick-btn" onclick="quickAction('next')">الكلمة التالية</button>
-                    <button class="quick-btn" onclick="quickAction('prev')">الكلمة السابقة</button>
-                    <button class="quick-btn" onclick="quickAction('speak')">انطقها</button>
-                    <button class="quick-btn" onclick="quickAction('quiz')">اختبرني</button>
-                    <button class="quick-btn" onclick="quickAction('random')">عشوائي</button>
-                </div>
+    <!-- المحادثة -->
+    <main class="chat">
+        <header class="chat-head">
+            <div>
+                <h2 id="chatTitle">التحيات والسلام</h2>
+                <div class="online">متصل الآن</div>
             </div>
-        </main>
-    </div>
+            <div class="head-actions">
+                <button class="h-btn" onclick="clearChat()" title="مسح" aria-label="مسح المحادثة"><i class="fas fa-trash-can"></i></button>
+                <button class="h-btn" onclick="repeatLast()" title="أعد النطق" aria-label="أعد النطق"><i class="fas fa-rotate-right"></i></button>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+        </header>
 
-    <script>
-        // ===============================
-        // قاعدة بيانات الكلمات الصينية
-        // ===============================
-        const database = {
-            greetings: {
-                title: 'التحيات والسلام',
-                icon: 'fa-hand-peace',
-                words: [
-                    { char: '你好', pinyin: 'nǐ hǎo', meaning: 'مرحباً / أهلاً', note: 'أشهر تحية في الصينية' },
-                    { char: '早上好', pinyin: 'zǎo shang hǎo', meaning: 'صباح الخير', note: 'تُستخدم صباحاً حتى الظهر' },
-                    { char: '晚上好', pinyin: 'wǎn shang hǎo', meaning: 'مساء الخير', note: 'تُستخدم من المساء' },
-                    { char: '再见', pinyin: 'zài jiàn', meaning: 'مع السلامة', note: 'وداع رسمي، حرفياً "أراك مرة أخرى"' },
-                    { char: '谢谢', pinyin: 'xiè xie', meaning: 'شكراً', note: 'شكر بسيط و everyday' },
-                    { char: '不客气', pinyin: 'bù kè qi', meaning: 'عفواً / لا شكر', note: 'الرد على شكر' },
-                    { char: '对不起', pinyin: 'duì bu qǐ', meaning: 'آسف / أعتذر', note: 'اعتذار رسمي' },
-                    { char: '没关系', pinyin: 'méi guān xi', meaning: 'لا بأس / عادي', note: 'الرد على الاعتذار' },
-                    { char: '你好吗', pinyin: 'nǐ hǎo ma', meaning: 'كيف حالك؟', note: 'سؤال عن الحال' },
-                    { char: '我很好', pinyin: 'wǒ hěn hǎo', meaning: 'أنا بخير', note: 'إجابة شائعة' },
-                    { char: '欢迎', pinyin: 'huān yíng', meaning: 'أهلاً وسهلاً', note: 'ترحيب حار' },
-                    { char: '请问', pinyin: 'qǐng wèn', meaning: 'لو سمحت / سؤال', note: 'بداية سؤال مؤدب' }
-                ]
-            },
-            numbers: {
-                title: 'الأرقام والعد',
-                icon: 'fa-hashtag',
-                words: [
-                    { char: '一', pinyin: 'yī', meaning: 'واحد (1)', note: 'الرقم الأول' },
-                    { char: '二', pinyin: 'èr', meaning: 'اثنان (2)', note: 'في العناوين يُقال 两 liǎng' },
-                    { char: '三', pinyin: 'sān', meaning: 'ثلاثة (3)', note: 'خط أفقية + خطان مائلان' },
-                    { char: '四', pinyin: 'sì', meaning: 'أربعة (4)', note: 'يتشابه مع الموت لذلك يُستبدل أحياناً' },
-                    { char: '五', pinyin: 'wǔ', meaning: 'خمسة (5)', note: 'شكل متماثل تقريباً' },
-                    { char: '六', pinyin: 'liù', meaning: 'ستة (6)', note: 'خطوط قصيرة ومتقاطعة' },
-                    { char: '七', pinyin: 'qī', meaning: 'سبعة (7)', note: 'خط أفقي + منحنى' },
-                    { char: '八', pinyin: 'bā', meaning: 'ثمانية (8)', note: 'شكلان متقابلان' },
-                    { char: '九', pinyin: 'jiǔ', meaning: 'تسعة (9)', note: 'يرمز للطول والأبدية' },
-                    { char: '十', pinyin: 'shí', meaning: 'عشرة (10)', note: 'علامة الصليب - أساسي جداً' },
-                    { char: '百', pinyin: 'bǎi', meaning: 'مئة (100)', note: 'جذره يعني "أبيض"' },
-                    { char: '千', pinyin: 'qiān', meaning: 'ألف (1000)', note: 'ثاني أكبر وحدة عد صينية' }
-                ]
-            },
-            family: {
-                title: 'العائلة والأقارب',
-                icon: 'fa-people-roof',
-                words: [
-                    { char: '爸爸', pinyin: 'bà ba', meaning: 'أبي / بابا', note: 'مناداة غير رسمية للأب' },
-                    { char: '妈妈', pinyin: 'mā ma', meaning: 'أمي / ماما', note: 'مناداة غير رسمية للأم' },
-                    { char: '哥哥', pinyin: 'gē ge', meaning: 'أخي الأكبر', note: 'تكرار الكلمة يدل على القرب' },
-                    { char: '姐姐', pinyin: 'jiě jie', meaning: 'أختي الكبرى', note: 'نفس قاعدة التكرار' },
-                    { char: '弟弟', pinyin: 'dì di', meaning: 'أخي الأصغر', note: '弟 تعني الأخ الأصغر' },
-                    { char: '妹妹', pinyin: 'mèi mei', meaning: 'أختي الصغرى', note: '妹 تعني الأخت الصغرى' },
-                    { char: '爷爷', pinyin: 'yé ye', meaning: 'جدي (أبي)', note: 'الجد من جهة الأب' },
-                    { char: '奶奶', pinyin: 'nǎi nai', meaning: 'جدتي (أبي)', note: 'الجدة من جهة الأب' },
-                    { char: '家', pinyin: 'jiā', meaning: 'عائلة / بيت', note: 'مفهوم مهم في الثقافة الصينية' },
-                    { char: '儿子', pinyin: 'ér zi', meaning: 'ابن', note: '儿子 = ذكر + لاحقة' },
-                    { char: '女儿', pinyin: 'nǚ ér', meaning: 'ابنة', note: '女 تعني أنثى' },
-                    { char: '丈夫', pinyin: 'zhàng fu', meaning: 'زوج', note: 'كلمة رسمية للزوج' }
-                ]
-            },
-            food: {
-                title: 'الطعام والمشروبات',
-                icon: 'fa-utensils',
-                words: [
-                    { char: '米饭', pinyin: 'mǐ fàn', meaning: 'أرز مطبوخ', note: 'الطعام الأساسي في الصين' },
-                    { char: '水', pinyin: 'shuǐ', meaning: 'ماء', note: 'ثلاثة خطوط تمثل الماء المتدفق' },
-                    { char: '茶', pinyin: 'chá', meaning: 'شاي', note: 'الصين موطن الشاي الأصلي' },
-                    { char: '面', pinyin: 'miàn', meaning: 'نودلز / معكرونة', note: 'جذر يعني "وجه" أيضاً' },
-                    { char: '肉', pinyin: 'ròu', meaning: 'لحم', note: 'داخل الإطار = اللحم' },
-                    { char: '鱼', pinyin: 'yú', meaning: 'سمك', note: 'يشبه السمكة بذيلها' },
-                    { char: '鸡', pinyin: 'jī', meaning: 'دجاج', note: 'طائر محلي شهير' },
-                    { char: '菜', pinyin: 'cài', meaning: 'خضار / طبق', note: 'يمكن أن تعني الأطباق عموماً' },
-                    { char: '鸡蛋', pinyin: 'jī dàn', meaning: 'بيضة', note: 'دجاج + بيضة' },
-                    { char: '汤', pinyin: 'tāng', meaning: 'حساء / شوربة', note: 'الماء + السخونة' },
-                    { char: '好吃', pinyin: 'hǎo chī', meaning: 'لذيذ', note: 'حرفياً "جيد للأكل"' },
-                    { char: '喝', pinyin: 'hē', meaning: 'يشرب', note: 'فعل الشرب' }
-                ]
-            },
-            colors: {
-                title: 'الألوان',
-                icon: 'fa-palette',
-                words: [
-                    { char: '红', pinyin: 'hóng', meaning: 'أحمر', note: 'لون الحظ والسعادة في الصين' },
-                    { char: '蓝', pinyin: 'lán', meaning: 'أزرق', note: 'لون السماء' },
-                    { char: '绿', pinyin: 'lǜ', meaning: 'أخضر', note: 'لون الطبيعة والنمو' },
-                    { char: '黄', pinyin: 'huáng', meaning: 'أصفر', note: 'لون الإمبراطور قديماً' },
-                    { char: '白', pinyin: 'bái', meaning: 'أبيض', note: 'لون الحداد تقليدياً' },
-                    { char: '黑', pinyin: 'hēi', meaning: 'أسود', note: 'أقل خطوط من بين الألوان' },
-                    { char: '紫', pinyin: 'zǐ', meaning: 'بنفسجي', note: 'لون نبيل في التاريخ' },
-                    { char: '粉', pinyin: 'fěn', meaning: 'وردي', note: 'أصله يعني "بودرة"' },
-                    { char: '灰', pinyin: 'huī', meaning: 'رمادي', note: 'لون الرماد' },
-                    { char: '颜色', pinyin: 'yán sè', meaning: 'لون (اسم عام)', note: 'كلمة عامة للألوان' }
-                ]
-            },
-            travel: {
-                title: 'السفر والتنقل',
-                icon: 'fa-plane',
-                words: [
-                    { char: '中国', pinyin: 'Zhōng guó', meaning: 'الصين', note: 'حرفياً "الدولة الوسطى"' },
-                    { char: '飞机', pinyin: 'fēi jī', meaning: 'طائرة', note: 'طائر + آلة = طائرة' },
-                    { char: '火车', pinyin: 'huǒ chē', meaning: 'قطار', note: 'نار + عربة = قطار' },
-                    { char: '出租车', pinyin: 'chū zū chē', meaning: 'تاكسي', note: 'عربة للإيجار' },
-                    { char: '酒店', pinyin: 'jiǔ diàn', meaning: 'فندق', note: 'خمر + محل (تاريخياً)' },
-                    { char: '护照', pinyin: 'hù zhào', meaning: 'جواز سفر', note: 'حماية + وثيقة' },
-                    { char: '钱', pinyin: 'qián', meaning: 'فلوس / مال', note: 'الرمز القديم يشبه العملات' },
-                    { char: '地图', pinyin: 'dì tú', meaning: 'خريطة', note: 'أرض + صورة = خريطة' },
-                    { char: '机场', pinyin: 'jī chǎng', meaning: 'مطار', note: 'طائرة + مكان' },
-                    { char: '票', pinyin: 'piào', meaning: 'تذكرة', note: 'تذكرة سفر أو عرض' }
-                ]
-            },
-            daily: {
-                title: 'الحياة اليومية',
-                icon: 'fa-sun',
-                words: [
-                    { char: '今天', pinyin: 'jīn tiān', meaning: 'اليوم', note: 'الوقت الحاضر' },
-                    { char: '明天', pinyin: 'míng tiān', meaning: 'غداً', note: 'النهار المشرق القادم' },
-                    { char: '昨天', pinyin: 'zuó tiān', meaning: 'أمس', note: 'النهار الماضي' },
-                    { char: '早上', pinyin: 'zǎo shang', meaning: 'صباح', note: 'وقت مبكر من النهار' },
-                    { char: '晚上', pinyin: 'wǎn shang', meaning: 'مساء / ليل', note: 'بعد الغروب' },
-                    { char: '吃饭', pinyin: 'chī fàn', meaning: 'يأكل', note: 'حرفياً "يأكل أرز"' },
-                    { char: '睡觉', pinyin: 'shuì jiào', meaning: 'ينام', note: 'فعل النوم اليومي' },
-                    { char: '工作', pinyin: 'gōng zuò', meaning: 'عمل / يشتغل', note: 'عمل + فعل' },
-                    { char: '学习', pinyin: 'xué xí', meaning: 'يدرس / يتعلم', note: 'ما تفعله الآن!' },
-                    { char: '朋友', pinyin: 'péng you', meaning: 'صديق', note: 'من أهم الكلمات اجتماعياً' },
-                    { char: '名字', pinyin: 'míng zi', meaning: 'اسم', note: 'اسم + لاحقة تدليل' },
-                    { char: '大', pinyin: 'dà', meaning: 'كبير', note: 'رجل ممدود = كبير' }
-                ]
-            },
-            phrases: {
-                title: 'جمل مفيدة',
-                icon: 'fa-comment-dots',
-                words: [
-                    { char: '我是学生', pinyin: 'wǒ shì xué sheng', meaning: 'أنا طالب', note: 'جملة تعريفية أساسية' },
-                    { char: '我叫...', pinyin: 'wǒ jiào...', meaning: 'اسمي...', note: 'للتعريف بالنفس' },
-                    { char: '多少钱', pinyin: 'duō shao qián', meaning: 'كم السعر؟', note: 'أساسية للتبضع' },
-                    { char: '在哪里', pinyin: 'zài nǎ lǐ', meaning: 'أين؟', note: 'سؤال عن المكان' },
-                    { char: '我不明白', pinyin: 'wǒ bù míng bai', meaning: 'لا أفهم', note: 'مهمة للمبتدئين' },
-                    { char: '你会说英语吗', pinyin: 'nǐ huì shuō yīng yǔ ma', meaning: 'هل تتحدث الإنجليزية؟', note: 'سؤال منقذ!' },
-                    { char: '太好了', pinyin: 'tài hǎo le', meaning: 'رائع جداً!', note: 'تعبير حماسي' },
-                    { char: '慢慢来', pinyin: 'màn màn lái', meaning: 'على مهلك / بالتدريج', note: 'تُقال للطمأنة' },
-                    { char: '加油', pinyin: 'jiā yóu', meaning: 'هيا / استمر!', note: 'أشهر تشجيع صيني' },
-                    { char: '没问题', pinyin: 'méi wèn tí', meaning: 'لا مشكلة', note: 'جواب إيجابي شائع' }
-                ]
-            }
-        };
+        <div class="msgs" id="msgs" role="log" aria-live="polite"></div>
 
-        // ===============================
-        // حالة التطبيق
-        // ===============================
-        let currentCategory = 'greetings';
-        let currentIndex = 0;
-        let learnedWords = new Set();
-        let correctAnswers = 0;
-        let streak = 0;
-        let lastWord = null;
-        let quizActive = false;
-        let quizAnswered = false;
+        <div class="input-area">
+            <div class="input-row">
+                <textarea class="inp" id="inp" placeholder="اكتب أي شيء بالعربي أو الصيني وسأنطقه لك..." rows="1" aria-label="حقل الكتابة"></textarea>
+                <button class="send" onclick="handleSend()" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div class="quick-row">
+                <button class="qb" onclick="qa('next')">التالي</button>
+                <button class="qb" onclick="qa('prev')">السابق</button>
+                <button class="qb" onclick="qa('quiz')">اختبرني</button>
+                <button class="qb" onclick="qa('random')">عشوائي</button>
+                <button class="qb" onclick="qa('tones')">شرح النبرات</button>
+                <button class="qb" onclick="qa('help')">مساعدة</button>
+            </div>
+        </div>
+    </main>
+</div>
 
-        // ===============================
-        // الرموز الصينية العائمة
-        // ===============================
-        function createFloatingChars() {
-            const container = document.getElementById('floatingChars');
-            const chars = ['语', '学', '中', '文', '好', '人', '大', '小', '天', '地', '水', '火', '山', '木', '金', '爱', '心', '龙', '风', '月'];
-            for (let i = 0; i < 12; i++) {
-                const el = document.createElement('div');
-                el.className = 'float-char';
-                el.textContent = chars[Math.floor(Math.random() * chars.length)];
-                el.style.left = Math.random() * 100 + '%';
-                el.style.fontSize = (50 + Math.random() * 60) + 'px';
-                el.style.animationDuration = (15 + Math.random() * 20) + 's';
-                el.style.animationDelay = -(Math.random() * 20) + 's';
-                container.appendChild(el);
-            }
-        }
-        createFloatingChars();
+<script>
+// ============================
+// قاعدة البيانات
+// ============================
+const DB = {
+    greetings: {
+        title: 'التحيات والسلام', icon: 'fa-hand-peace',
+        words: [
+            { zh: '你好', py: 'nǐ hǎo', ar: 'مرحباً', note: 'أشهر تحية في الصينية، تستخدم في أي وقت' },
+            { zh: '早上好', py: 'zǎo shang hǎo', ar: 'صباح الخير', note: 'من الصباح حتى الظهر' },
+            { zh: '晚上好', py: 'wǎn shang hǎo', ar: 'مساء الخير', note: 'بعد غروب الشمس' },
+            { zh: '再见', py: 'zài jiàn', ar: 'مع السلامة', note: 'حرفياً "أراك مرة أخرى"' },
+            { zh: '谢谢', py: 'xiè xie', ar: 'شكراً', note: 'الشكر الأساسي اليومي' },
+            { zh: '不客气', py: 'bù kè qi', ar: 'عفواً', note: 'الرد على الشكر' },
+            { zh: '对不起', py: 'duì bu qǐ', ar: 'آسف', note: 'اعتذار رسمي' },
+            { zh: '没关系', py: 'méi guān xi', ar: 'لا بأس', note: 'الرد على الاعتذار' },
+            { zh: '你好吗', py: 'nǐ hǎo ma', ar: 'كيف حالك؟', note: 'سؤال عن الحال' },
+            { zh: '我很好', py: 'wǒ hěn hǎo', ar: 'أنا بخير', note: 'إجابة شائعة' },
+            { zh: '欢迎', py: 'huān yíng', ar: 'أهلاً وسهلاً', note: 'ترحيب حار بالضيوف' },
+            { zh: '请问', py: 'qǐng wèn', ar: 'لو سمحت', note: 'بداية سؤال مؤدب' }
+        ]
+    },
+    numbers: {
+        title: 'الأرقام', icon: 'fa-hashtag',
+        words: [
+            { zh: '一', py: 'yī', ar: 'واحد 1', note: 'خط واحد أفقي بسيط' },
+            { zh: '二', py: 'èr', ar: 'اثنان 2', note: 'في العناوين يُقال 两 liǎng' },
+            { zh: '三', py: 'sān', ar: 'ثلاثة 3', note: 'ثلاثة خطوط أفقية' },
+            { zh: '四', py: 'sì', ar: 'أربعة 4', note: 'يتشابه مع "موت" لذا يتجنبه البعض' },
+            { zh: '五', py: 'wǔ', ar: 'خمسة 5', note: 'شكل متماثل جميل' },
+            { zh: '六', py: 'liù', ar: 'ستة 6', note: 'خطوط قصيرة متقاطعة' },
+            { zh: '七', py: 'qī', ar: 'سبعة 7', note: 'خط أفقي + خط مائل' },
+            { zh: '八', py: 'bā', ar: 'ثمانية 8', note: 'شكلان متقابلان كالأنفاق' },
+            { zh: '九', py: 'jiǔ', ar: 'تسعة 9', note: 'يرمز للطول والأبدية' },
+            { zh: '十', py: 'shí', ar: 'عشرة 10', note: 'علامة الصليب - مهم جداً' },
+            { zh: '百', py: 'bǎi', ar: 'مئة 100', note: 'أصلها يعني "أبيض"' },
+            { zh: '千', py: 'qiān', ar: 'ألف 1000', note: 'وحدة عد صينية كبيرة' }
+        ]
+    },
+    family: {
+        title: 'العائلة', icon: 'fa-people-roof',
+        words: [
+            { zh: '爸爸', py: 'bà ba', ar: 'أبي / بابا', note: 'مناداة غير رسمية للأب' },
+            { zh: '妈妈', py: 'mā ma', ar: 'أمي / ماما', note: 'مناداة غير رسمية للأم' },
+            { zh: '哥哥', py: 'gē ge', ar: 'أخي الأكبر', note: 'تكرار الكلمة يدل على القرب' },
+            { zh: '姐姐', py: 'jiě jie', ar: 'أختي الكبرى', note: 'نفس قاعدة التكرار' },
+            { zh: '弟弟', py: 'dì di', ar: 'أخي الأصغر', note: '弟 = الأخ الأصغر تحديداً' },
+            { zh: '妹妹', py: 'mèi mei', ar: 'أختي الصغرى', note: '妹 = الأخت الصغرى تحديداً' },
+            { zh: '爷爷', py: 'yé ye', ar: 'جدي (أبي)', note: 'الجد من جهة الأب' },
+            { zh: '奶奶', py: 'nǎi nai', ar: 'جدتي (أبي)', note: 'الجدة من جهة الأب' },
+            { zh: '家', py: 'jiā', ar: 'عائلة / بيت', note: 'مفهوم محوري في الثقافة الصينية' },
+            { zh: '儿子', py: 'ér zi', ar: 'ابن', note: '儿 = ذكر + لاحقة' },
+            { zh: '女儿', py: 'nǚ ér', ar: 'ابنة', note: '女 = أنثى' },
+            { zh: '丈夫', py: 'zhàng fu', ar: 'زوج', note: 'كلمة رسمية للزوج' }
+        ]
+    },
+    food: {
+        title: 'الطعام والمشروبات', icon: 'fa-utensils',
+        words: [
+            { zh: '米饭', py: 'mǐ fàn', ar: 'أرز مطبوخ', note: 'الطعام الأساسي في الصين' },
+            { zh: '水', py: 'shuǐ', ar: 'ماء', note: 'ثلاثة خطوط تمثل الماء الجاري' },
+            { zh: '茶', py: 'chá', ar: 'شاي', note: 'الصين موطن الشاي الأصلي' },
+            { zh: '面', py: 'miàn', ar: 'نودلز', note: 'نفس الكلمة تعني "وجه"' },
+            { zh: '肉', py: 'ròu', ar: 'لحم', note: 'داخل الإطار = اللحم' },
+            { zh: '鱼', py: 'yú', ar: 'سمك', note: 'شكل يشبه السمكة' },
+            { zh: '鸡', py: 'jī', ar: 'دجاج', note: 'من أكثر اللحوم استهلاكاً' },
+            { zh: '菜', py: 'cài', ar: 'خضار / طبق', note: 'تعني الأطباق عموماً' },
+            { zh: '鸡蛋', py: 'jī dàn', ar: 'بيضة', note: 'دجاج + بيضة' },
+            { zh: '汤', py: 'tāng', ar: 'حساء', note: 'ماء + سخونة' },
+            { zh: '好吃', py: 'hǎo chī', ar: 'لذيذ', note: 'حرفياً "جيد للأكل"' },
+            { zh: '喝', py: 'hē', ar: 'يشرب', note: 'فعل الشرب' }
+        ]
+    },
+    colors: {
+        title: 'الألوان', icon: 'fa-palette',
+        words: [
+            { zh: '红', py: 'hóng', ar: 'أحمر', note: 'لون الحظ والسعادة في الصين' },
+            { zh: '蓝', py: 'lán', ar: 'أزرق', note: 'لون السماء الصافية' },
+            { zh: '绿', py: 'lǜ', ar: 'أخضر', note: 'لون الطبيعة والنمو' },
+            { zh: '黄', py: 'huáng', ar: 'أصفر', note: 'لون الإمبراطور قديماً' },
+            { zh: '白', py: 'bái', ar: 'أبيض', note: 'لون الحداد في التقاليد' },
+            { zh: '黑', py: 'hēi', ar: 'أسود', note: 'عكس الأبيض تماماً' },
+            { zh: '紫', py: 'zǐ', ar: 'بنفسجي', note: 'لون نبيل وملكي' },
+            { zh: '粉', py: 'fěn', ar: 'وردي', note: 'أصل الكلمة = بودرة' },
+            { zh: '灰', py: 'huī', ar: 'رمادي', note: 'لون الرماد والغبار' },
+            { zh: '颜色', py: 'yán sè', ar: 'لون (عام)', note: 'الكلمة العامة للألوان' }
+        ]
+    },
+    travel: {
+        title: 'السفر والتنقل', icon: 'fa-plane',
+        words: [
+            { zh: '中国', py: 'Zhōng guó', ar: 'الصين', note: '"الدولة الوسطى" - اسم الصين' },
+            { zh: '飞机', py: 'fēi jī', ar: 'طائرة', note: 'طائر + آلة = طائرة' },
+            { zh: '火车', py: 'huǒ chē', ar: 'قطار', note: 'نار + عربة = قطار' },
+            { zh: '出租车', py: 'chū zū chē', ar: 'تاكسي', note: 'عربة للإيجار' },
+            { zh: '酒店', py: 'jiǔ diàn', ar: 'فندق', note: 'خمر + محل (تاريخياً)' },
+            { zh: '护照', py: 'hù zhào', ar: 'جواز سفر', note: 'حماية + وثيقة' },
+            { zh: '钱', py: 'qián', ar: 'فلوس', note: 'الرمز القديم يشبه العملات المعدنية' },
+            { zh: '地图', py: 'dì tú', ar: 'خريطة', note: 'أرض + صورة = خريطة' },
+            { zh: '机场', py: 'jī chǎng', ar: 'مطار', note: 'طائرة + مكان' },
+            { zh: '票', py: 'piào', ar: 'تذكرة', note: 'تذكرة سفر أو دخول' }
+        ]
+    },
+    daily: {
+        title: 'الحياة اليومية', icon: 'fa-sun',
+        words: [
+            { zh: '今天', py: 'jīn tiān', ar: 'اليوم', note: 'الوقت الحاضر' },
+            { zh: '明天', py: 'míng tiān', ar: 'غداً', note: '"النهار المشرق القادم"' },
+            { zh: '昨天', py: 'zuó tiān', ar: 'أمس', note: 'النهار الماضي' },
+            { zh: '早上', py: 'zǎo shang', ar: 'صباح', note: 'وقت مبكر من النهار' },
+            { zh: '晚上', py: 'wǎn shang', ar: 'مساء', note: 'بعد الغروب' },
+            { zh: '吃饭', py: 'chī fàn', ar: 'يأكل', note: 'حرفياً "يأكل أرز"' },
+            { zh: '睡觉', py: 'shuì jiào', ar: 'ينام', note: 'فعل النوم اليومي' },
+            { zh: '工作', py: 'gōng zuò', ar: 'يعمل', note: 'عمل + فعل' },
+            { zh: '学习', py: 'xué xí', ar: 'يتعلم', note: 'ما تفعله الآن!' },
+            { zh: '朋友', py: 'péng you', ar: 'صديق', note: 'من أهم الكلمات اجتماعياً' },
+            { zh: '名字', py: 'míng zi', ar: 'اسم', note: 'اسم + لاحقة تدليل' },
+            { zh: '大', py: 'dà', ar: 'كبير', note: 'رجل ممدود = كبير' }
+        ]
+    },
+    phrases: {
+        title: 'جمل مفيدة', icon: 'fa-comment-dots',
+        words: [
+            { zh: '我是学生', py: 'wǒ shì xué sheng', ar: 'أنا طالب', note: 'جملة تعريفية أساسية' },
+            { zh: '我叫...', py: 'wǒ jiào...', ar: 'اسمي...', note: 'للتعريف بالنفس' },
+            { zh: '多少钱', py: 'duō shao qián', ar: 'كم السعر؟', note: 'أساسية للتبضع' },
+            { zh: '在哪里', py: 'zài nǎ lǐ', ar: 'أين؟', note: 'سؤال عن المكان' },
+            { zh: '我不明白', py: 'wǒ bù míng bai', ar: 'لا أفهم', note: 'مهمة جداً للمبتدئين' },
+            { zh: '你会说英语吗', py: 'nǐ huì shuō yīng yǔ ma', ar: 'هل تتحدث الإنجليزية؟', note: 'سؤال منقذ في الصين!' },
+            { zh: '太好了', py: 'tài hǎo le', ar: 'رائع جداً!', note: 'تعبير حماسي شائع' },
+            { zh: '慢慢来', py: 'màn màn lái', ar: 'على مهلك', note: 'تُقال للطمأنة والتهدئة' },
+            { zh: '加油', py: 'jiā yóu', ar: 'هيا! استمر!', note: 'أشهر تشجيع صيني على الإطلاق' },
+            { zh: '没问题', py: 'méi wèn tí', ar: 'لا مشكلة', note: 'جواب إيجابي يومي' }
+        ]
+    }
+};
 
-        // ===============================
-        // وظائف المحادثة
-        // ===============================
-        const messagesEl = document.getElementById('messages');
+// ============================
+// الحالة
+// ============================
+let curCat = 'greetings';
+let curIdx = 0;
+let learned = new Set();
+let correct = 0;
+let spoken = 0;
+let lastWord = null;
+let lastSpokenText = null;
+let quizDone = false;
 
-        // إضافة رسالة البوت
-        function addBotMessage(html) {
-            const div = document.createElement('div');
-            div.className = 'msg bot';
-            div.innerHTML = `
-                <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-bubble">${html}</div>
-            `;
-            messagesEl.appendChild(div);
-            scrollToBottom();
-        }
+// ============================
+// رموز عائمة
+// ============================
+(function initFloats() {
+    const c = document.getElementById('floatC');
+    const chars = '语学中文好人大小天地水火山木金爱心龙风月花鸟鱼虫马牛羊猫狗';
+    for (let i = 0; i < 14; i++) {
+        const el = document.createElement('div');
+        el.className = 'float-char';
+        el.textContent = chars[Math.floor(Math.random() * chars.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.fontSize = (45 + Math.random() * 55) + 'px';
+        el.style.animationDuration = (18 + Math.random() * 22) + 's';
+        el.style.animationDelay = -(Math.random() * 25) + 's';
+        c.appendChild(el);
+    }
+})();
 
-        // إضافة رسالة المستخدم
-        function addUserMessage(text) {
-            const div = document.createElement('div');
-            div.className = 'msg user';
-            div.innerHTML = `
-                <div class="msg-avatar"><i class="fas fa-user"></i></div>
-                <div class="msg-bubble">${text}</div>
-            `;
-            messagesEl.appendChild(div);
-            scrollToBottom();
-        }
+// ============================
+// بناء قائمة التصنيفات
+// ============================
+(function buildCats() {
+    const nav = document.getElementById('catsNav');
+    for (const key in DB) {
+        const cat = DB[key];
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn' + (key === curCat ? ' active' : '');
+        btn.dataset.cat = key;
+        btn.innerHTML = `
+            <i class="fas ${cat.icon}"></i>
+            <span>${cat.title}</span>
+            <span class="cat-count">${cat.words.length}</span>
+        `;
+        btn.onclick = () => switchCat(key, btn);
+        nav.appendChild(btn);
+    }
+})();
 
-        // إظهار مؤشر الكتابة
-        function showTyping() {
-            const div = document.createElement('div');
-            div.className = 'msg bot';
-            div.id = 'typingMsg';
-            div.innerHTML = `
-                <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-bubble">
-                    <div class="typing-indicator">
-                        <span></span><span></span><span></span>
-                    </div>
-                </div>
-            `;
-            messagesEl.appendChild(div);
-            scrollToBottom();
-        }
-
-        function hideTyping() {
-            const el = document.getElementById('typingMsg');
-            if (el) el.remove();
-        }
-
-        function scrollToBottom() {
-            messagesEl.scrollTop = messagesEl.scrollHeight;
-        }
-
-        // ===============================
-        // بناء بطاقة الكلمة
-        // ===============================
-        function buildWordCard(word, index, total) {
-            const spoken = learnedWords.has(word.char);
-            return `
-                <div class="word-card ${spoken ? '' : ''}" onclick="speakWord('${word.char}', '${word.pinyin}')" id="card-${index}">
-                    <div class="wc-top">
-                        <div>
-                            <div class="wc-char">${word.char}</div>
-                            <div class="wc-pinyin">${word.pinyin}</div>
-                            <div class="wc-meaning">${word.meaning}</div>
-                        </div>
-                        <button class="wc-speak" onclick="event.stopPropagation(); speakWord('${word.char}', '${word.pinyin}')" aria-label="انطق الكلمة">
-                            <i class="fas fa-volume-high"></i>
-                        </button>
-                    </div>
-                    <div style="margin-top:10px; font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:8px;">
-                        <i class="fas fa-lightbulb" style="color:var(--gold);margin-left:4px;"></i>
-                        ${word.note}
-                    </div>
-                    <div style="margin-top:6px; font-size:11px; color:var(--fg2);">
-                        ${index + 1} من ${total}
-                    </div>
-                </div>
-            `;
-        }
-
-        // ===============================
-        // النطق باستخدام Web Speech API
-        // ===============================
-        function speakWord(char, pinyin) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utter = new SpeechSynthesisUtterance(char);
-                utter.lang = 'zh-CN';
-                utter.rate = 0.7;
-                utter.pitch = 1;
-                window.speechSynthesis.speak(utter);
-                // تأثير بصري
-                const card = document.querySelector('.word-card');
-                if (card) {
-                    card.classList.remove('flash');
-                    void card.offsetWidth;
-                    card.classList.add('flash');
-                }
-            }
-        }
-
-        function speakLast() {
-            if (lastWord) {
-                speakWord(lastWord.char, lastWord.pinyin);
-                showToast('جاري النطق...');
-            } else {
-                showToast('لا توجد كلمة لنطقها');
-            }
-        }
-
-        // ===============================
-        // عرض كلمة
-        // ===============================
-        function showWord(index) {
-            const cat = database[currentCategory];
-            if (!cat) return;
-            const words = cat.words;
-            if (index < 0 || index >= words.length) return;
-
-            currentIndex = index;
-            const word = words[index];
-            lastWord = word;
-            quizActive = false;
-            quizAnswered = false;
-
-            // تسجيل الكلمة كمتعلمة
-            learnedWords.add(word.char);
+// ============================
+// النطق
+// ============================
+function speak(text, showFloat = true) {
+    if (!text || !text.trim()) return;
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text.trim());
+        u.lang = 'zh-CN';
+        u.rate = 0.75;
+        u.pitch = 1;
+        u.onstart = () => {
+            spoken++;
             updateStats();
+            // تأثير على البطاقة
+            const card = document.querySelector('.wcard');
+            if (card) { card.classList.add('playing'); }
+            const btn = document.querySelector('.wcard-speak');
+            if (btn) { btn.classList.add('speaking'); }
+            if (showFloat) showSpeakFloat(text);
+        };
+        u.onend = () => {
+            const card = document.querySelector('.wcard');
+            if (card) { card.classList.remove('playing'); }
+            const btn = document.querySelector('.wcard-speak');
+            if (btn) { btn.classList.remove('speaking'); }
+            hideSpeakFloat();
+        };
+        u.onerror = () => {
+            const card = document.querySelector('.wcard');
+            if (card) card.classList.remove('playing');
+            hideSpeakFloat();
+        };
+        lastSpokenText = text.trim();
+        window.speechSynthesis.speak(u);
+    }
+}
 
-            showTyping();
-            setTimeout(() => {
-                hideTyping();
-                addBotMessage(`
-                    تعال نتعلم كلمة جديدة من تصنيف <span class="highlight">${cat.title}</span>:
-                    ${buildWordCard(word, index, words.length)}
-                `);
-                updateProgress();
-            }, 600);
-        }
+function showSpeakFloat(text) {
+    const el = document.getElementById('speakFloat');
+    document.getElementById('speakFloatTxt').textContent = text.length > 10 ? text.substring(0, 10) + '...' : text;
+    el.classList.add('show');
+}
+function hideSpeakFloat() {
+    document.getElementById('speakFloat').classList.remove('show');
+}
 
-        // ===============================
-        // الاختبار
-        // ===============================
-        function startQuiz() {
-            quizActive = true;
-            quizAnswered = false;
-            const cat = database[currentCategory];
-            const words = cat.words;
-            const correctWord = words[Math.floor(Math.random() * words.length)];
-            lastWord = correctWord;
+function repeatLast() {
+    if (lastSpokenText) {
+        speak(lastSpokenText);
+        showToast('أعد النطق: ' + lastSpokenText);
+    } else {
+        showToast('لا يوجد نص لنطقه بعد');
+    }
+}
 
-            // إعداد الخيارات
-            let options = [correctWord];
-            const others = words.filter(w => w.char !== correctWord.char);
-            while (options.length < 4 && others.length > 0) {
-                const ri = Math.floor(Math.random() * others.length);
-                options.push(others.splice(ri, 1)[0]);
-            }
-            // خلط الخيارات
-            options.sort(() => Math.random() - 0.5);
+// ============================
+// الرسائل
+// ============================
+const msgs = document.getElementById('msgs');
 
-            const optionsHtml = options.map((opt, i) => `
-                <button class="quiz-opt" data-char="${opt.char}" onclick="checkQuiz(this, '${opt.char}', '${correctWord.char}')">
-                    <span class="opt-num">${['أ', 'ب', 'ج', 'د'][i]}</span>
-                    <span>${opt.meaning}</span>
+function addBot(html) {
+    const d = document.createElement('div');
+    d.className = 'msg bot';
+    d.innerHTML = `<div class="msg-av"><i class="fas fa-robot"></i></div><div class="msg-body">${html}</div>`;
+    msgs.appendChild(d);
+    scroll();
+}
+
+function addUser(text) {
+    const d = document.createElement('div');
+    d.className = 'msg user';
+    d.innerHTML = `<div class="msg-av"><i class="fas fa-user"></i></div><div class="msg-body">${escHtml(text)}</div>`;
+    msgs.appendChild(d);
+    scroll();
+}
+
+function showTyping() {
+    const d = document.createElement('div');
+    d.className = 'msg bot'; d.id = 'typMsg';
+    d.innerHTML = `<div class="msg-av"><i class="fas fa-robot"></i></div><div class="msg-body"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(d); scroll();
+}
+function hideTyping() { const e = document.getElementById('typMsg'); if (e) e.remove(); }
+function scroll() { msgs.scrollTop = msgs.scrollHeight; }
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ============================
+// بطاقة الكلمة
+// ============================
+function wcardHTML(w, idx, total) {
+    return `
+        <div class="wcard" onclick="speak('${w.zh}')" id="wc${idx}">
+            <div class="wcard-top">
+                <div>
+                    <div class="wcard-char">${w.zh}</div>
+                    <div class="wcard-py">${w.py}</div>
+                    <div class="wcard-mn">${w.ar}</div>
+                </div>
+                <button class="wcard-speak" onclick="event.stopPropagation(); speak('${w.zh}')" aria-label="انطق">
+                    <i class="fas fa-volume-high"></i>
                 </button>
-            `).join('');
+            </div>
+            <div class="note-box"><i class="fas fa-lightbulb"></i><span>${w.note}</span></div>
+            <div class="wcard-nav">
+                <button onclick="event.stopPropagation(); qa('prev')"><i class="fas fa-chevron-right" style="margin-left:4px;"></i> السابق</button>
+                <span>${idx + 1} / ${total}</span>
+                <button onclick="event.stopPropagation(); qa('next')">التالي <i class="fas fa-chevron-left" style="margin-right:4px;"></i></button>
+            </div>
+        </div>
+    `;
+}
 
-            showTyping();
-            setTimeout(() => {
-                hideTyping();
-                addBotMessage(`
-                    <div style="margin-bottom:8px;">ما معنى هذه الكلمة؟</div>
-                    <span class="chinese">${correctWord.char}</span>
-                    <span class="pinyin">${correctWord.pinyin}</span>
-                    <div class="quiz-options">${optionsHtml}</div>
+// ============================
+// عرض كلمة
+// ============================
+function showWord(idx) {
+    const cat = DB[curCat];
+    if (!cat) return;
+    idx = Math.max(0, Math.min(idx, cat.words.length - 1));
+    curIdx = idx;
+    const w = cat.words[idx];
+    lastWord = w;
+    quizDone = false;
+    learned.add(w.zh);
+    updateStats();
+    updateProg();
+
+    showTyping();
+    setTimeout(() => {
+        hideTyping();
+        addBot(`تعلّم كلمة من <span class="hl">${cat.title}</span>:${wcardHTML(w, idx, cat.words.length)}`);
+    }, 500);
+}
+
+// ============================
+// الاختبار
+// ============================
+function startQuiz() {
+    quizDone = false;
+    const cat = DB[curCat];
+    const words = cat.words;
+    const cw = words[Math.floor(Math.random() * words.length)];
+    lastWord = cw;
+
+    let opts = [cw];
+    const rest = words.filter(w => w.zh !== cw.zh);
+    while (opts.length < 4 && rest.length > 0) {
+        const ri = Math.floor(Math.random() * rest.length);
+        opts.push(rest.splice(ri, 1)[0]);
+    }
+    opts.sort(() => Math.random() - 0.5);
+
+    const optsH = opts.map((o, i) => `
+        <button class="q-opt" data-zh="${o.zh}" onclick="checkQuiz(this,'${o.zh}','${cw.zh}')">
+            <span class="q-num">${'أبجـ'[i]}</span>
+            <span>${o.ar}</span>
+        </button>
+    `).join('');
+
+    showTyping();
+    setTimeout(() => {
+        hideTyping();
+        addBot(`
+            <div style="margin-bottom:6px;">ما معنى هذه الكلمة؟</div>
+            <span class="zh" style="font-size:32px;">${cw.zh}</span>
+            <span class="py">${cw.py}</span>
+            <div class="quiz-opts">${optsH}</div>
+        `);
+    }, 700);
+}
+
+function checkQuiz(btn, sel, cor) {
+    if (quizDone) return;
+    quizDone = true;
+    document.querySelectorAll('.q-opt').forEach(b => {
+        b.classList.add('locked');
+        if (b.dataset.zh === cor) b.classList.add('correct');
+    });
+
+    if (sel === cor) {
+        btn.classList.add('correct');
+        correct++;
+        learned.add(cor);
+        speak(cor);
+        updateStats();
+        setTimeout(() => {
+            addBot(`<i class="fas fa-check-circle" style="color:var(--green);margin-left:6px;"></i> <span class="hl">إجابة صحيحة!</span> أحسنت، استمر في التعلّم!`);
+        }, 300);
+    } else {
+        btn.classList.add('wrong');
+        const cw = DB[curCat].words.find(w => w.zh === cor);
+        speak(cor);
+        setTimeout(() => {
+            addBot(`
+                <i class="fas fa-times-circle" style="color:var(--accent);margin-left:6px;"></i>
+                إجابة خاطئة. الصحيح:
+                <span class="zh" style="margin-top:6px;font-size:24px;">${cw.zh}</span>
+                <span class="py">${cw.py}</span>
+                <span class="mn">${cw.ar}</span>
+                <br>لا بأس، حاول مرة أخرى!
+            `);
+        }, 300);
+    }
+}
+
+// ============================
+// تبديل التصنيف
+// ============================
+function switchCat(key, btn) {
+    curCat = key; curIdx = 0; quizDone = false;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.getElementById('chatTitle').textContent = DB[key].title;
+    addUser('علّمني من: ' + DB[key].title);
+    showWord(0);
+}
+
+// ============================
+// معالجة الإدخال الذكية
+// ============================
+function handleSend() {
+    const inp = document.getElementById('inp');
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = ''; inp.style.height = 'auto';
+    addUser(text);
+    processInput(text);
+}
+
+function processInput(text) {
+    const t = text.toLowerCase();
+
+    // === كشف النص الصيني ===
+    const zhMatch = text.match(/[\u4e00-\u9fff]+/g);
+    if (zhMatch) {
+        const zhText = zhMatch.join('');
+        speak(zhText);
+
+        // بحث في قاعدة البيانات
+        let found = null;
+        for (const key in DB) {
+            const f = DB[key].words.find(w => w.zh === zhText);
+            if (f) { found = f; break; }
+        }
+
+        showTyping();
+        setTimeout(() => {
+            hideTyping();
+            if (found) {
+                addBot(`
+                    هذه الكلمة موجودة في قاعدتي:
+                    <span class="zh">${found.zh}</span>
+                    <span class="py">${found.py}</span>
+                    <span class="mn">${found.ar}</span>
+                    <div class="note-box"><i class="fas fa-lightbulb"></i><span>${found.note}</span></div>
                 `);
-            }, 800);
-        }
-
-        function checkQuiz(btn, selected, correct) {
-            if (quizAnswered) return;
-            quizAnswered = true;
-
-            const allBtns = document.querySelectorAll('.quiz-opt');
-            allBtns.forEach(b => {
-                b.style.pointerEvents = 'none';
-                if (b.dataset.char === correct) {
-                    b.classList.add('correct');
-                }
-            });
-
-            if (selected === correct) {
-                btn.classList.add('correct');
-                correctAnswers++;
-                streak++;
-                learnedWords.add(correct);
-                updateStats();
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <i class="fas fa-check-circle" style="color:var(--green);margin-left:6px;"></i>
-                        <span class="highlight">إجابة صحيحة!</span> أحسنت، استمر!
-                    `);
-                }, 400);
             } else {
-                btn.classList.add('wrong');
-                streak = 0;
-                updateStats();
-                const correctWord = database[currentCategory].words.find(w => w.char === correct);
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <i class="fas fa-times-circle" style="color:var(--accent);margin-left:6px;"></i>
-                        إجابة خاطئة. الإجابة الصحيحة هي:
-                        <span class="chinese" style="margin-top:8px;">${correctWord.char}</span>
-                        <span class="pinyin">${correctWord.pinyin}</span>
-                        <span class="meaning">${correctWord.meaning}</span>
-                        لا بأس، حاول مرة أخرى!
-                    `);
-                }, 400);
+                addBot(`
+                    أنطقت: <span class="zh" style="font-size:28px;">${zhText}</span>
+                    <br><br>
+                    هذه الكلمة غير موجودة في قاعدة بياناتي بعد، لكنني نطقتها لك بالصينية الصحيحة!
+                    <br>يمكنك إرسال أي نص صيني وسأنطقه فوراً.
+                `);
             }
+        }, 600);
+        return;
+    }
+
+    // === أوامر التنقل ===
+    if (/التالي|next|جديد|يلا|عادى/.test(t)) { qa('next'); return; }
+    if (/السابق|prev|رجع|قبل/.test(t)) { qa('prev'); return; }
+    if (/عشوائي|random|صدف/.test(t)) { qa('random'); return; }
+
+    // === أوامر الاختبار ===
+    if (/اختبر|quiz|سؤال|أسئلة|امتحان/.test(t)) { qa('quiz'); return; }
+
+    // === النطق ===
+    if (/انطق|نطق|speak|اقرأ|اقراء/.test(t)) {
+        if (lastWord) {
+            speak(lastWord.zh);
+            showToast('نطق: ' + lastWord.zh);
+        } else {
+            showTyping();
+            setTimeout(() => { hideTyping(); addBot('أرسل كلمة أو نص صيني أولاً وسأنطقه لك فوراً!'); }, 400);
         }
+        return;
+    }
 
-        // ===============================
-        // تبديل التصنيف
-        // ===============================
-        function switchCategory(cat, btn) {
-            currentCategory = cat;
-            currentIndex = 0;
-            quizActive = false;
+    // === النبرات ===
+    if (/نبر|تون|tone|أصوات/.test(t)) { qa('tones'); return; }
 
-            // تحديث الأزرار
+    // === المساعدة ===
+    if (/مساعد|help|كيف|إزاي|شرح/.test(t)) { qa('help'); return; }
+
+    // === الشكر ===
+    if (/شكر|ممتن|يسلمو|شكرا/.test(t)) {
+        speak('不客气');
+        showTyping();
+        setTimeout(() => { hideTyping(); addBot(`<span class="zh">不客气！</span><span class="py">bù kè qi!</span><span class="mn">عفواً! أنا هنا دائماً.</span>`); }, 400);
+        return;
+    }
+
+    // === التحية ===
+    if (/مرحب|هلا|سلام|أهلا|هاي|صباح|مساء/.test(t)) {
+        speak('你好');
+        showTyping();
+        setTimeout(() => { hideTyping(); addBot(`<span class="zh">你好！</span><span class="py">nǐ hǎo!</span><span class="mn">مرحباً! أنا معلمك الذكي. أرسل أي شيء وسأنطقه لك!</span>`); }, 400);
+        return;
+    }
+
+    // === عدد الكلمات ===
+    if (/كم.*كلم|كم.*تعلمت|إحصائي/.test(t)) {
+        const total = Object.values(DB).reduce((s, c) => s + c.words.length, 0);
+        showTyping();
+        setTimeout(() => { hideTyping(); addBot(`تعلّمت <span class="hl">${learned.size}</span> كلمة من أصل <span class="hl">${total}</span> كلمة. نطقت <span class="hl">${spoken}</span> مرة.`); }, 400);
+        return;
+    }
+
+    // === تصنيفات بالاسم ===
+    for (const key in DB) {
+        if (t.includes(DB[key].title) || t.includes(key)) {
+            const btn = document.querySelector(`[data-cat="${key}"]`);
+            switchCat(key, btn);
+            return;
+        }
+    }
+
+    // === محاولة ترجمة عربي → صيني ===
+    const translation = findArabicTranslation(text);
+    if (translation) {
+        speak(translation.zh);
+        showTyping();
+        setTimeout(() => {
+            hideTyping();
+            addBot(`
+                ترجمة "<span class="hl">${text}</span>" إلى الصينية:
+                <span class="zh">${translation.zh}</span>
+                <span class="py">${translation.py}</span>
+                <span class="mn">${translation.ar}</span>
+            `);
+        }, 500);
+        return;
+    }
+
+    // === رد افتراضي ===
+    showTyping();
+    setTimeout(() => {
+        hideTyping();
+        addBot(`
+            لم أتعرف على هذا الطلب تحديداً. جرّب:
+            <br>• أرسل <strong>نص صيني</strong> وسأنطقه فوراً
+            <br>• اكتب كلمة <strong>عربية</strong> مثل "شكراً" أو "مرحباً"
+            <br>• اكتب <strong>"مساعدة"</strong> لكل الأوامر
+        `);
+    }, 400);
+}
+
+// ============================
+// ترجمة عربي → صيني (كلمات شائعة)
+// ============================
+const arToZh = {
+    'مرحبا': { zh: '你好', py: 'nǐ hǎo', ar: 'مرحباً' },
+    'شكرا': { zh: '谢谢', py: 'xiè xie', ar: 'شكراً' },
+    'أهلا': { zh: '你好', py: 'nǐ hǎo', ar: 'أهلاً' },
+    'سلام': { zh: '你好', py: 'nǐ hǎo', ar: 'سلام' },
+    'مع السلامة': { zh: '再见', py: 'zài jiàn', ar: 'مع السلامة' },
+    'وداع': { zh: '再见', py: 'zài jiàn', ar: 'وداعاً' },
+    'آسف': { zh: '对不起', py: 'duì bu qǐ', ar: 'آسف' },
+    'نعم': { zh: '是', py: 'shì', ar: 'نعم' },
+    'لا': { zh: '不', py: 'bù', ar: 'لا' },
+    'حب': { zh: '爱', py: 'ài', ar: 'حب' },
+    'أحبك': { zh: '我爱你', py: 'wǒ ài nǐ', ar: 'أحبك' },
+    'ماء': { zh: '水', py: 'shuǐ', ar: 'ماء' },
+    'أكل': { zh: '吃', py: 'chī', ar: 'يأكل' },
+    'شرب': { zh: '喝', py: 'hē', ar: 'يشرب' },
+    'نوم': { zh: '睡觉', py: 'shuì jiào', ar: 'ينام' },
+    'ذهب': { zh: '去', py: 'qù', ar: 'يذهب' },
+    'جاء': { zh: '来', py: 'lái', ar: 'يجيء' },
+    'كبير': { zh: '大', py: 'dà', ar: 'كبير' },
+    'صغير': { zh: '小', py: 'xiǎo', ar: 'صغير' },
+    'جيد': { zh: '好', py: 'hǎo', ar: 'جيد' },
+    'سيء': { zh: '坏', py: 'huài', ar: 'سيء' },
+    'كثير': { zh: '多', py: 'duō', ar: 'كثير' },
+    'قليل': { zh: '少', py: 'shǎo', ar: 'قليل' },
+    'سريع': { zh: '快', py: 'kuài', ar: 'سريع' },
+    'بطيء': { zh: '慢', py: 'màn', ar: 'بطيء' },
+    'جميل': { zh: '漂亮', py: 'piào liang', ar: 'جميل' },
+    'قبيح': { zh: '丑', py: 'chǒu', ar: 'قبيح' },
+    'حار': { zh: '热', py: 'rè', ar: 'حار' },
+    'بارد': { zh: '冷', py: 'lěng', ar: 'بارد' },
+    'صين': { zh: '中国', py: 'Zhōng guó', ar: 'الصين' },
+    'عربي': { zh: '阿拉伯语', py: 'ā lā bó yǔ', ar: 'العربية' },
+    'إنجليزي': { zh: '英语', py: 'yīng yǔ', ar: 'الإنجليزية' },
+    'أنا': { zh: '我', py: 'wǒ', ar: 'أنا' },
+    'أنت': { zh: '你', py: 'nǐ', ar: 'أنت' },
+    'هو': { zh: '他', py: 'tā', ar: 'هو' },
+    'هي': { zh: '她', py: 'tā', ar: 'هي' },
+    'نحن': { zh: '我们', py: 'wǒ men', ar: 'نحن' },
+    'هم': { zh: '他们', py: 'tā men', ar: 'هم' },
+    'ماذا': { zh: '什么', py: 'shén me', ar: 'ماذا / ما' },
+    'أين': { zh: '哪里', py: 'nǎ lǐ', ar: 'أين' },
+    'متى': { zh: '什么时候', py: 'shén me shí hou', ar: 'متى' },
+    'لماذا': { zh: '为什么', py: 'wèi shén me', ar: 'لماذا' },
+    'كيف': { zh: '怎么', py: 'zěn me', ar: 'كيف' },
+    'من': { zh: '谁', py: 'shuí', ar: 'من' },
+    'ديناصور': { zh: '恐龙', py: 'kǒng lóng', ar: 'ديناصور' },
+    'تنين': { zh: '龙', py: 'lóng', ar: 'تنين' },
+    'قمر': { zh: '月亮', py: 'yuè liang', ar: 'قمر' },
+    'شمس': { zh: '太阳', py: 'tài yáng', ar: 'شمس' },
+    'نجمة': { zh: '星星', py: 'xīng xing', ar: 'نجمة' },
+    'بحر': { zh: '海', py: 'hǎi', ar: 'بحر' },
+    'جبل': { zh: '山', py: 'shān', ar: 'جبل' },
+    'شجرة': { zh: '树', py: 'shù', ar: 'شجرة' },
+    'زهرة': { zh: '花', py: 'huā', ar: 'زهرة' },
+    'كتاب': { zh: '书', py: 'shū', ar: 'كتاب' },
+    'هاتف': { zh: '手机', py: 'shǒu jī', ar: 'هاتف محمول' },
+    'كمبيوتر': { zh: '电脑', py: 'diàn nǎo', ar: 'كمبيوتر' },
+    'سيارة': { zh: '车', py: 'chē', ar: 'سيارة' },
+    'بيت': { zh: '房子', py: 'fáng zi', ar: 'بيت' },
+    'مدرسة': { zh: '学校', py: 'xué xiào', ar: 'مدرسة' },
+    'طعام': { zh: '食物', py: 'shí wù', ar: 'طعام' },
+    'شاي': { zh: '茶', py: 'chá', ar: 'شاي' },
+    'قهوة': { zh: '咖啡', py: 'kā fēi', ar: 'قهوة' },
+    'خبز': { zh: '面包', py: 'miàn bāo', ar: 'خبز' },
+    'دجاج': { zh: '鸡', py: 'jī', ar: 'دجاج' },
+    'أرز': { zh: '米饭', py: 'mǐ fàn', ar: 'أرز مطبوخ' },
+    'سمك': { zh: '鱼', py: 'yú', ar: 'سمك' },
+    'لحم': { zh: '肉', py: 'ròu', ar: 'لحم' },
+    'تفاح': { zh: '苹果', py: 'píng guǒ', ar: 'تفاح' },
+    'موز': { zh: '香蕉', py: 'xiāng jiāo', ar: 'موز' },
+    'سعيد': { zh: '开心', py: 'kāi xīn', ar: 'سعيد' },
+    'حزين': { zh: '难过', py: 'nán guò', ar: 'حزين' },
+    'متعب': { zh: '累', py: 'lèi', ar: 'متعب' },
+    'جائع': { zh: '饿', py: 'è', ar: 'جائع' },
+    'عطشان': { zh: '渴', py: 'kě', ar: 'عطشان' },
+    'مال': { zh: '钱', py: 'qián', ar: 'مال / فلوس' },
+    'عمل': { zh: '工作', py: 'gōng zuò', ar: 'عمل' },
+    'صديق': { zh: '朋友', py: 'péng you', ar: 'صديق' },
+    'عائلة': { zh: '家人', py: 'jiā rén', ar: 'عائلة' },
+    'أب': { zh: '爸爸', py: 'bà ba', ar: 'أب' },
+    'أم': { zh: '妈妈', py: 'mā ma', ar: 'أم' },
+    'أخ': { zh: '哥哥', py: 'gē ge', ar: 'أخ' },
+    'أخت': { zh: '姐姐', py: 'jiě jie', ar: 'أخت' },
+    'حصان': { zh: '马', py: 'mǎ', ar: 'حصان' },
+    'قطة': { zh: '猫', py: 'māo', ar: 'قطة' },
+    'كلب': { zh: '狗', py: 'gǒu', ar: 'كلب' },
+    'طائر': { zh: '鸟', py: 'niǎo', ar: 'طائر' },
+};
+
+function findArabicTranslation(text) {
+    // تطابق كامل
+    if (arToZh[text]) return arToZh[text];
+    // تطابق جزئي
+    for (const key in arToZh) {
+        if (text.includes(key) && key.length >= 2) return arToZh[key];
+    }
+    return null;
+}
+
+// ============================
+// الأوامر السريعة
+// ============================
+function qa(action) {
+    switch (action) {
+        case 'next':
+            addUser('الكلمة التالية');
+            if (curCat && DB[curCat]) {
+                curIdx = (curIdx + 1) % DB[curCat].words.length;
+                showWord(curIdx);
+            }
+            break;
+        case 'prev':
+            addUser('الكلمة السابقة');
+            if (curCat && DB[curCat]) {
+                curIdx = (curIdx - 1 + DB[curCat].words.length) % DB[curCat].words.length;
+                showWord(curIdx);
+            }
+            break;
+        case 'random':
+            addUser('كلمة عشوائية');
+            const cats = Object.keys(DB);
+            const rc = cats[Math.floor(Math.random() * cats.length)];
+            curCat = rc;
+            curIdx = Math.floor(Math.random() * DB[rc].words.length);
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-
-            // تحديث العنوان
-            const title = database[cat].title;
-            document.getElementById('chatTitle').textContent = title;
-
-            if (cat === 'quiz') {
-                startQuiz();
-            } else {
-                addUserMessage('علّمني من تصنيف: ' + title);
-                showWord(0);
-            }
-        }
-
-        // ===============================
-        // معالجة الإدخال
-        // ===============================
-        function handleSend() {
-            const input = document.getElementById('inputField');
-            const text = input.value.trim();
-            if (!text) return;
-
-            input.value = '';
-            input.style.height = 'auto';
-            addUserMessage(text);
-            processInput(text);
-        }
-
-        function quickAction(action) {
-            switch(action) {
-                case 'next':
-                    addUserMessage('الكلمة التالية');
-                    nextWord();
-                    break;
-                case 'prev':
-                    addUserMessage('الكلمة السابقة');
-                    prevWord();
-                    break;
-                case 'speak':
-                    if (lastWord) {
-                        speakWord(lastWord.char, lastWord.pinyin);
-                        showToast('جاري النطق...');
-                    }
-                    break;
-                case 'quiz':
-                    addUserMessage('اختبرني');
-                    startQuiz();
-                    break;
-                case 'random':
-                    addUserMessage('كلمة عشوائية');
-                    randomWord();
-                    break;
-            }
-        }
-
-        function processInput(text) {
-            const lower = text.toLowerCase();
-
-            // أوامر التنقل
-            if (lower.includes('التالي') || lower.includes('next') || lower.includes('كلمة جديدة') || lower.includes('يلا')) {
-                nextWord();
-                return;
-            }
-            if (lower.includes('السابق') || lower.includes('prev') || lower.includes('رجع') || lower.includes('قبل')) {
-                prevWord();
-                return;
-            }
-            if (lower.includes('عشوائي') || lower.includes('random')) {
-                randomWord();
-                return;
-            }
-
-            // أوامر الاختبار
-            if (lower.includes('اختبر') || lower.includes('quiz') || lower.includes('سؤال') || lower.includes('أسئلة')) {
-                startQuiz();
-                return;
-            }
-
-            // أوامر النطق
-            if (lower.includes('انطق') || lower.includes('نطق') || lower.includes(' speak') || lower.includes('اقرأ')) {
-                if (lastWord) {
-                    speakWord(lastWord.char, lastWord.pinyin);
-                    showToast('جاري النطق: ' + lastWord.char);
-                } else {
-                    showTyping();
-                    setTimeout(() => { hideTyping(); addBotMessage('لم أتعرف على كلمة لنطقها. اختر تصنيفاً أولاً!'); }, 500);
-                }
-                return;
-            }
-
-            // أوامر التصنيفات
-            for (const key in database) {
-                const cat = database[key];
-                if (lower.includes(cat.title) || lower.includes(key)) {
-                    const btn = document.querySelector(`[data-cat="${key}"]`);
-                    switchCategory(key, btn);
-                    return;
-                }
-            }
-
-            // التحيات
-            if (lower.includes('مرحب') || lower.includes('هلا') || lower.includes('سلام') || lower.includes('أهلا') || lower === 'هاي') {
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <span class="chinese">你好！</span>
-                        <span class="pinyin">nǐ hǎo!</span>
-                        <span class="meaning">مرحباً! أنا معلمك للغة الصينية.</span>
-                        <br><br>
-                        يمكنك أن تخبرني ماذا تريد تعلّمه. جرّب أن تقول:
-                        <br>• "علّمني التحيات"
-                        <br>• "اختبرني"
-                        <br>• "الكلمة التالية"
-                        <br>• أو اختر تصنيفاً من القائمة الجانبية
-                    `);
-                }, 500);
-                return;
-            }
-
-            // شكر
-            if (lower.includes('شكر') || lower.includes('ممتن') || lower.includes('يسلمو')) {
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <span class="chinese">不客气！</span>
-                        <span class="pinyin">bù kè qi!</span>
-                        <span class="meaning">عفواً! أنا هنا لمساعدتك دائماً.</span>
-                    `);
-                }, 500);
-                return;
-            }
-
-            // طلب عدد الكلمات
-            if (lower.includes('كم') && (lower.includes('كلم') || lower.includes('تعلمت'))) {
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`تعلّمت حتى الآن <span class="highlight">${learnedWords.size} كلمة</span> من أصل ${getAllWordsCount()} كلمة في قاعدة البيانات. استمر!`);
-                }, 500);
-                return;
-            }
-
-            // شرح النبرات
-            if (lower.includes('نبر') || lower.includes('تون') || lower.includes('tone')) {
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <div style="font-weight:700;margin-bottom:8px;">النبرات الأربع في الصينية:</div>
-                        <div style="margin-bottom:6px;">
-                            <span style="color:#e63946;font-weight:700;">النبرة الأولى ─</span><br>
-                            نبرة مستقيمة عالية. مثل: <span class="chinese" style="font-size:20px;display:inline;">妈 mā</span> (أم)
-                        </div>
-                        <div style="margin-bottom:6px;">
-                            <span style="color:#f4a261;font-weight:700;">النبرة الثانية ╱</span><br>
-                            تصاعدية. مثل: <span class="chinese" style="font-size:20px;display:inline;">麻 má</span> (قنب)
-                        </div>
-                        <div style="margin-bottom:6px;">
-                            <span style="color:#e9c46a;font-weight:700;">النبرة الثالثة ╲╱</span><br>
-                            هابطة ثم صاعدة. مثل: <span class="chinese" style="font-size:20px;display:inline;">马 mǎ</span> (حصان)
-                        </div>
-                        <div>
-                            <span style="color:#2a9d8f;font-weight:700;">النبرة الرابعة ╲</span><br>
-                            هابطة حادة. مثل: <span class="chinese" style="font-size:20px;display:inline;">骂 mà</span> (يسب)
-                        </div>
-                        <div style="margin-top:10px;color:var(--muted);font-size:12px;">
-                            النبرة تغيّر المعنى تماماً! انتبه لها دائماً.
-                        </div>
-                    `);
-                }, 600);
-                return;
-            }
-
-            // المساعدة
-            if (lower.includes('مساعد') || lower.includes('help') || lower.includes('كيف') || lower.includes('إزاي')) {
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <div style="font-weight:700;margin-bottom:8px;">كيف تستخدم البوت:</div>
-                        <div style="line-height:2.2;">
-                            <i class="fas fa-arrow-left" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>الكلمة التالية</strong> - للانتقال للكلمة التالية<br>
-                            <i class="fas fa-arrow-right" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>الكلمة السابقة</strong> - للرجوع<br>
-                            <i class="fas fa-shuffle" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>عشوائي</strong> - كلمة عشوائية من أي تصنيف<br>
-                            <i class="fas fa-brain" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>اختبرني</strong> - اختبار سريع<br>
-                            <i class="fas fa-volume-high" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>انطق</strong> - نطق آخر كلمة<br>
-                            <i class="fas fa-list" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>اسم التصنيف</strong> - مثل "التحيات" أو "الأرقام"<br>
-                            <i class="fas fa-music" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>النبرات</strong> - شرح النبرات الصينية<br>
-                            <i class="fas fa-mouse-pointer" style="color:var(--accent);margin-left:6px;"></i>
-                            <strong>اضغط على البطاقة</strong> - لسماع النطق
-                        </div>
-                    `);
-                }, 600);
-                return;
-            }
-
-            // رد افتراضي ذكي
+            const rb = document.querySelector(`[data-cat="${rc}"]`);
+            if (rb) rb.classList.add('active');
+            document.getElementById('chatTitle').textContent = DB[rc].title;
+            showWord(curIdx);
+            break;
+        case 'quiz':
+            addUser('اختبرني');
+            startQuiz();
+            break;
+        case 'tones':
+            addUser('شرح النبرات');
             showTyping();
             setTimeout(() => {
                 hideTyping();
-                const defaults = [
-                    `لم أفهم طلبك بالضبط. جرّب أن تقول "الكلمة التالية" أو "اختبرني" أو اختر تصنيفاً من القائمة.`,
-                    `هذا خارج نطاقي حالياً. أنا متخصص في تعليم الكلمات الصينية! جرّب: "علّمني الطعام" أو "عشوائي".`,
-                    `لا مشكلة! اكتب "مساعدة" لمعرفة كل ما يمكنني فعله.`
-                ];
-                addBotMessage(defaults[Math.floor(Math.random() * defaults.length)]);
-            }, 500);
-        }
-
-        // ===============================
-        // دوال مساعدة
-        // ===============================
-        function nextWord() {
-            const cat = database[currentCategory];
-            if (!cat) return;
-            currentIndex = (currentIndex + 1) % cat.words.length;
-            showWord(currentIndex);
-        }
-
-        function prevWord() {
-            const cat = database[currentCategory];
-            if (!cat) return;
-            currentIndex = (currentIndex - 1 + cat.words.length) % cat.words.length;
-            showWord(currentIndex);
-        }
-
-        function randomWord() {
-            const allCats = Object.keys(database).filter(k => k !== 'quiz');
-            const randCat = allCats[Math.floor(Math.random() * allCats.length)];
-            const words = database[randCat].words;
-            const randIdx = Math.floor(Math.random() * words.length);
-
-            currentCategory = randCat;
-            currentIndex = randIdx;
-
-            // تحديث الواجهة
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            const btn = document.querySelector(`[data-cat="${randCat}"]`);
-            if (btn) btn.classList.add('active');
-            document.getElementById('chatTitle').textContent = database[randCat].title;
-
-            showWord(randIdx);
-        }
-
-        function clearChat() {
-            messagesEl.innerHTML = '';
-            showToast('تم مسح المحادثة');
-            // رسالة ترحيب
+                addBot(`
+                    <div style="font-weight:800;margin-bottom:10px;font-size:15px;">النبرات الأربع في الصينية (声调)</div>
+                    <div style="margin-bottom:8px;">
+                        <span style="color:#e63946;font-weight:800;">النبرة الأولى ━</span> مستقيمة عالية<br>
+                        <span class="zh" style="font-size:22px;display:inline;">妈 mā</span> <span class="mn">أم</span>
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <span style="color:#f4a261;font-weight:800;">النبرة الثانية ╱</span> تصاعدية<br>
+                        <span class="zh" style="font-size:22px;display:inline;">麻 má</span> <span class="mn">قنب</span>
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <span style="color:#e9c46a;font-weight:800;">النبرة الثالثة ╲╱</span> هابطة ثم صاعدة<br>
+                        <span class="zh" style="font-size:22px;display:inline;">马 mǎ</span> <span class="mn">حصان</span>
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <span style="color:#2a9d8f;font-weight:800;">النبرة الرابعة ╲</span> هابطة حادة<br>
+                        <span class="zh" style="font-size:22px;display:inline;">骂 mà</span> <span class="mn">يسب</span>
+                    </div>
+                    <div class="note-box" style="margin-top:10px;">
+                        <i class="fas fa-exclamation-triangle" style="color:var(--accent);"></i>
+                        <span>أربع كلمات مختلفة بنفس الحرف! النبرة تغيّر المعنى تماماً. انتبه دائماً للعلامة فوق الحرف.</span>
+                    </div>
+                `);
+            }, 600);
+            break;
+        case 'help':
+            addUser('مساعدة');
+            showTyping();
             setTimeout(() => {
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <span class="chinese">你好！</span>
-                        <span class="pinyin">nǐ hǎo!</span>
-                        <span class="meaning">مرحباً من جديد! ابدأ باختيار تصنيف أو اكتب "مساعدة".</span>
-                    `);
-                }, 500);
-            }, 300);
-        }
+                hideTyping();
+                addBot(`
+                    <div style="font-weight:800;margin-bottom:10px;">كل ما يمكنك فعله:</div>
+                    <div style="line-height:2.3;font-size:13px;">
+                        <div><span style="color:var(--accent);font-weight:700;">أرسل نص صيني أي</span> → أنطقه فوراً (مثل: 你好 أو 我爱你)</div>
+                        <div><span style="color:var(--accent);font-weight:700;">أرسل كلمة عربية</span> → أترجمها وأنطقها (مثل: حب، ماء، قمر)</div>
+                        <div><span style="color:var(--accent2);font-weight:700;">"التالي" / "السابق"</span> → تنقل بين الكلمات</div>
+                        <div><span style="color:var(--accent2);font-weight:700;">"اختبرني"</span> → اختبار سريع</div>
+                        <div><span style="color:var(--accent2);font-weight:700;">"عشوائي"</span> → كلمة من أي تصنيف</div>
+                        <div><span style="color:var(--accent2);font-weight:700;">"انطق"</span> → أعد نطق آخر كلمة</div>
+                        <div><span style="color:var(--accent2);font-weight:700;">"النبرات"</span> → شرح النبرات الأربع</div>
+                        <div><span style="color:var(--gold);font-weight:700;">اضغط على أي بطاقة</span> → سماع النطق</div>
+                        <div><span style="color:var(--gold);font-weight:700;">اختر من القائمة الجانبية</span> → تصنيفات الدروس</div>
+                    </div>
+                `);
+            }, 600);
+            break;
+    }
+}
 
-        function getAllWordsCount() {
-            let total = 0;
-            for (const key in database) {
-                if (key !== 'quiz') total += database[key].words.length;
-            }
-            return total;
-        }
+// ============================
+// أدوات
+// ============================
+function clearChat() {
+    msgs.innerHTML = '';
+    showToast('تم مسح المحادثة');
+    setTimeout(() => {
+        showTyping();
+        setTimeout(() => {
+            hideTyping();
+            addBot(`<span class="zh">你好！</span><span class="py">nǐ hǎo!</span><span class="mn">مرحباً من جديد! أرسل أي شيء وسأنطقه لك.</span>`);
+        }, 500);
+    }, 300);
+}
 
-        function updateStats() {
-            document.getElementById('wordsLearned').textContent = learnedWords.size;
-            document.getElementById('quizScore').textContent = correctAnswers;
-            document.getElementById('streakCount').textContent = streak;
-        }
+function updateStats() {
+    document.getElementById('sWords').textContent = learned.size;
+    document.getElementById('sCorrect').textContent = correct;
+    document.getElementById('sSpoken').textContent = spoken;
+}
 
-        function updateProgress() {
-            const cat = database[currentCategory];
-            if (!cat) return;
-            const pct = ((currentIndex + 1) / cat.words.length) * 100;
-            document.getElementById('progressFill').style.width = pct + '%';
-        }
+function updateProg() {
+    const cat = DB[curCat];
+    if (!cat) return;
+    const p = ((curIdx + 1) / cat.words.length) * 100;
+    document.getElementById('progFill').style.width = p + '%';
+}
 
-        function showToast(text) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastText').textContent = text;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
-        }
+function showToast(text) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastTxt').textContent = text;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+}
 
-        // ===============================
-        // أحداث حقل الإدخال
-        // ===============================
-        const inputField = document.getElementById('inputField');
+// ============================
+// أحداث الإدخال
+// ============================
+const inp = document.getElementById('inp');
+inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+inp.addEventListener('input', () => {
+    inp.style.height = 'auto';
+    inp.style.height = Math.min(inp.scrollHeight, 110) + 'px';
+});
 
-        inputField.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
-
-        // تكبير حقل الإدخال تلقائياً
-        inputField.addEventListener('input', () => {
-            inputField.style.height = 'auto';
-            inputField.style.height = Math.min(inputField.scrollHeight, 120) + 'px';
-        });
-
-        // ===============================
-        // التهيئة - رسالة ترحيب
-        // ===============================
-        (function init() {
-            setTimeout(() => {
-                showTyping();
-                setTimeout(() => {
-                    hideTyping();
-                    addBotMessage(`
-                        <span class="chinese">你好！欢迎！</span>
-                        <span class="pinyin">nǐ hǎo! huān yíng!</span>
-                        <span class="meaning">مرحباً! أهلاً وسهلاً!</span>
-                        <br><br>
-                        أنا بوت تعلّم اللغة الصينية. سأعلّمك كلمات وعبارات بالماندرين مع النطق الصحيح.
-                        <br><br>
-                        <span class="highlight">ابدأ باختيار تصنيف من القائمة الجانبية</span>، أو أخبرني ماذا تريد تعلّمه!
-                        <br>
-                        اكتب <strong>"مساعدة"</strong> لمعرفة كل الأوامر المتاحة.
-                    `);
-                }, 1000);
-            }, 500);
-        })();
-    </script>
+// ============================
+// رسالة الترحيب
+// ============================
+setTimeout(() => {
+    showTyping();
+    setTimeout(() => {
+        hideTyping();
+        addBot(`
+            <span class="zh" style="font-size:32px;">你好！欢迎！</span>
+            <span class="py">nǐ hǎo! huān yíng!</span>
+            <span class="mn">مرحباً! أهلاً وسهلاً!</span>
+            <br><br>
+            أنا معلمك الذكي للغة الصينية. مميزاتي:
+            <br>
+            <div style="margin-top:8px;line-height:2;">
+                <span style="color:var(--accent);font-weight:700;">1.</span> أرسل <strong>أي نص صيني</strong> وسأنطقه فوراً
+                <br>
+                <span style="color:var(--accent);font-weight:700;">2.</span> أرسل <strong>كلمة عربية</strong> وأترجمها وأنطقها
+                <br>
+                <span style="color:var(--accent);font-weight:700;">3.</span> أضغط على <strong>أي بطاقة</strong> لسماع النطق
+                <br>
+                <span style="color:var(--accent);font-weight:700;">4.</span> <strong>80+ كلمة</strong> في 8 تصنيفات مع شرح
+            </div>
+            <br>
+            جرّب الآن: اكتب <span class="hl">"حب"</span> أو <span class="hl">"我爱你"</span> أو اختر تصنيفاً من القائمة!
+        `);
+    }, 1000);
+}, 400);
+</script>
 </body>
 </html>
