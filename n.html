@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智语 - بحث ومحادثة صينية</title>
+    <style>
+        :root {
+            --bg-deep: #060a12;
+            --bg-primary: #0c1220;
+            --bg-card: #141e35;
+            --bg-input: #182440;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0,212,170,0.25);
+            --accent2: #f0c040;
+            --red: #e63946;
+            --red-glow: rgba(230,57,70,0.25);
+            --green: #2ecc71;
+            --text-primary: #e8edf5;
+            --text-secondary: #7b8fb0;
+            --text-muted: #3e5070;
+            --border: rgba(255,255,255,0.07);
+            --border-light: rgba(255,255,255,0.12);
+            --radius: 14px;
+            --radius-sm: 10px;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg-deep);color:var(--text-primary);min-height:100vh;overflow:hidden}
+        .zh{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC','Hiragino Sans GB',sans-serif}
+
+        /* خلفية */
+        .bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+        .bg-orb{position:absolute;border-radius:50%;filter:blur(120px);animation:orbM 16s ease-in-out infinite}
+        .bg-orb:nth-child(1){width:600px;height:600px;background:radial-gradient(circle,rgba(0,212,170,0.07),transparent 70%);top:-15%;left:-10%}
+        .bg-orb:nth-child(2){width:500px;height:500px;background:radial-gradient(circle,rgba(240,192,64,0.05),transparent 70%);bottom:-15%;right:-10%;animation-delay:-6s}
+        .bg-orb:nth-child(3){width:350px;height:350px;background:radial-gradient(circle,rgba(230,57,70,0.04),transparent 70%);top:50%;left:50%;animation-delay:-10s}
+        @keyframes orbM{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.08)}66%{transform:translate(-30px,40px) scale(0.94)}}
+        .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,170,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,0.02) 1px,transparent 1px);background-size:60px 60px}
+
+        /* الحاوية */
+        .app{position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;max-width:820px;margin:0 auto}
+
+        /* الهيدر */
+        .hdr{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(12,18,32,0.85);backdrop-filter:blur(20px);flex-shrink:0}
+        .hdr-r{display:flex;align-items:center;gap:12px}
+        .logo-ic{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#00a080);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px var(--accent-glow)}
+        .logo-ic svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+        .logo-txt h1{font-size:18px;font-weight:800;line-height:1.2}
+        .logo-txt h1 span{color:var(--accent)}
+        .logo-txt p{font-size:10px;color:var(--text-muted)}
+
+        /* مفاتيح الوضع */
+        .mode-switch{display:flex;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+        .mode-btn{padding:8px 16px;font-size:13px;font-family:inherit;color:var(--text-muted);background:transparent;border:none;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;gap:6px;white-space:nowrap}
+        .mode-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .mode-btn.active{color:#fff;background:linear-gradient(135deg,var(--accent),#00a080)}
+        .mode-btn:hover:not(.active){color:var(--text-secondary);background:rgba(255,255,255,0.03)}
+
+        .hdr-l{display:flex;align-items:center;gap:6px}
+        .hdr-btn{width:38px;height:38px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s ease;padding:0}
+        .hdr-btn:hover{color:var(--red);border-color:var(--red)}
+        .hdr-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+        /* الرسائل */
+        .msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+        .msgs::-webkit-scrollbar{width:3px}
+        .msgs::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:3px}
+
+        .msg{display:flex;gap:10px;max-width:88%;animation:msgIn 0.35s cubic-bezier(0.16,1,0.3,1) both}
+        @keyframes msgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+        .msg.user{align-self:flex-end;flex-direction:row-reverse}
+        .msg.bot{align-self:flex-start}
+
+        .msg-av{width:34px;height:34px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+        .msg.bot .msg-av{background:linear-gradient(135deg,var(--accent),#00a080)}
+        .msg.bot .msg-av svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+        .msg.user .msg-av{background:var(--bg-card);border:1px solid var(--border)}
+        .msg.user .msg-av svg{width:15px;height:15px;stroke:var(--text-secondary);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+        .msg-body{display:flex;flex-direction:column;gap:4px}
+        .msg-bub{padding:13px 16px;border-radius:var(--radius);font-size:14.5px;line-height:1.8}
+        .msg.bot .msg-bub{background:var(--bg-card);border:1px solid var(--border);border-top-right-radius:4px}
+        .msg.user .msg-bub{background:linear-gradient(135deg,#1a3a50,#142e45);border:1px solid rgba(0,212,170,0.12);border-top-left-radius:4px}
+        .msg-time{font-size:10px;color:var(--text-muted);padding:0 4px}
+        .msg.user .msg-time{text-align:left}
+
+        /* محتوى الرسائل */
+        .chinese{font-size:17px;font-weight:600;display:block;margin-bottom:3px}
+        .pinyin{font-size:13px;color:var(--accent2);font-style:italic;display:block;margin-bottom:3px}
+        .arabic{font-size:13.5px;color:var(--text-secondary);display:block}
+        .msg.user .pinyin,.msg.user .chinese{color:rgba(255,255,255,0.9)}
+
+        .search-status{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.15);border-radius:9px;font-size:12px;color:var(--accent);margin-bottom:8px}
+        .spin{width:13px;height:13px;border:2px solid rgba(0,212,170,0.2);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        .result-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+        .result-text p{margin-bottom:8px;color:var(--text-primary)}
+        .search-link{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;margin-top:6px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);border-radius:9px;color:var(--accent);font-size:12px;text-decoration:none;transition:all 0.2s;cursor:pointer}
+        .search-link:hover{background:rgba(0,212,170,0.18)}
+        .search-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+        .no-res{color:var(--text-secondary);font-size:13px}
+
+        .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+        .chip{padding:5px 12px;font-size:12px;font-family:inherit;color:var(--text-secondary);background:var(--bg-input);border:1px solid var(--border);border-radius:18px;cursor:pointer;transition:all 0.2s}
+        .chip:hover{color:var(--accent);border-color:var(--accent)}
+
+        .mode-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;margin-bottom:6px}
+        .mode-badge.chat{background:rgba(230,57,70,0.12);color:var(--red)}
+        .mode-badge.search{background:rgba(0,212,170,0.12);color:var(--accent)}
+        .mode-badge svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+        /* مؤشر كتابة */
+        .typ-ind{display:none;align-self:flex-start;padding:0 44px}
+        .typ-ind.on{display:flex}
+        .typ-dots{display:flex;gap:5px;padding:13px 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);border-top-right-radius:4px}
+        .typ-dots span{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:bnce 1.4s ease-in-out infinite}
+        .typ-dots span:nth-child(2){animation-delay:0.15s}
+        .typ-dots span:nth-child(3){animation-delay:0.3s}
+        @keyframes bnce{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-7px);opacity:1}}
+
+        /* الإدخال */
+        .inp-area{padding:14px 20px 20px;background:rgba(12,18,32,0.9);backdrop-filter:blur(20px);border-top:1px solid var(--border);flex-shrink:0}
+        .inp-hint{font-size:10px;color:var(--text-muted);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+        .inp-hint svg{width:11px;height:11px;stroke:var(--accent);fill:none;stroke-width:2}
+        .inp-row{display:flex;gap:9px;align-items:flex-end}
+        .chat-inp{flex:1;padding:13px 18px;font-size:14.5px;font-family:inherit;color:var(--text-primary);background:var(--bg-input);border:1.5px solid var(--border);border-radius:50px;outline:none;resize:none;max-height:110px;min-height:48px;line-height:1.5;transition:all 0.3s}
+        .chat-inp::placeholder{color:var(--text-muted)}
+        .chat-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+        .chat-inp.zh-mode:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-glow)}
+        .send-btn{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#00a080);border:none;color:#fff;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 18px var(--accent-glow);padding:0}
+        .send-btn:hover{transform:scale(1.08)}
+        .send-btn:active{transform:scale(0.95)}
+        .send-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+        .send-btn.zh-btn{background:linear-gradient(135deg,var(--red),#c0392b);box-shadow:0 4px 18px var(--red-glow)}
+        .send-btn svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transform:rotate(180deg)}
+
+        /* لوحة الإحصائيات */
+        .stats-ov{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:45;opacity:0;pointer-events:none;transition:opacity 0.3s}
+        .stats-ov.on{opacity:1;pointer-events:all}
+        .stats-pn{position:fixed;top:0;left:-350px;width:330px;height:100%;background:var(--bg-primary);border-right:1px solid var(--border);z-index:50;transition:left 0.4s cubic-bezier(0.4,0,0.2,1);padding:20px;overflow-y:auto}
+        .stats-pn.on{left:0}
+        .stats-cls{position:absolute;top:14px;left:14px;width:34px;height:34px;border-radius:9px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:all 0.2s}
+        .stats-cls:hover{color:var(--red);border-color:var(--red)}
+        .stats-cls svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+        .stats-ttl{font-size:18px;font-weight:700;margin-bottom:20px;padding-top:6px}
+        .st-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+        .st-item label{font-size:13px;color:var(--text-secondary)}
+        .st-item .val{font-size:17px;font-weight:700;color:var(--accent2)}
+        .lvl-bar{margin-top:18px;padding:14px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border)}
+        .lvl-bar h4{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
+        .lvl-track{height:7px;background:var(--bg-input);border-radius:4px;overflow:hidden;margin-bottom:5px}
+        .lvl-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--accent2));border-radius:4px;width:0%;transition:width 0.6s}
+        .lvl-txt{font-size:11px;color:var(--text-muted);text-align:center}
+        .wrd-list{margin-top:16px}
+        .wrd-list h4{font-size:12px;color:var(--text-secondary);margin-bottom:10px}
+        .wrd-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;margin:2px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;font-size:11px}
+        .wrd-tag .z{font-weight:600;color:var(--red)}
+        .wrd-tag .a{color:var(--text-muted)}
+
+        /* Toast */
+        .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-100px);padding:10px 20px;background:var(--bg-card);border:1px solid var(--green);border-radius:10px;color:var(--green);font-size:13px;font-family:inherit;z-index:200;transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+        .toast.show{transform:translateX(-50%) translateY(0)}
+
+        @media(max-width:640px){
+            .hdr{padding:12px 14px 10px;flex-wrap:wrap;gap:8px}
+            .msgs{padding:14px}
+            .msg{max-width:95%}
+            .inp-area{padding:10px 14px 16px}
+            .logo-txt h1{font-size:15px}
+            .mode-btn{padding:6px 10px;font-size:12px}
+            .stats-pn{width:270px;left:-290px}
+        }
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+    </style>
+</head>
+<body>
+
+<div class="bg-layer"><div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div></div>
+<div class="grid-bg"></div>
+<div class="toast" id="toast"><span id="toastTxt"></span></div>
+
+<div class="stats-ov" id="statsOv"></div>
+<aside class="stats-pn" id="statsPn">
+    <button class="stats-cls" id="statsCls"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <h2 class="stats-ttl">إحصائيات المحادثة الصينية</h2>
+    <div class="st-item"><label>الرسائل</label><span class="val" id="stMsg">0</span></div>
+    <div class="st-item"><label>الكلمات المتعلمة</label><span class="val" id="stWrd">0</span></div>
+    <div class="st-item"><label>الأسئلة المُجابة</label><span class="val" id="stQ">0</span></div>
+    <div class="st-item"><label>الدرس</label><span class="val" id="stLs">1</span></div>
+    <div class="lvl-bar"><h4>مستوى التقدم</h4><div class="lvl-track"><div class="lvl-fill" id="lvlFill"></div></div><p class="lvl-txt" id="lvlTxt">المبتدئ - 0%</p></div>
+    <div class="wrd-list"><h4>الكلمات المتعلمة</h4><div id="wrdList"></div></div>
+</aside>
+
+<div class="app">
+    <header class="hdr">
+        <div class="hdr-r">
+            <div class="logo-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+            <div class="logo-txt"><h1>智语 <span>ذكي</span></h1><p>بحث + محادثة صينية</p></div>
+        </div>
+        <div class="mode-switch">
+            <button class="mode-btn active" id="modeSearch" data-mode="search">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                بحث
+            </button>
+            <button class="mode-btn" id="modeChat" data-mode="chat">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                محادثة صينية
+            </button>
+        </div>
+        <div class="hdr-l">
+            <button class="hdr-btn" id="statsBtn" title="إحصائيات">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </button>
+            <button class="hdr-btn" id="clearBtn" title="مسح">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="msgs" id="msgs"></div>
+    <div class="typ-ind" id="typInd"><div class="typ-dots"><span></span><span></span><span></span></div></div>
+
+    <div class="inp-area">
+        <div class="inp-hint" id="inpHint">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span id="hintTxt">اكتب سؤالك وسأبحث لك فوراً</span>
+        </div>
+        <div class="inp-row">
+            <textarea class="chat-inp" id="chatInp" placeholder="مثال: ما هي الطاقة الشمسية؟" rows="1"></textarea>
+            <button class="send-btn" id="sendBtn"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        </div>
+    </div>
+</div>
+
+<script>
+// =====================================================
+// العناصر
+// =====================================================
+const $=id=>document.getElementById(id);
+const msgs=$('msgs'), chatInp=$('chatInp'), sendBtn=$('sendBtn'), typInd=$('typInd');
+const toast=$('toast'), toastTxt=$('toastTxt');
+const modeSearch=$('modeSearch'), modeChat=$('modeChat');
+const hintTxt=$('hintTxt');
+
+let currentMode='search', isBusy=false;
+
+// حالة المحادثة الصينية
+const zhState={
+    lesson:0, step:0, msgCount:0, words:[], qCount:0,
+    total:7, name:'', waiting:null, learned:new Set()
+};
+
+// =====================================================
+// قاعدة بيانات صينية
+// =====================================================
+const DB={
+    greet:[
+        {zh:'你好',py:'Nǐ hǎo',ar:'مرحباً'},
+        {zh:'你好吗',py:'Nǐ hǎo ma',ar:'كيف حالك؟'},
+        {zh:'早上好',py:'Zǎoshang hǎo',ar:'صباح الخير'},
+        {zh:'晚上好',py:'Wǎnshàng hǎo',ar:'مساء الخير'},
+        {zh:'再见',py:'Zàijiàn',ar:'مع السلامة'},
+        {zh:'谢谢',py:'Xièxiè',ar:'شكراً'},
+        {zh:'不客气',py:'Bù kèqì',ar:'عفواً'},
+        {zh:'对不起',py:'Duìbuqǐ',ar:'آسف'},
+        {zh:'没关系',py:'Méi guānxi',ar:'لا بأس'},
+    ],
+    nums:[
+        {zh:'一',py:'Yī',ar:'واحد'},{zh:'二',py:'Èr',ar:'اثنان'},{zh:'三',py:'Sān',ar:'ثلاثة'},
+        {zh:'四',py:'Sì',ar:'أربعة'},{zh:'五',py:'Wǔ',ar:'خمسة'},{zh:'六',py:'Liù',ar:'ستة'},
+        {zh:'七',py:'Qī',ar:'سبعة'},{zh:'八',py:'Bā',ar:'ثمانية'},{zh:'九',py:'Jiǔ',ar:'تسعة'},
+        {zh:'十',py:'Shí',ar:'عشرة'},
+    ],
+    colors:[
+        {zh:'红色',py:'Hóngsè',ar:'أحمر'},{zh:'蓝色',py:'Lánsè',ar:'أزرق'},
+        {zh:'绿色',py:'Lǜsè',ar:'أخضر'},{zh:'黄色',py:'Huángsè',ar:'أصفر'},
+        {zh:'白色',py:'Báisè',ar:'أبيض'},{zh:'黑色',py:'Hēisè',ar:'أسود'},
+    ],
+    family:[
+        {zh:'爸爸',py:'Bàba',ar:'أبي'},{zh:'妈妈',py:'Māma',ar:'أمي'},
+        {zh:'哥哥',py:'Gēge',ar:'أخي الأكبر'},{zh:'姐姐',py:'Jiějie',ar:'أختي الكبرى'},
+        {zh:'弟弟',py:'Dìdi',ar:'أخي الأصغر'},{zh:'妹妹',py:'Mèimei',ar:'أختي الصغرى'},
+    ],
+    food:[
+        {zh:'米饭',py:'Mǐfàn',ar:'أرز'},{zh:'水',py:'Shuǐ',ar:'ماء'},
+        {zh:'茶',py:'Chá',ar:'شاي'},{zh:'面包',py:'Miànbāo',ar:'خبز'},
+        {zh:'肉',py:'Ròu',ar:'لحم'},{zh:'鱼',py:'Yú',ar:'سمك'},
+    ],
+    feel:[
+        {zh:'开心',py:'Kāixīn',ar:'سعيد'},{zh:'难过',py:'Nánguò',ar:'حزين'},
+        {zh:'生气',py:'Shēngqì',ar:'غاضب'},{zh:'累',py:'Lèi',ar:'متعب'},
+        {zh:'饿',py:'È',ar:'جائع'},{zh:'喜欢',py:'Xǐhuān',ar:'يحب'},
+    ],
+    gram:[
+        {zh:'我',py:'Wǒ',ar:'أنا'},{zh:'你',py:'Nǐ',ar:'أنت'},
+        {zh:'他',py:'Tā',ar:'هو'},{zh:'她',py:'Tā',ar:'هي'},
+        {zh:'我们',py:'Wǒmen',ar:'نحن'},{zh:'他们',py:'Tāmen',ar:'هم'},
+        {zh:'什么',py:'Shénme',ar:'ماذا'},{zh:'哪里',py:'Nǎlǐ',ar:'أين'},
+        {zh:'为什么',py:'Wèishénme',ar:'لماذا'},{zh:'怎么',py:'Zěnme',ar:'كيف'},
+        {zh:'不',py:'bù',ar:'لا'},{zh:'是',py:'shì',ar:'يكون/نعم'},
+        {zh:'吗',py:'ma',ar:'أداة سؤال'},{zh:'了',py:'le',ar:'أداة ماضي'},
+        {zh:'的',py:'de',ar:'حرف ملكية'},{zh:'很',py:'hěn',ar:'جداً'},
+        {zh:'也',py:'yě',ar:'أيضاً'},
+    ],
+    sents:[
+        {zh:'我很好，谢谢。',py:'Wǒ hěn hǎo, xièxiè.',ar:'أنا بخير، شكراً.'},
+        {zh:'我喜欢学中文。',py:'Wǒ xǐhuān xué zhōngwén.',ar:'أحب تعلم الصينية.'},
+        {zh:'今天天气很好。',py:'Jīntiān tiānqì hěn hǎo.',ar:'الطقس جميل اليوم.'},
+        {zh:'你吃饭了吗？',py:'Nǐ chīfàn le ma?',ar:'هل أكلت؟'},
+        {zh:'我饿了。',py:'Wǒ è le.',ar:'أنا جائع.'},
+        {zh:'这个多少钱？',py:'Zhège duōshǎo qián?',ar:'كم سعر هذا؟'},
+        {zh:'我想喝水。',py:'Wǒ xiǎng hē shuǐ.',ar:'أريد أن أشرب ماء.'},
+        {zh:'我爱你。',py:'Wǒ ài nǐ.',ar:'أنا أحبك.'},
+    ]
+};
+
+// =====================================================
+// مفاتيح الوضع
+// =====================================================
+function setMode(mode){
+    currentMode=mode;
+    modeSearch.classList.toggle('active',mode==='search');
+    modeChat.classList.toggle('active',mode==='chat');
+    chatInp.classList.toggle('zh-mode',mode==='chat');
+    sendBtn.classList.toggle('zh-btn',mode==='chat');
+    if(mode==='search'){
+        hintTxt.textContent='اكتب سؤالك وسأبحث لك فوراً';
+        chatInp.placeholder='مثال: ما هي الطاقة الشمسية؟';
+    }else{
+        hintTxt.textContent='تحدث بالصيني أو العربي وسأرد عليك بالصيني';
+        chatInp.placeholder='مثال: 你好吗 أو كيف حالك';
+    }
+    chatInp.focus();
+}
+modeSearch.addEventListener('click',()=>setMode('search'));
+modeChat.addEventListener('click',()=>setMode('chat'));
+
+// =====================================================
+// وظائف مساعدة
+// =====================================================
+function getTime(){const n=new Date();return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')}
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function showToast(t){toastTxt.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2500)}
+function addWord(w){if(!zhState.learned.has(w.zh)){zhState.learned.add(w.zh);zhState.words.push(w)}}
+
+const botIc='<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+const usrIc='<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+const chatBadge='<div class="mode-badge chat"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>محادثة صينية</div>';
+const searchBadge='<div class="mode-badge search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>بحث</div>';
+
+function addMsg(c,type,badge){
+    const d=document.createElement('div');
+    d.className='msg '+type;
+    const av=type==='bot'?botIc:usrIc;
+    const b=badge||'';
+    d.innerHTML=`<div class="msg-av">${av}</div><div class="msg-body"><div class="msg-bub">${b}${c}</div><span class="msg-time">${getTime()}</span></div>`;
+    msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyp(){typInd.classList.add('on');msgs.scrollTop=msgs.scrollHeight}
+function hideTyp(){typInd.classList.remove('on')}
+
+function zhBubble(w){return `<span class="chinese zh">${w.zh}</span><span class="pinyin">${w.py}</span><span class="arabic">${w.ar}</span>`}
+
+function setChips(arr){
+    // نحط الشيبس في آخر رسالة بوت
+    const last=msgs.querySelector('.msg.bot:last-child .msg-bub');
+    if(!last)return;
+    let div=last.querySelector('.chips');
+    if(!div){div=document.createElement('div');div.className='chips';last.appendChild(div)}
+    div.innerHTML='';
+    arr.forEach(t=>{
+        const b=document.createElement('button');b.className='chip';b.textContent=t;
+        b.addEventListener('click',()=>{if(!isBusy){chatInp.value=t;handleSend()}});
+        div.appendChild(b);
+    });
+}
+
+// =====================================================
+// البحث في ويكيبيديا
+// =====================================================
+async function wikiSearch(q){
+    const s=`https://ar.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&srlimit=3&format=json&origin=*`;
+    try{
+        const r=await fetch(s);const d=await r.json();
+        const res=d?.query?.search;
+        if(!res||!res.length)return{notFound:true,q};
+        const f=res[0];
+        const c=`https://ar.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(f.title)}&prop=extracts&explaintext=false&format=json&origin=*`;
+        try{
+            const cr=await fetch(c);const cd=await cr.json();
+            const pg=cd?.query?.pages;const pid=Object.keys(pg)[0];const ext=pg[pid]?.extract||'';
+            const txt=cleanExtract(ext);
+            return{title:f.title,summary:txt,url:`https://ar.wikipedia.org/wiki/${encodeURIComponent(f.title)}`};
+        }catch(e){return{title:f.title,summary:cleanHtml(f.snippet),url:`https://ar.wikipedia.org/wiki/${encodeURIComponent(f.title)}`}}
+    }catch(e){return{error:'فشل الاتصال. تأكد إن الإنترنت شغال.'}}
+}
+
+function cleanHtml(h){const t=document.createElement('div');t.innerHTML=h;return t.textContent||''}
+
+function cleanExtract(html){
+    const t=document.createElement('div');t.innerHTML=html;
+    const ps=t.querySelectorAll('p');
+    let txt='';
+    for(let i=0;i<Math.min(ps.length,5);i++){const p=ps[i].textContent.trim();if(p.length>30)txt+=p+'\n\n'}
+    if(txt.length<100)txt=t.textContent||'';
+    if(txt.length>2500)txt=txt.substring(0,2500)+'...';
+    return txt.trim();
+}
+
+function renderSearch(res,q){
+    hideTyp();
+    // نشيل رسالة البحث
+    const last=msgs.querySelector('.msg.bot:last-child');
+    if(last)last.remove();
+
+    if(res.error){addMsg(`<div class="no-res">${res.error}</div>`,'bot',searchBadge);return}
+    if(res.notFound){
+        addMsg(`<div class="no-res">ما لقيت نتائج لـ "<strong>${q}</strong>". جرب كلمات مختلفة.</div>`,'bot',searchBadge);
+        setChips(['الذكاء الاصطناعي','تاريخ مصر','الفضاء','الطاقة النووية']);
+        return;
+    }
+    const fmt=res.summary.split('\n').filter(l=>l.trim()).map(l=>`<p>${l.trim()}</p>`).join('');
+    addMsg(`<div class="result-title">${res.title}</div><div class="result-text">${fmt}</div><a class="search-link" href="${res.url}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>المقالة كاملة</a>`,'bot',searchBadge);
+}
+
+// =====================================================
+// المحادثة الصينية - الذكاء الاصطناعي
+// =====================================================
+function zhType(c,cb){showTyp();setTimeout(()=>{hideTyp();addMsg(c,'bot',chatBadge);if(cb)cb()},600+Math.random()*700)}
+
+function zhProcess(inp){
+    const lo=inp.toLowerCase();
+    if(zhState.waiting){zhAnswer(inp);return}
+    if(zhMatchGreet(lo))return;
+    if(zhMatchReq(lo))return;
+    if(zhMatchTrans(lo))return;
+    zhGeneral(lo);
+}
+
+function zhMatchGreet(inp){
+    const pats=[
+        {k:['مرحبا','هلا','السلام','اهلا','أهلا','سلام','هاي','hi','hello','你好','nihao'],f:()=>{
+            const g=rnd(DB.greet);
+            zhType(zhBubble(g),()=>{zhType('أنا智语، صديقك الصيني! هل تريد الدرس '+(zhState.lesson+1)+'؟',()=>{setChips(['نعم ابدأ','علمني كلمات','اختبرني'])})});
+        }},
+        {k:['كيف حالك','كيفك','شخبارك','ازيك','إزيك','你好吗'],f:()=>{
+            zhType(zhBubble({zh:'我很好，谢谢你！你呢？',py:'Wǒ hěn hǎo, xièxiè nǐ! Nǐ ne?',ar:'أنا بخير، شكراً! وأنت؟'}),()=>{addWord({zh:'很好',py:'hěn hǎo',ar:'بخير'});setChips(['أنا بخير','الحمد لله','أنا متعب'])});
+        }},
+        {k:['شكرا','شكراً','مشكور','谢谢','xiexie'],f:()=>{zhType(zhBubble({zh:'不客气！',py:'Bù kèqì!',ar:'عفواً!'}))}},
+        {k:['مع السلامة','باي','bye','再见','zaijian'],f:()=>{zhType(zhBubble({zh:'再见！下次见！',py:'Zàijiàn! Xià cì jiàn!',ar:'مع السلامة! أراك next time!'}),()=>{setChips(['لا ترحل','ابدأ الدرس'])})}},
+    ];
+    for(const p of pats){if(p.k.some(k=>inp.includes(k))){p.f();return true}}
+    return false;
+}
+
+function zhMatchReq(inp){
+    const reqs=[
+        {k:['درس','ابدأ','نبدأ','علمني','تعلم'],f:zhStartLesson},
+        {k:['كلمات','مفردات'],f:zhTeachWords},
+        {k:['أرقام','رقم'],f:()=>zhTeachTopic('nums','الأرقام الصينية:',DB.nums,'كيف تكتب 5؟','五',['三','五','七','九'])},
+        {k:['ألوان','لون'],f:()=>zhTeachTopic('colors','الألوان:',DB.colors,'ما هو الأحمر؟','红色',['红色','蓝色','绿色','黄色'])},
+        {k:['عائلة','أهل'],f:()=>zhTeachTopic('family','العائلة:',DB.family,'كيف تقول "أبي"؟','爸爸',['爸爸','妈妈','哥哥','弟弟'])},
+        {k:['طعام','أكل'],f:()=>zhTeachTopic('food','الطعام:',DB.food,'كيف تقول "ماء"؟','水',['水','茶','米饭','肉'])},
+        {k:['مشاعر','شعور','حزين','سعيد'],f:()=>zhTeachTopic('feel','المشاعر:',DB.feel,'كيف تقول "سعيد"؟','开心',['难过','生气','开心','累'])},
+        {k:['جمل','محادثة','جمله'],f:zhTeachSents},
+        {k:['قواعد','نحو'],f:zhTeachGrammar},
+        {k:['اختبر','اختبار','امتحان','سؤال','أسئلة'],f:zhQuiz},
+        {k:['من أنت','مين انت','عرف نفسك'],f:()=>{zhType(zhBubble({zh:'我是智语，你的中文老师。',py:'Wǒ shì Zhìyǔ, nǐ de zhōngwén lǎoshī.',ar:'أنا智语، معلمك الصيني.'}),()=>{setChips(['ابدأ الدرس','علمني كلمات','اختبرني'])})}},
+        {k:['مساعدة','help'],f:()=>{zhType('اقولك: ابدأ الدرس، كلمات، أرقام، ألوان، عائلة، طعام، مشاعر، جمل، قواعد، اختبرني',()=>{setChips(['ابدأ الدرس','علمني كلمات','اختبرني'])})}},
+    ];
+    for(const r of reqs){if(r.k.some(k=>inp.includes(k))){r.f();return true}}
+    return false;
+}
+
+function zhMatchTrans(inp){
+    const pats=['ترجم','ترجمة','معنى','معنا','ايش يعني','إيش يعني'];
+    if(!pats.some(p=>inp.includes(p)))return false;
+    const all=[...DB.greet,...DB.nums,...DB.colors,...DB.family,...DB.food,...DB.feel,...DB.gram,...DB.sents];
+    let found=null;
+    for(const w of all){if(inp.includes(w.ar)||inp.includes(w.zh)||inp.toLowerCase().includes(w.py.toLowerCase())){found=w;break}}
+    if(found){zhType(zhBubble(found),()=>{addWord(found);setChips(['كلمة أخرى','ابدأ الدرس'])})}
+    else{zhType('ما لقيتها. جرب "علمني كلمات"!',()=>{setChips(['علمني كلمات','الألوان','الأرقام'])})}
+    return true;
+}
+
+function zhGeneral(inp){
+    const resps=[
+        {k:['نعم','ايوا','حاضر','ok','okay','هلا','好的'],f:()=>{const g=rnd(DB.greet);zhType(zhBubble({zh:'好的！'+g.zh,py:'Hǎo de! '+g.py,ar:'حسناً! '+g.ar}),()=>{setChips(['ابدأ الدرس','كلمة جديدة','اختبرني'])})}},
+        {k:['لا','لأ','مش','مو','不','不是'],f:()=>{zhType(zhBubble({zh:'没关系，慢慢来。',py:'Méi guānxi, màn màn lái.',ar:'لا بأس، خذ وقتك.'}),()=>{setChips(['حسناً ابدأ','علمني شيء بسيط'])})}},
+        {k:['ما فهمت','مش فاهم','صعبة','صعب','مستحيل'],f:()=>{zhType(zhBubble({zh:'别担心！我帮你。',py:'Bié dānxīn! Wǒ bāng nǐ.',ar:'لا تقلق! أنا أساعدك.'}),()=>{zhType(zhBubble({zh:'我 = أنا，这是最简单的！',py:'Wǒ = ana, zhè shì zuì jiǎndān de!',ar:'أنا = أنا، هذا أبسط شيء!'}),()=>{addWord({zh:'我',py:'Wǒ',ar:'أنا'});setChips(['وكيف أقول أنت؟','عظيم!','تكمل؟'])})})}},
+        {k:['جميل','عظيم','حلو','رائع','ممتاز','احسنت','أحسنت','cool','wow','太好了','棒'],f:()=>{zhType(zhBubble({zh:'太好了！继续加油！',py:'Tài hǎo le! Jìxù jiāyóu!',ar:'ممتاز! استمر!'}),()=>{setChips(['كلمة أخرى','الدرس التالي','اختبرني'])})}},
+        {k:['اسمي','أنا اسمي'],f:()=>{const m=inp.match(/(?:اسمي)\s+(.+)/);const n=m?m[1]:'صديقي';zhState.name=n;zhType(zhBubble({zh:n+'，很高兴认识你！',py:n+', hěn gāoxìng rènshí nǐ!',ar:n+'، سعيد بمعرفتك!'}),()=>{setChips(['تشرفت','ابدأ الدرس','علمني كلمات'])})}},
+    ];
+    for(const r of resps){if(r.k.some(k=>inp.includes(k))){r.f();return}}
+    // fallback
+    const fb=[
+        ()=>{zhType(zhBubble({zh:'你想学什么？',py:'Nǐ xiǎng xué shénme?',ar:'ماذا تريد أن تتعلم؟'}),()=>{setChips(['كلمات جديدة','الأرقام','الألوان','ابدأ الدرس'])})},
+        ()=>{const w=rnd([...DB.greet,...DB.gram]);zhType('هل تعرف هذه الكلمة؟',()=>{zhType(`<span class="chinese zh" style="font-size:24px">${w.zh}</span><span class="pinyin">${w.py}</span><span class="arabic">???? - خمن المعنى!</span>`,()=>{zhState.waiting={type:'guess',word:w};setChips([w.ar,'ما أعرف','كلمة أخرى'])})})},
+    ];
+    rnd(fb)();
+}
+
+// === تعليم بالموضوعات ===
+function zhTeachWords(){
+    const all=[...DB.greet,...DB.gram,...DB.colors,...DB.food];
+    const ws=[];while(ws.length<4){const w=rnd(all);if(!ws.find(x=>x.zh===w.zh))ws.push(w)}
+    let h='تعلم هذه الكلمات:';ws.forEach(w=>{h+=zhBubble(w);addWord(w)});
+    zhType(h,()=>{zhState.waiting={type:'guess',word:ws[0]};setChips([ws[0].ar,'ما أعرف','كلمة أخرى'])});
+}
+
+function zhTeachTopic(key,title,arr,qq,ans,opts){
+    let h=title;arr.forEach(w=>{h+=zhBubble(w);addWord(w)});
+    zhType(h,()=>{zhState.waiting={type:'quiz',q:qq,a:ans,opts};setChips(opts)});
+}
+
+function zhTeachSents(){
+    let h='جمل يومية:';DB.sents.forEach(s=>{h+=zhBubble(s);addWord(s)});
+    zhType(h,()=>{setChips(['جملة أخرى','ابدأ الدرس','اختبرني'])});
+}
+
+function zhTeachGrammar(){
+    zhType('أساسيات النحو:',()=>{
+        zhType(`<span class="chinese zh">فاعل + فعل + مفعول</span><span class="arabic">我(S) 喜欢(V) 中文(O) = أنا أحب الصينية</span>`,()=>{
+            zhType(`<span class="chinese zh">النفي: 不 + فعل</span><span class="arabic">我不喜欢 = أنا لا أحب</span>`,()=>{
+                zhType(`<span class="chinese zh">السؤال: جملة + 吗？</span><span class="arabic">你好吗？ = كيف حالك؟</span>`,()=>{
+                    zhType(`<span class="chinese zh">الماضي: فعل + 了</span><span class="arabic">我吃了 = أنا أكلت</span>`,()=>{
+                        addWord({zh:'不',py:'bù',ar:'لا'});addWord({zh:'吗',py:'ma',ar:'أداة سؤال'});addWord({zh:'了',py:'le',ar:'أداة ماضي'});
+                        setChips(['أمثلة أكثر','ابدأ الدرس','اختبرني']);
+                    });
+                });
+            });
+        });
+    });
+}
+
+function zhQuiz(){
+    const all=[...DB.greet,...DB.nums,...DB.colors,...DB.family,...DB.food,...DB.feel,...DB.gram];
+    const w=rnd(all);const wr=[];while(wr.length<3){const x=rnd(all);if(x.zh!==w.zh&&!wr.find(y=>y.zh===x.zh))wr.push(x)}
+    const opts=[...wr.map(x=>x.ar),w.ar].sort(()=>Math.random()-0.5);
+    zhType('اختبار! ما معنى:',()=>{zhType(`<span class="chinese zh" style="font-size:26px">${w.zh}</span><span class="pinyin">${w.py}</span>`,()=>{zhState.waiting={type:'quiz',q:'ما معنى؟',a:w.ar,opts};setChips(opts)})});
+}
+
+// === نظام الإجابات ===
+function zhAnswer(inp){
+    const a=zhState.waiting;zhState.waiting=null;zhState.qCount++;
+    if(a.type==='repeat'){
+        const ok=inp.includes(a.word.zh)||inp.includes(a.word.ar)||inp.toLowerCase().includes(a.word.py.toLowerCase());
+        if(ok){zhType(zhBubble({zh:'对！正确！',py:'Duì! Zhèngquè!',ar:'صحيح! أحسنت!'}),()=>zhAdvance())}
+        else{zhType('لا بأس، الإجابة:',()=>{zhType(zhBubble(a.word),()=>zhAdvance())})}
+    }else if(a.type==='quiz'){
+        const ok=inp===a.a||inp.includes(a.a);
+        if(ok){zhType(zhBubble({zh:'太好了！完全正确！',py:'Tài hǎo le! Wánquán zhèngquè!',ar:'ممتاز! صحيح!'}),()=>zhAdvance())}
+        else{zhType('الإجابة:',()=>{zhType(`<span class="chinese zh">${a.a}</span>`,()=>zhAdvance())})}
+    }else if(a.type==='guess'){
+        const ok=inp.includes(a.word.ar);
+        if(ok){zhType(zhBubble({zh:'没错！你真聪明！',py:'Méi cuò! Nǐ zhēn cōngmíng!',ar:'صحيح! ذكي!'}),()=>{setChips(['كلمة أخرى','ابدأ الدرس','اختبرني'])})}
+        else{zhType('المعنى:',()=>{zhType(zhBubble(a.word),()=>{addWord(a.word);setChips(['كلمة أخرى','ابدأ الدرس','اختبرني'])})})}
+    }else if(a.type==='name'){
+        const m=inp.match(/(?:اسمي)\s+(.+)/);const n=m?m[1]:(inp.includes('مجهول')?'صديقي':inp);
+        zhState.name=n;
+        zhType(zhBubble({zh:n+'，很高兴认识你！',py:n+', hěn gāoxìng rènshí nǐ!',ar:n+'، سعيد بمعرفتك!'}),()=>{
+            zhType('هل نبدأ بالدرس الأول؟',()=>{setChips(['نعم ابدأ','لا أعرف الصينية','علمني كلمات أولاً'])});
+        });
+    }
+    zhUpdateStats();
+}
+
+// === الدروس ===
+const lessons=[
+    {t:'التحيات',steps:[
+        {f:()=>{zhType('الدرس 1: التحيات!',()=>{zhType(zhBubble({zh:'你好',py:'Nǐ hǎo',ar:'مرحباً - أشهر كلمة صينية!'}),()=>{addWord({zh:'你好',py:'Nǐ hǎo',ar:'مرحباً'});zhState.waiting={type:'repeat',word:{zh:'你好',py:'Nǐ hǎo',ar:'مرحباً'}};setChips(['你好','مرحباً','Nǐ hǎo'])})})}},
+        {f:()=>{zhType('كيف نسأل عن الحال:',()=>{zhType(zhBubble({zh:'你好吗？',py:'Nǐ hǎo ma?',ar:'كيف حالك؟ - "吗" تحول الجملة لسؤال!'}),()=>{addWord({zh:'你好吗',py:'Nǐ hǎo ma',ar:'كيف حالك؟'});zhState.waiting={type:'repeat',word:{zh:'你好吗',py:'Nǐ hǎo ma',ar:'كيف حالك؟'}};setChips(['你好吗','كيف حالك'])})})}},
+        {f:()=>{zhType('شكراً ومع السلامة:',()=>{zhType(zhBubble({zh:'谢谢 = شكراً | 再见 = مع السلامة',py:'Xièxiè | Zàijiàn',ar:''}),()=>{addWord({zh:'谢谢',py:'Xièxiè',ar:'شكراً'});addWord({zh:'再见',py:'Zàijiàn',ar:'مع السلامة'});zhState.waiting={type:'quiz',q:'شكراً بالصيني؟',a:'谢谢',opts:['谢谢','你好','再见','很好']};setChips(['谢谢','你好','再见','很好'])})})}},
+        {f:()=>{zhType(zhBubble({zh:'太棒了！',py:'Tài bàng le!',ar:'رائع! أنهيت الدرس الأول!'}),()=>{showToast('تم الدرس الأول!');zhState.lesson=1;zhUpdateStats();setChips(['الدرس التالي','راجع','اختبرني'])})}},
+    ]},
+    {t:'الضمائر',steps:[
+        {f:()=>{zhType('الدرس 2: الضمائر!',()=>{zhType(`<span class="chinese zh">我=أنا | 你=أنت | 他=هو | 她=هي</span><span class="pinyin">Wǒ | Nǐ | Tā | Tā</span><span class="arabic">"هو" و"هي" نفس النطق!</span>`,()=>{DB.gram.slice(0,6).forEach(w=>addWord(w));zhState.waiting={type:'quiz',q:'أنا بالصيني؟',a:'我',opts:['我','你','他','她']};setChips(['我','你','他','她'])})})}},
+        {f:()=>{zhType('الجمع:',()=>{zhType(zhBubble({zh:'我们 = نحن | 他们 = هم',py:'Wǒmen | Tāmen',ar:'"们" للجمع!'}),()=>{addWord({zh:'我们',py:'Wǒmen',ar:'نحن'});addWord({zh:'他们',py:'Tāmen',ar:'هم'});zhType(zhBubble({zh:'我们是朋友。',py:'Wǒmen shì péngyǒu.',ar:'نحن أصدقاء.'}),()=>{addWord({zh:'是',py:'shì',ar:'يكون'});zhState.waiting={type:'repeat',word:{zh:'我们',py:'Wǒmen',ar:'نحن'}};setChips(['我们','هم','أنا','أنت'])})})})}},
+        {f:()=>{zhType('ممتاز! انتهى!',()=>{showToast('تم الدرس الثاني!');zhState.lesson=2;zhUpdateStats();setChips(['الدرس التالي','اختبرني'])})}},
+    ]},
+    {t:'الأرقام',steps:[
+        {f:()=>{zhType('الدرس 3: الأرقام!',()=>{let h='';DB.nums.forEach(n=>{h+=zhBubble(n);addWord(n)});zhType(h,()=>{zhState.waiting={type:'quiz',q:'5 بالصيني؟',a:'五',opts:['三','五','七','九']};setChips(['三','五','七','九'])})})}},
+        {f:()=>{zhType(zhBubble({zh:'十一 = 11 (十+一)',py:'Shíyī',ar:'الأرقام تُبنى هكذا!'}),()=>{showToast('تم الدرس الثالث!');zhState.lesson=3;zhUpdateStats();setChips(['الدرس التالي','اختبرني'])})}},
+    ]},
+    {t:'الألوان',steps:[
+        {f:()=>{zhType('الدرس 4: الألوان! كل لون ينتهي بـ 色:',()=>{let h='';DB.colors.forEach(c=>{h+=zhBubble(c);addWord(c)});zhType(h,()=>{zhState.waiting={type:'quiz',q:'أحمر؟',a:'红色',opts:['红色','蓝色','绿色','黄色']};setChips(['红色','蓝色','绿色','黄色'])})})}},
+        {f:()=>{zhType(zhBubble({zh:'我喜欢红色。',py:'Wǒ xǐhuān hóngsè.',ar:'أنا أحب الأحمر.'}),()=>{showToast('تم الدرس الرابع!');zhState.lesson=4;zhUpdateStats();setChips(['الدرس التالي','اختبرني'])})}},
+    ]},
+    {t:'العائلة',steps:[
+        {f:()=>{zhType('الدرس 5: العائلة!',()=>{let h='';DB.family.forEach(f=>{h+=zhBubble(f);addWord(f)});zhType(h,()=>{zhState.waiting={type:'quiz',q:'أبي؟',a:'爸爸',opts:['爸爸','妈妈','哥哥','弟弟']};setChips(['爸爸','妈妈','哥哥','弟弟'])})})}},
+        {f:()=>{zhType(zhBubble({zh:'我爱我的家人。',py:'Wǒ ài wǒ de jiārén.',ar:'أنا أحب عائلتي.'}),()=>{showToast('تم الدرس الخامس!');zhState.lesson=5;zhUpdateStats();setChips(['الدرس التالي','اختبرني'])})}},
+    ]},
+    {t:'الطعام والمشاعر',steps:[
+        {f:()=>{zhType('الدرس 6: الطعام!',()=>{let h='';DB.food.slice(0,4).forEach(f=>{h+=zhBubble(f);addWord(f)});zhType(h,()=>{zhState.waiting={type:'quiz',q:'ماء؟',a:'水',opts:['水','茶','米饭','面包']};setChips(['水','茶','米饭','面包'])})})}},
+        {f:()=>{zhType('والمشاعر:',()=>{let h='';DB.feel.slice(0,4).forEach(f=>{h+=zhBubble(f);addWord(f)});zhType(h,()=>{showToast('تم الدرس السادس!');zhState.lesson=6;zhUpdateStats();setChips(['الدرس الأخير','اختبرني'])})})}},
+    ]},
+    {t:'جمل يومية',steps:[
+        {f:()=>{zhType('الدرس الأخير! جمل يومية:',()=>{let h='';DB.sents.slice(0,4).forEach(s=>{h+=zhBubble(s);addWord(s)});zhType(h,()=>{zhState.waiting={type:'repeat',word:DB.sents[0]};setChips(['我很好，谢谢。','شكراً'])})})}},
+        {f:()=>{let h='';DB.sents.slice(4).forEach(s=>{h+=zhBubble(s);addWord(s)});zhType(h,()=>{zhType(zhBubble({zh:'恭喜你！你很棒！',py:'Gōngxǐ nǐ! Nǐ hěn bàng!',ar:'مبروك! أنت رائع!'}),()=>{showToast('مبروك! أكملت كل الدروس!');zhState.lesson=7;zhUpdateStats();setChips(['اختبرني شامل','راجع الكلمات'])})})}},
+    ]},
+];
+
+function zhStartLesson(){
+    if(zhState.lesson>=lessons.length){zhType('أكملت كل الدروس!',()=>{setChips(['اختبرني','راجع الكلمات'])});return}
+    zhState.step=0;
+    const l=lessons[zhState.lesson];
+    zhType('📚 الدرس '+(zhState.lesson+1)+': '+l.t,()=>zhRunStep());
+}
+
+function zhRunStep(){
+    const l=lessons[zhState.lesson];
+    if(!l||zhState.step>=l.steps.length)return;
+    l.steps[zhState.step].f();
+}
+
+function zhAdvance(){
+    zhState.step++;
+    const l=lessons[zhState.lesson];
+    if(l&&zhState.step<l.steps.length)setTimeout(()=>zhRunStep(),300);
+}
+
+function zhUpdateStats(){
+    $('stMsg').textContent=zhState.msgCount;
+    $('stWrd').textContent=zhState.words.length;
+    $('stQ').textContent=zhState.qCount;
+    $('stLs').textContent=Math.min(zhState.lesson+1,zhState.total);
+    const pct=Math.min(100,(zhState.lesson/zhState.total)*100);
+    $('lvlFill').style.width=pct+'%';
+    let lv='المبتدئ';if(pct>=80)lv='متقدم';else if(pct>=60)lv='متوسط أعلى';else if(pct>=40)lv='متوسط';else if(pct>=20)lv='فوق المبتدئ';
+    $('lvlTxt').textContent=lv+' - '+Math.round(pct)+'%';
+    const list=$('wrdList');list.innerHTML='';
+    if(!zhState.words.length){list.innerHTML='<p style="color:var(--text-muted);font-size:12px">لا توجد كلمات بعد</p>';return}
+    zhState.words.forEach(w=>{const t=document.createElement('span');t.className='wrd-tag';t.innerHTML=`<span class="z">${w.zh}</span><span class="a">${w.ar}</span>`;list.appendChild(t)});
+}
+
+// =====================================================
+// الإرسال الرئيسي
+// =====================================================
+async function handleSend(){
+    const text=chatInp.value.trim();
+    if(!text||isBusy)return;
+    isBusy=true;sendBtn.disabled=true;
+    chatInp.value='';chatInp.style.height='auto';
+
+    if(currentMode==='search'){
+        addMsg(text,'user');
+        showTyp();
+        addMsg(`<div class="search-status"><span class="spin"></span>جاري البحث عن "${text}"...</div>`,'bot',searchBadge);
+        await new Promise(r=>setTimeout(r,700));
+        const res=await wikiSearch(text);
+        renderSearch(res,text);
+    }else{
+        addMsg(text,'user');
+        zhState.msgCount++;
+        zhProcess(text);
+    }
+
+    isBusy=false;sendBtn.disabled=false;chatInp.focus();
+}
+
+// =====================================================
+// الأحداث
+// =====================================================
+sendBtn.addEventListener('click',handleSend);
+chatInp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend()}});
+chatInp.addEventListener('input',()=>{chatInp.style.height='auto';chatInp.style.height=Math.min(chatInp.scrollHeight,110)+'px'});
+
+ $('clearBtn').addEventListener('click',()=>{
+    msgs.innerHTML='';
+    showWelcome();
+});
+
+ $('statsBtn').addEventListener('click',()=>{zhUpdateStats();$('statsPn').classList.add('on');$('statsOv').classList.add('on')});
+ $('statsCls').addEventListener('click',closeStats);
+ $('statsOv').addEventListener('click',closeStats);
+function closeStats(){$('statsPn').classList.remove('on');$('statsOv').classList.remove('on')}
+
+// الترحيب
+function showWelcome(){
+    addMsg('أهلاً بك! عندك وضعين:<br><strong style="color:var(--accent)">بحث</strong> — اكتب أي سؤال وأبحث لك في ويكيبيديا<br><strong style="color:var(--red)">محادثة صينية</strong> — تحدث معاي بالصيني وأعلمك',()=>{
+        setChips(['ما هي الطاقة الشمسية','تاريخ الصين','你好','كيف حالك','اختبرني']);
+    });
+}
+
+showWelcome();
+chatInp.focus();
+</script>
+</body>
+</html>
