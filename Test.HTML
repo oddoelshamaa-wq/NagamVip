@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معلم الصينية الذكي</title>
+    <title>معلم الصينية الذكي - AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -34,7 +34,6 @@
             overflow: hidden;
         }
 
-        /* === الخلفية === */
         .bg-effects {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
@@ -64,7 +63,6 @@
             66% { transform: translate(-25px, 25px) scale(0.9); }
         }
 
-        /* === شبكة خلفية === */
         .bg-grid {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
             background-image:
@@ -73,7 +71,6 @@
             background-size: 60px 60px;
         }
 
-        /* === رموز عائمة === */
         .floating-chars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .float-char {
             position: absolute; font-family: 'Noto Sans SC', sans-serif;
@@ -87,13 +84,11 @@
             100% { transform: translateY(-10vh) rotate(15deg); opacity: 0; }
         }
 
-        /* === التخطيط === */
         .app {
             position: relative; z-index: 1;
             display: flex; height: 100vh; max-width: 1500px; margin: 0 auto;
         }
 
-        /* === الشريط الجانبي === */
         .sidebar {
             width: 300px; background: var(--bg2);
             border-left: 1px solid var(--border);
@@ -126,7 +121,6 @@
         .logo-title { font-size: 18px; font-weight: 900; letter-spacing: -0.3px; }
         .logo-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
 
-        /* === التصنيفات === */
         .cats { padding: 12px 10px; flex: 1; overflow-y: auto; }
         .cats::-webkit-scrollbar { width: 3px; }
         .cats::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -161,7 +155,45 @@
         }
         .cat-btn.active .cat-count { background: rgba(230,57,70,0.2); color: var(--accent); }
 
-        /* === الإحصائيات === */
+        /* === إعدادات API === */
+        .api-section {
+            padding: 10px 14px; border-top: 1px solid var(--border);
+        }
+        .api-toggle {
+            display: flex; align-items: center; gap: 8px; cursor: pointer;
+            font-size: 11px; color: var(--fg2); margin-bottom: 8px;
+        }
+        .api-toggle .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--muted); transition: all 0.3s;
+        }
+        .api-toggle .dot.on { background: var(--green); box-shadow: 0 0 8px rgba(42,157,143,0.5); }
+        .api-input-wrap {
+            display: none; gap: 6px;
+        }
+        .api-input-wrap.show { display: flex; }
+        .api-input {
+            flex: 1; background: var(--card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 10px; color: var(--fg);
+            font-family: 'Cairo', sans-serif; font-size: 11px; outline: none;
+        }
+        .api-input:focus { border-color: var(--accent); }
+        .api-input::placeholder { color: var(--muted); font-size: 10px; }
+        .api-save {
+            background: var(--accent); border: none; color: #fff;
+            padding: 8px 12px; border-radius: 8px; cursor: pointer;
+            font-size: 11px; font-family: 'Cairo', sans-serif; font-weight: 700;
+            transition: all 0.2s;
+        }
+        .api-save:hover { transform: scale(1.05); }
+        .api-status {
+            font-size: 10px; color: var(--muted); margin-top: 6px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .api-status i { font-size: 9px; }
+        .api-status.ok { color: var(--green); }
+        .api-status.err { color: var(--accent); }
+
         .stats {
             padding: 14px 16px; border-top: 1px solid var(--border);
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
@@ -173,7 +205,6 @@
         .stat-n { font-size: 18px; font-weight: 900; color: var(--gold); }
         .stat-l { font-size: 9px; color: var(--muted); margin-top: 2px; }
 
-        /* === المحادثة === */
         .chat { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
         .chat-head {
@@ -186,10 +217,12 @@
         .chat-head .online {
             font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 5px;
         }
+        .chat-head .online.offline { color: var(--accent); }
         .chat-head .online::before {
             content: ''; width: 6px; height: 6px; background: var(--green);
             border-radius: 50%; animation: pulse 2s ease-in-out infinite;
         }
+        .chat-head .online.offline::before { background: var(--accent); animation: none; }
         @keyframes pulse {
             0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(42,157,143,0.4); }
             50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(42,157,143,0); }
@@ -212,7 +245,6 @@
             border-radius: 3px; transition: width 0.5s ease; width: 0%;
         }
 
-        /* === الرسائل === */
         .msgs {
             flex: 1; overflow-y: auto; padding: 20px 24px;
             display: flex; flex-direction: column; gap: 14px;
@@ -265,7 +297,41 @@
         }
         .msg-body .note-box i { color: var(--gold); margin-top: 2px; flex-shrink: 0; }
 
-        /* === بطاقة الكلمة المحسّنة === */
+        /* === تنسيق ردود AI === */
+        .msg-body .ai-zh {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 22px; font-weight: 700;
+            color: var(--fg); display: inline; cursor: pointer;
+            padding: 2px 4px; border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .msg-body .ai-zh:hover {
+            background: rgba(230,57,70,0.15);
+        }
+        .msg-body .ai-py {
+            color: var(--accent2); font-style: italic; font-size: 13px;
+        }
+        .msg-body .ai-section {
+            margin-top: 10px; padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .msg-body .ai-label {
+            font-size: 11px; color: var(--muted); font-weight: 700;
+            margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+        }
+        .msg-body .ai-examples {
+            display: flex; flex-wrap: wrap; gap: 6px;
+        }
+        .msg-body .ai-ex {
+            padding: 6px 12px; background: var(--card2);
+            border: 1px solid var(--border); border-radius: 8px;
+            cursor: pointer; transition: all 0.2s; font-size: 12px;
+        }
+        .msg-body .ai-ex:hover {
+            border-color: var(--accent); background: rgba(230,57,70,0.06);
+        }
+        .msg-body .ai-ex .ai-zh { font-size: 16px; }
+
         .wcard {
             background: var(--card2); border: 1px solid var(--border); border-radius: 14px;
             padding: 18px; margin-top: 10px; cursor: pointer;
@@ -323,7 +389,6 @@
         }
         .wcard-nav button:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* === الاختبار === */
         .quiz-opts { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
         .q-opt {
             padding: 11px 14px; background: var(--card); border: 1px solid var(--border);
@@ -343,7 +408,6 @@
         .q-opt.correct .q-num { background: var(--green); color: #fff; }
         .q-opt.wrong .q-num { background: var(--accent); color: #fff; }
 
-        /* === مؤشر الكتابة === */
         .typing { display: flex; gap: 5px; padding: 6px 2px; }
         .typing span {
             width: 7px; height: 7px; background: var(--green); border-radius: 50%;
@@ -356,7 +420,6 @@
             30% { transform: translateY(-7px); opacity: 1; }
         }
 
-        /* === الإدخال === */
         .input-area {
             padding: 14px 24px 20px; border-top: 1px solid var(--border);
             background: rgba(14,14,26,0.9); backdrop-filter: blur(24px);
@@ -370,6 +433,7 @@
         }
         .inp::placeholder { color: var(--muted); }
         .inp:focus { border-color: var(--accent); }
+        .inp:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .send {
             width: 46px; height: 46px; border-radius: 13px; border: none;
@@ -379,6 +443,7 @@
         }
         .send:hover { transform: scale(1.06); box-shadow: 0 4px 24px var(--accent-glow); }
         .send:active { transform: scale(0.94); }
+        .send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
         .quick-row { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
         .qb {
@@ -387,8 +452,8 @@
             font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
         }
         .qb:hover { border-color: var(--accent); color: var(--accent); }
+        .qb:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* === الإشعار === */
         .toast {
             position: fixed; top: 20px; left: 50%;
             transform: translateX(-50%) translateY(-100px);
@@ -401,7 +466,6 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast i { color: var(--green); }
 
-        /* === مؤشر النطق العائم === */
         .speak-float {
             position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) scale(0);
             background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 30px;
@@ -413,7 +477,33 @@
         }
         .speak-float.show { transform: translateX(-50%) scale(1); }
 
-        /* === الاستجابة === */
+        /* === شريط تحميل AI === */
+        .ai-loading-bar {
+            height: 2px; background: var(--border); border-radius: 2px;
+            margin-top: 8px; overflow: hidden; display: none;
+        }
+        .ai-loading-bar.active { display: block; }
+        .ai-loading-bar::after {
+            content: ''; display: block; height: 100%;
+            width: 40%; background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 2px;
+            animation: aiLoad 1.2s ease-in-out infinite;
+        }
+        @keyframes aiLoad {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+
+        .ai-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: linear-gradient(135deg, rgba(42,157,143,0.15), rgba(42,157,143,0.05));
+            border: 1px solid rgba(42,157,143,0.2);
+            padding: 2px 8px; border-radius: 6px;
+            font-size: 10px; color: var(--green); font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .ai-badge i { font-size: 8px; }
+
         @media (max-width: 860px) {
             .sidebar { display: none; }
             .msgs { padding: 14px; }
@@ -450,16 +540,33 @@
 </div>
 
 <div class="app">
-    <!-- الشريط الجانبي -->
     <aside class="sidebar">
         <div class="sidebar-head">
             <div class="logo-box">语</div>
             <div class="logo-title">معلم الصينية الذكي</div>
-            <div class="logo-sub">ينطق أي كلمة ترسلها</div>
+            <div class="logo-sub">مربوط بالذكاء الاصطناعي</div>
         </div>
         <nav class="cats" id="catsNav">
             <div class="cat-label">الدروس</div>
         </nav>
+
+        <!-- قسم إعدادات API -->
+        <div class="api-section">
+            <div class="api-toggle" onclick="toggleApiPanel()">
+                <div class="dot" id="apiDot"></div>
+                <span>ربط مع Gemini AI</span>
+                <i class="fas fa-gear" style="margin-right:auto;font-size:10px;color:var(--muted);"></i>
+            </div>
+            <div class="api-input-wrap" id="apiWrap">
+                <input class="api-input" id="apiInp" type="password" placeholder="الصق مفتاح API هنا...">
+                <button class="api-save" onclick="saveApiKey()">حفظ</button>
+            </div>
+            <div class="api-status" id="apiStatus">
+                <i class="fas fa-circle-info"></i>
+                <span>وضع محلي - ردود ذكية محدودة</span>
+            </div>
+        </div>
+
         <div class="stats">
             <div class="stat">
                 <div class="stat-n" id="sWords">0</div>
@@ -476,12 +583,11 @@
         </div>
     </aside>
 
-    <!-- المحادثة -->
     <main class="chat">
         <header class="chat-head">
             <div>
                 <h2 id="chatTitle">التحيات والسلام</h2>
-                <div class="online">متصل الآن</div>
+                <div class="online" id="onlineStatus">متصل الآن</div>
             </div>
             <div class="head-actions">
                 <button class="h-btn" onclick="clearChat()" title="مسح" aria-label="مسح المحادثة"><i class="fas fa-trash-can"></i></button>
@@ -494,10 +600,10 @@
 
         <div class="input-area">
             <div class="input-row">
-                <textarea class="inp" id="inp" placeholder="اكتب أي شيء بالعربي أو الصيني وسأنطقه لك..." rows="1" aria-label="حقل الكتابة"></textarea>
-                <button class="send" onclick="handleSend()" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
+                <textarea class="inp" id="inp" placeholder="اسألني أي شيء عن الصينية... ترجمة، شرح، قواعد، نطق" rows="1" aria-label="حقل الكتابة"></textarea>
+                <button class="send" id="sendBtn" onclick="handleSend()" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
             </div>
-            <div class="quick-row">
+            <div class="quick-row" id="quickRow">
                 <button class="qb" onclick="qa('next')">التالي</button>
                 <button class="qb" onclick="qa('prev')">السابق</button>
                 <button class="qb" onclick="qa('quiz')">اختبرني</button>
@@ -511,7 +617,7 @@
 
 <script>
 // ============================
-// قاعدة البيانات
+// قاعدة البيانات المحلية
 // ============================
 const DB = {
     greetings: {
@@ -647,16 +753,189 @@ const DB = {
 };
 
 // ============================
-// الحالة
+// الحالة العامة
 // ============================
 let curCat = 'greetings';
 let curIdx = 0;
 let learned = new Set();
-let correct = 0;
+let correctCount = 0;
 let spoken = 0;
 let lastWord = null;
 let lastSpokenText = null;
 let quizDone = false;
+let isProcessing = false;
+let conversationHistory = [];
+
+// ============================
+// إعدادات API
+// ============================
+let apiKey = localStorage.getItem('gemini_api_key') || '';
+let apiConnected = false;
+
+function toggleApiPanel() {
+    document.getElementById('apiWrap').classList.toggle('show');
+}
+
+function saveApiKey() {
+    const key = document.getElementById('apiInp').value.trim();
+    if (!key) {
+        showToast('أدخل مفتاح API أولاً');
+        return;
+    }
+    apiKey = key;
+    localStorage.setItem('gemini_api_key', key);
+    // اختبار الاتصال
+    testApiConnection();
+}
+
+async function testApiConnection() {
+    const statusEl = document.getElementById('apiStatus');
+    const dotEl = document.getElementById('apiDot');
+    const onlineEl = document.getElementById('onlineStatus');
+
+    statusEl.className = 'api-status';
+    statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>جاري اختبار الاتصال...</span>';
+
+    try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: 'رد بكلمة واحدة: نعم' }] }]
+            })
+        });
+
+        if (res.ok) {
+            apiConnected = true;
+            dotEl.classList.add('on');
+            statusEl.className = 'api-status ok';
+            statusEl.innerHTML = '<i class="fas fa-check-circle"></i><span>متصل بـ Gemini AI</span>';
+            onlineEl.className = 'online';
+            onlineEl.textContent = 'AI متصل';
+            showToast('تم الربط بـ Gemini AI بنجاح!');
+        } else {
+            throw new Error('API Error');
+        }
+    } catch (e) {
+        apiConnected = false;
+        dotEl.classList.remove('on');
+        statusEl.className = 'api-status err';
+        statusEl.innerHTML = '<i class="fas fa-times-circle"></i><span>فشل الاتصال - تحقق من المفتاح</span>';
+        onlineEl.className = 'online offline';
+        onlineEl.textContent = 'وضع محلي';
+        showToast('فشل الاتصال - تأكد من صحة المفتاح');
+    }
+}
+
+// تحميل المفتاح المحفوظ عند البدء
+if (apiKey) {
+    document.getElementById('apiInp').value = apiKey;
+    testApiConnection();
+}
+
+// ============================
+// استدعاء Gemini AI
+// ============================
+const SYSTEM_PROMPT = `أنت معلم صيني ذكي اسمك "语老师" تتحدث العربية بطلاقة. قواعدك:
+
+1. أي نص صيني يرسله المستخدم → انطقه له (اكتبه بالصيني مع البينيين)
+2. أي طلب ترجمة عربي→صيني → ترجم بدقة مع البينيين
+3. أي سؤال عن قواعد الصينية → اشرح ببساطة بالعربي مع أمثلة
+4. أي سؤال عام عن الصين/ثقافتها → أجب باختصار مفيد
+5. كن ودوداً ومشجعاً، استخدم تعبيرات صينية قصيرة أحياناً
+
+**تنسيق الرد المطلوب (مهم جداً):**
+- النصوص الصينية ضعها داخل: 【中文】
+- البينيين ضعه داخل: 〔pinyin〕  
+- الأمثلة الصينية ضعها داخل: 【中文】 مع البينيين 〔pinyin〕 بعدها
+- لا تستخدم أي تنسيق Markdown آخر (لا # أو ** أو -)
+- اكتب جمل قصيرة وواضحة
+- إذا سأل عن كلمة، أعطها بالصيني ثم البينيين ثم المعنى العربي ثم مثال جملة
+
+مثال لرد صحيح:
+الكلمة التي سألت عنها هي 【你好】〔nǐ hǎo〕 وتعني مرحباً. تستخدمها في أي وقت.
+مثال في جملة: 【你好吗？】〔nǐ hǎo ma?〕 = كيف حالك؟`;
+
+async function callGemini(userText) {
+    // إضافة للمحادثة
+    conversationHistory.push({ role: 'user', parts: [{ text: userText }] });
+
+    // الاحتفاظ بآخر 20 رسالة فقط
+    if (conversationHistory.length > 20) {
+        conversationHistory = conversationHistory.slice(-20);
+    }
+
+    const body = {
+        contents: [
+            { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
+            { role: 'model', parts: [{ text: 'فهمت! أنا 语老师 معلم الصينية الذكي. سأستخدم التنسيق المطلوب دائماً. 【你好】〔nǐ hǎo〕 مرحباً بك!' }] },
+            ...conversationHistory
+        ],
+        generationConfig: {
+            temperature: 0.7,
+            topP: 0.9,
+            maxOutputTokens: 800
+        }
+    };
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || 'فشل الاتصال بالـ AI');
+    }
+
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) throw new Error('لم يُرجع AI أي رد');
+
+    // حفظ رد الـ AI في التاريخ
+    conversationHistory.push({ role: 'model', parts: [{ text }] });
+
+    return text;
+}
+
+// ============================
+// تنسيق رد AI (تحويل العلامات إلى HTML)
+// ============================
+function formatAIResponse(text) {
+    let html = '';
+
+    // تقسيم النص إلى أجزاء ومعالجتها
+    const parts = text.split(/(【[^】]+】|〔[^〕]+〕)/g);
+
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+
+        // الصيني 【中文】
+        if (/^【.+】$/.test(part)) {
+            const zhText = part.slice(1, -1);
+            html += `<span class="ai-zh" onclick="speak('${zhText}')" title="اضغط للنطق">${zhText}</span>`;
+        }
+        // البينيين 〔pinyin〕
+        else if (/^〔.+〕$/.test(part)) {
+            const pyText = part.slice(1, -1);
+            html += ` <span class="ai-py">${pyText}</span> `;
+        }
+        // نص عادي
+        else {
+            // تنظيف النص من أي markdown متبقي
+            let clean = part
+                .replace(/\*\*/g, '')
+                .replace(/^#+\s*/gm, '')
+                .replace(/^-\s*/gm, '• ')
+                .replace(/\n/g, '<br>');
+            html += clean;
+        }
+    }
+
+    return html;
+}
 
 // ============================
 // رموز عائمة
@@ -710,18 +989,17 @@ function speak(text, showFloat = true) {
         u.onstart = () => {
             spoken++;
             updateStats();
-            // تأثير على البطاقة
             const card = document.querySelector('.wcard');
-            if (card) { card.classList.add('playing'); }
+            if (card) card.classList.add('playing');
             const btn = document.querySelector('.wcard-speak');
-            if (btn) { btn.classList.add('speaking'); }
+            if (btn) btn.classList.add('speaking');
             if (showFloat) showSpeakFloat(text);
         };
         u.onend = () => {
             const card = document.querySelector('.wcard');
-            if (card) { card.classList.remove('playing'); }
+            if (card) card.classList.remove('playing');
             const btn = document.querySelector('.wcard-speak');
-            if (btn) { btn.classList.remove('speaking'); }
+            if (btn) btn.classList.remove('speaking');
             hideSpeakFloat();
         };
         u.onerror = () => {
@@ -757,12 +1035,18 @@ function repeatLast() {
 // ============================
 const msgs = document.getElementById('msgs');
 
-function addBot(html) {
+function addBot(html, isAI = false) {
     const d = document.createElement('div');
     d.className = 'msg bot';
-    d.innerHTML = `<div class="msg-av"><i class="fas fa-robot"></i></div><div class="msg-body">${html}</div>`;
+    const badge = isAI ? '<div class="ai-badge"><i class="fas fa-microchip"></i> Gemini AI</div>' : '';
+    const loadingBar = isAI ? '<div class="ai-loading-bar"></div>' : '';
+    d.innerHTML = `
+        <div class="msg-av"><i class="fas fa-robot"></i></div>
+        <div class="msg-body">${badge}${html}${loadingBar}</div>
+    `;
     msgs.appendChild(d);
     scroll();
+    return d;
 }
 
 function addUser(text) {
@@ -782,6 +1066,13 @@ function showTyping() {
 function hideTyping() { const e = document.getElementById('typMsg'); if (e) e.remove(); }
 function scroll() { msgs.scrollTop = msgs.scrollHeight; }
 function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function setProcessing(state) {
+    isProcessing = state;
+    document.getElementById('inp').disabled = state;
+    document.getElementById('sendBtn').disabled = state;
+    document.querySelectorAll('.qb').forEach(b => b.disabled = state);
+}
 
 // ============================
 // بطاقة الكلمة
@@ -810,7 +1101,7 @@ function wcardHTML(w, idx, total) {
 }
 
 // ============================
-// عرض كلمة
+// عرض كلمة (محلي)
 // ============================
 function showWord(idx) {
     const cat = DB[curCat];
@@ -828,6 +1119,7 @@ function showWord(idx) {
     setTimeout(() => {
         hideTyping();
         addBot(`تعلّم كلمة من <span class="hl">${cat.title}</span>:${wcardHTML(w, idx, cat.words.length)}`);
+        speak(w.zh);
     }, 500);
 }
 
@@ -878,7 +1170,7 @@ function checkQuiz(btn, sel, cor) {
 
     if (sel === cor) {
         btn.classList.add('correct');
-        correct++;
+        correctCount++;
         learned.add(cor);
         speak(cor);
         updateStats();
@@ -915,411 +1207,459 @@ function switchCat(key, btn) {
 }
 
 // ============================
-// معالجة الإدخال الذكية
+// أوامر سريعة
+// ============================
+function qa(type) {
+    if (isProcessing) return;
+
+    switch(type) {
+        case 'next':
+            curIdx = (curIdx + 1) % DB[curCat].words.length;
+            showWord(curIdx);
+            break;
+        case 'prev':
+            curIdx = (curIdx - 1 + DB[curCat].words.length) % DB[curCat].words.length;
+            showWord(curIdx);
+            break;
+        case 'random': {
+            const rCat = Object.keys(DB)[Math.floor(Math.random() * Object.keys(DB).length)];
+            const rIdx = Math.floor(Math.random() * DB[rCat].words.length);
+            curCat = rCat; curIdx = rIdx;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.querySelector(`[data-cat="${rCat}"]`);
+            if (btn) btn.classList.add('active');
+            document.getElementById('chatTitle').textContent = DB[rCat].title;
+            addUser('كلمة عشوائية!');
+            showWord(rIdx);
+            break;
+        }
+        case 'quiz':
+            startQuiz();
+            break;
+        case 'tones':
+            addUser('اشرح لي النبرات الصينية');
+            processInput('اشرح لي النبرات الصينية الأربع');
+            break;
+        case 'help':
+            addUser('مساعدة');
+            processInput('مساعدة');
+            break;
+    }
+}
+
+// ============================
+// المعالجة الرئيسية - الذكاء الاصطناعي أولاً
 // ============================
 function handleSend() {
     const inp = document.getElementById('inp');
     const text = inp.value.trim();
-    if (!text) return;
+    if (!text || isProcessing) return;
     inp.value = ''; inp.style.height = 'auto';
     addUser(text);
     processInput(text);
 }
 
-function processInput(text) {
+async function processInput(text) {
+    if (isProcessing) return;
     const t = text.toLowerCase();
 
-    // === كشف النص الصيني ===
+    // === كشف النص الصيني → نطق فوري + استفسار AI إن متصل ===
     const zhMatch = text.match(/[\u4e00-\u9fff]+/g);
     if (zhMatch) {
-        const zhText = zhMatch.join('');
+        const zhText = zhMatch.join(' ');
         speak(zhText);
 
-        // بحث في قاعدة البيانات
+        // بحث محلي أولاً
         let found = null;
         for (const key in DB) {
-            const f = DB[key].words.find(w => w.zh === zhText);
+            const f = DB[key].words.find(w => zhText.includes(w.zh));
             if (f) { found = f; break; }
         }
 
-        showTyping();
-        setTimeout(() => {
-            hideTyping();
-            if (found) {
-                addBot(`
-                    هذه الكلمة موجودة في قاعدتي:
-                    <span class="zh">${found.zh}</span>
-                    <span class="py">${found.py}</span>
-                    <span class="mn">${found.ar}</span>
-                    <div class="note-box"><i class="fas fa-lightbulb"></i><span>${found.note}</span></div>
-                `);
-            } else {
-                addBot(`
-                    أنطقت: <span class="zh" style="font-size:28px;">${zhText}</span>
-                    <br><br>
-                    هذه الكلمة غير موجودة في قاعدة بياناتي بعد، لكنني نطقتها لك بالصينية الصحيحة!
-                    <br>يمكنك إرسال أي نص صيني وسأنطقه فوراً.
-                `);
+        if (apiConnected) {
+            // إرسال للـ AI للحصول على شرح أعمق
+            setProcessing(true);
+            showTyping();
+            try {
+                const aiReply = await callGemini(text);
+                hideTyping();
+                const formatted = formatAIResponse(aiReply);
+                addBot(formatted, true);
+                // نطق أول كلمة صينية في الرد
+                const firstZh = aiReply.match(/【(.+?)】/);
+                if (firstZh) speak(firstZh[1], false);
+            } catch (e) {
+                hideTyping();
+                // fallback للوضع المحلي
+                if (found) {
+                    addBot(`وجدتها في قاعدتي:<span class="zh">${found.zh}</span><span class="py">${found.py}</span><span class="mn">${found.ar}</span><div class="note-box"><i class="fas fa-lightbulb"></i><span>${found.note}</span></div>`);
+                } else {
+                    addBot(`أنطقت: <span class="zh" style="font-size:28px;">${zhText}</span><br>هذه الكلمة غير موجودة في قاعدتي المحلية.`);
+                }
+                showToast('خطأ في AI: ' + e.message);
             }
-        }, 600);
+            setProcessing(false);
+        } else {
+            // وضع محلي فقط
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                if (found) {
+                    addBot(`وجدتها في قاعدتي:<span class="zh">${found.zh}</span><span class="py">${found.py}</span><span class="mn">${found.ar}</span><div class="note-box"><i class="fas fa-lightbulb"></i><span>${found.note}</span></div>`);
+                } else {
+                    addBot(`أنطقت: <span class="zh" style="font-size:28px;">${zhText}</span><br><br>هذه الكلمة غير موجودة في قاعدتي بعد، لكنني نطقتها لك!<br><span style="color:var(--muted);font-size:11px;">ربط مع Gemini AI للحصول على شرح أي كلمة صينية</span>`);
+                }
+            }, 500);
+        }
         return;
     }
 
-    // === أوامر التنقل ===
-    if (/التالي|next|جديد|يلا|عادى/.test(t)) { qa('next'); return; }
-    if (/السابق|prev|رجع|قبل/.test(t)) { qa('prev'); return; }
-    if (/عشوائي|random|صدف/.test(t)) { qa('random'); return; }
+    // === أوامر التنقل السريعة (دائماً محلية) ===
+    if (/^(التالي|next|جديد|يلا)$/.test(t)) { qa('next'); return; }
+    if (/^(السابق|prev|رجع|قبل)$/.test(t)) { qa('prev'); return; }
+    if (/^(عشوائي|random)$/.test(t)) { qa('random'); return; }
+    if (/^(اختبر|quiz|سؤال|امتحان)$/.test(t)) { qa('quiz'); return; }
 
-    // === أوامر الاختبار ===
-    if (/اختبر|quiz|سؤال|أسئلة|امتحان/.test(t)) { qa('quiz'); return; }
-
-    // === النطق ===
-    if (/انطق|نطق|speak|اقرأ|اقراء/.test(t)) {
+    // === أوامر النطق السريع ===
+    if (/^(انطق|نطق|speak|اقرأ)$/.test(t)) {
         if (lastWord) {
             speak(lastWord.zh);
             showToast('نطق: ' + lastWord.zh);
         } else {
-            showTyping();
-            setTimeout(() => { hideTyping(); addBot('أرسل كلمة أو نص صيني أولاً وسأنطقه لك فوراً!'); }, 400);
+            addBot('أرسل كلمة أو نص صيني أولاً وسأنطقه لك فوراً!');
         }
-        return;
-    }
-
-    // === النبرات ===
-    if (/نبر|تون|tone|أصوات/.test(t)) { qa('tones'); return; }
-
-    // === المساعدة ===
-    if (/مساعد|help|كيف|إزاي|شرح/.test(t)) { qa('help'); return; }
-
-    // === الشكر ===
-    if (/شكر|ممتن|يسلمو|شكرا/.test(t)) {
-        speak('不客气');
-        showTyping();
-        setTimeout(() => { hideTyping(); addBot(`<span class="zh">不客气！</span><span class="py">bù kè qi!</span><span class="mn">عفواً! أنا هنا دائماً.</span>`); }, 400);
-        return;
-    }
-
-    // === التحية ===
-    if (/مرحب|هلا|سلام|أهلا|هاي|صباح|مساء/.test(t)) {
-        speak('你好');
-        showTyping();
-        setTimeout(() => { hideTyping(); addBot(`<span class="zh">你好！</span><span class="py">nǐ hǎo!</span><span class="mn">مرحباً! أنا معلمك الذكي. أرسل أي شيء وسأنطقه لك!</span>`); }, 400);
-        return;
-    }
-
-    // === عدد الكلمات ===
-    if (/كم.*كلم|كم.*تعلمت|إحصائي/.test(t)) {
-        const total = Object.values(DB).reduce((s, c) => s + c.words.length, 0);
-        showTyping();
-        setTimeout(() => { hideTyping(); addBot(`تعلّمت <span class="hl">${learned.size}</span> كلمة من أصل <span class="hl">${total}</span> كلمة. نطقت <span class="hl">${spoken}</span> مرة.`); }, 400);
         return;
     }
 
     // === تصنيفات بالاسم ===
     for (const key in DB) {
-        if (t.includes(DB[key].title) || t.includes(key)) {
+        if (t.includes(DB[key].title)) {
             const btn = document.querySelector(`[data-cat="${key}"]`);
             switchCat(key, btn);
             return;
         }
     }
 
-    // === محاولة ترجمة عربي → صيني ===
-    const translation = findArabicTranslation(text);
-    if (translation) {
-        speak(translation.zh);
+    // === كل شيء آخر → AI ===
+    if (apiConnected) {
+        setProcessing(true);
+        showTyping();
+        try {
+            const aiReply = await callGemini(text);
+            hideTyping();
+            const formatted = formatAIResponse(aiReply);
+            addBot(formatted, true);
+
+            // نطق أي نص صيني في الرد
+            const zhInReply = aiReply.match(/【(.+?)】/g);
+            if (zhInReply && zhInReply.length > 0) {
+                // نطق أول كلمة صينية فقط
+                const first = zhInReply[0].slice(1, -1);
+                if (first.length <= 10) speak(first, false);
+            }
+
+            // إضافة للكلمات المتعلمة
+            if (zhInReply) {
+                zhInReply.forEach(z => {
+                    const clean = z.slice(1, -1);
+                    if (clean.length <= 6) learned.add(clean);
+                });
+                updateStats();
+            }
+        } catch (e) {
+            hideTyping();
+            addBot(`<span style="color:var(--accent);">حدث خطأ في الاتصال بالـ AI:</span> ${escHtml(e.message)}<br><br>جرّب مرة أخرى أو استخدم الأزرار السريعة بالأسفل.`);
+        }
+        setProcessing(false);
+    } else {
+        // === Fallback ذكي بدون AI ===
+        handleLocalFallback(text, t);
+    }
+}
+
+// ============================
+// الردود المحلية (بدون AI)
+// ============================
+function handleLocalFallback(text, t) {
+    const arToZh = {
+        'مرحبا': { zh: '你好', py: 'nǐ hǎo' },
+        'شكرا': { zh: '谢谢', py: 'xiè xie' },
+        'أهلا': { zh: '你好', py: 'nǐ hǎo' },
+        'سلام': { zh: '你好', py: 'nǐ hǎo' },
+        'مع السلامة': { zh: '再见', py: 'zài jiàn' },
+        'وداع': { zh: '再见', py: 'zài jiàn' },
+        'آسف': { zh: '对不起', py: 'duì bu qǐ' },
+        'نعم': { zh: '是', py: 'shì' },
+        'لا': { zh: '不', py: 'bù' },
+        'حب': { zh: '爱', py: 'ài' },
+        'أحبك': { zh: '我爱你', py: 'wǒ ài nǐ' },
+        'ماء': { zh: '水', py: 'shuǐ' },
+        'أكل': { zh: '吃', py: 'chī' },
+        'نوم': { zh: '睡觉', py: 'shuì jiào' },
+        'كبير': { zh: '大', py: 'dà' },
+        'صغير': { zh: '小', py: 'xiǎo' },
+        'جيد': { zh: '好', py: 'hǎo' },
+        'سيء': { zh: '坏', py: 'huài' },
+        'جميل': { zh: '漂亮', py: 'piào liang' },
+        'سريع': { zh: '快', py: 'kuài' },
+        'بطيء': { zh: '慢', py: 'màn' },
+        'صين': { zh: '中国', py: 'Zhōng guó' },
+        'أنا': { zh: '我', py: 'wǒ' },
+        'أنت': { zh: '你', py: 'nǐ' },
+        'هو': { zh: '他', py: 'tā' },
+        'هي': { zh: '她', py: 'tā' },
+        'ماذا': { zh: '什么', py: 'shén me' },
+        'أين': { zh: '哪里', py: 'nǎ lǐ' },
+        'متى': { zh: '什么时候', py: 'shén me shí hou' },
+        'لماذا': { zh: '为什么', py: 'wèi shén me' },
+        'كيف': { zh: '怎么', py: 'zěn me' },
+        'من': { zh: '谁', py: 'shuí' },
+        'قمر': { zh: '月亮', py: 'yuè liang' },
+        'شمس': { zh: '太阳', py: 'tài yáng' },
+        'بحر': { zh: '海', py: 'hǎi' },
+        'جبل': { zh: '山', py: 'shān' },
+        'شجرة': { zh: '树', py: 'shù' },
+        'زهرة': { zh: '花', py: 'huā' },
+        'كتاب': { zh: '书', py: 'shū' },
+        'هاتف': { zh: '手机', py: 'shǒu jī' },
+        'سيارة': { zh: '车', py: 'chē' },
+        'مدرسة': { zh: '学校', py: 'xué xiào' },
+        'شاي': { zh: '茶', py: 'chá' },
+        'قهوة': { zh: '咖啡', py: 'kā fēi' },
+        'خبز': { zh: '面包', py: 'miàn bāo' },
+        'سعيد': { zh: '开心', py: 'kāi xīn' },
+        'حزين': { zh: '难过', py: 'nán guò' },
+        'جائع': { zh: '饿', py: 'è' },
+        'صديق': { zh: '朋友', py: 'péng you' },
+        'أب': { zh: '爸爸', py: 'bà ba' },
+        'أم': { zh: '妈妈', py: 'mā ma' },
+        'تنين': { zh: '龙', py: 'lóng' },
+        'ديناصور': { zh: '恐龙', py: 'kǒng lóng' },
+        'نجمة': { zh: '星星', py: 'xīng xing' },
+        'مطر': { zh: '雨', py: 'yǔ' },
+        'ثلج': { zh: '雪', py: 'xuě' },
+        'نار': { zh: '火', py: 'huǒ' },
+        'رياح': { zh: '风', py: 'fēng' },
+        'سماء': { zh: '天空', py: 'tiān kōng' },
+        'أرض': { zh: '地', py: 'dì' },
+        'ذهب': { zh: '金', py: 'jīn' },
+        'فضة': { zh: '银', py: 'yín' },
+        'حديد': { zh: '铁', py: 'tiě' },
+        'خشب': { zh: '木', py: 'mù' },
+        'مال': { zh: '钱', py: 'qián' },
+        'عمل': { zh: '工作', py: 'gōng zuò' },
+        'لعب': { zh: '玩', py: 'wán' },
+        'كتب': { zh: '写', py: 'xiě' },
+        'قرأ': { zh: '读', py: 'dú' },
+        'رأى': { zh: '看', py: 'kàn' },
+        'سمع': { zh: '听', py: 'tīng' },
+        'قال': { zh: '说', py: 'shuō' },
+        'فعل': { zh: '做', py: 'zuò' },
+        'جاء': { zh: '来', py: 'lái' },
+        'ذهب': { zh: '去', py: 'qù' },
+        'يعطي': { zh: '给', py: 'gěi' },
+        'يشتري': { zh: '买', py: 'mǎi' },
+        'يبيع': { zh: '卖', py: 'mài' },
+        'يفهم': { zh: '明白', py: 'míng bai' },
+        'يعرف': { zh: '知道', py: 'zhī dào' },
+        'يفكر': { zh: '想', py: 'xiǎng' },
+        'يحب': { zh: '喜欢', py: 'xǐ huān' },
+        'يكره': { zh: '讨厌', py: 'tǎo yàn' },
+        'ينتظر': { zh: '等', py: 'děng' },
+    };
+
+    // بحث في الترجمات المحلية
+    let found = null;
+    for (const key in arToZh) {
+        if (t.includes(key)) {
+            found = { ar: key, ...arToZh[key] };
+            break;
+        }
+    }
+
+    if (found) {
+        speak(found.zh);
+        learned.add(found.zh);
+        updateStats();
         showTyping();
         setTimeout(() => {
             hideTyping();
             addBot(`
-                ترجمة "<span class="hl">${text}</span>" إلى الصينية:
-                <span class="zh">${translation.zh}</span>
-                <span class="py">${translation.py}</span>
-                <span class="mn">${translation.ar}</span>
+                ترجمة "<span class="hl">${found.ar}</span>":
+                <span class="zh">${found.zh}</span>
+                <span class="py">${found.py}</span>
+                <br><span style="color:var(--muted);font-size:11px;">ربط مع Gemini AI لشرح أعمق وأمثلة أكثر</span>
             `);
-        }, 500);
+        }, 400);
         return;
     }
 
-    // === رد افتراضي ===
+    // النبرات
+    if (/نبر|تون|tone|أصوات/.test(t)) {
+        showTyping();
+        setTimeout(() => {
+            hideTyping();
+            addBot(`
+                <span class="hl">النبرات الصينية الأربع:</span><br><br>
+                <span class="zh">ā</span> <span class="py">النبرة الأولى</span> — مستقيمة عالية، كأنك تقول "آه" مستنكراً<br>
+                <span class="zh">á</span> <span class="py">النبرة الثانية</span> — تصاعدية، كأنك تسأل "أأأن؟"<br>
+                <span class="zh">ǎ</span> <span class="py">النبرة الثالثة</span> — هابطة ثم صاعدة، كأنك تتشكك<br>
+                <span class="zh">à</span> <span class="py">النبرة الرابعة</span> — هابطة حادة، كأنك تأمر "قف!"<br><br>
+                <div class="note-box"><i class="fas fa-lightbulb"></i><span>النبرة تغيّر المعنى تماماً! مثلاً: mā (أم) و mǎ (حصان) و mà (يلعن) — نفس الحروف، نبرات مختلفة!</span></div>
+            `);
+            speak('ā á ǎ à');
+        }, 400);
+        return;
+    }
+
+    // المساعدة
+    if (/مساعد|help|كيف|إزاي|شرح/.test(t)) {
+        showTyping();
+        setTimeout(() => {
+            hideTyping();
+            addBot(`
+                <span class="hl">كيف تستخدم المعلم الذكي:</span><br><br>
+                <strong>1. الترجمة:</strong> اكتب أي كلمة عربية وسأترجمها<br>
+                <strong>2. النطق:</strong> أرسل أي نص صيني وسأنطقه فوراً<br>
+                <strong>3. الدروس:</strong> استخدم القائمة الجانبية للتنقل بين التصنيفات<br>
+                <strong>4. الاختبار:</strong> اضغط "اختبرني" أو اكتب "اختبر"<br>
+                <strong>5. أسئلة حرة:</strong> اسأل أي شيء عن الصينية!<br><br>
+                <div class="note-box"><i class="fas fa-microchip"></i><span><strong>لتفعيل الذكاء الاصطناعي:</strong> اضغط "ربط مع Gemini AI" في الشريط الجانبي، والصق مفتاح API مجاني من aistudio.google.com — بعدها سأفهم كل شيء وأجيب بذكاء!</span></div>
+            `);
+        }, 400);
+        return;
+    }
+
+    // الشكر
+    if (/شكر|ممتن|يسلمو/.test(t)) {
+        speak('不客气');
+        showTyping();
+        setTimeout(() => { hideTyping(); addBot(`<span class="zh">不客气！</span><span class="py">bù kè qi!</span> عفواً!`); }, 400);
+        return;
+    }
+
+    // التحية
+    if (/مرحب|هلا|سلام|أهلا|هاي|صباح|مساء/.test(t)) {
+        speak('你好');
+        showTyping();
+        setTimeout(() => { hideTyping(); addBot(`<span class="zh">你好！</span><span class="py">nǐ hǎo!</span> مرحباً! كيف يمكنني مساعدتك في الصينية اليوم؟`); }, 400);
+        return;
+    }
+
+    // إحصائيات
+    if (/كم.*كلم|كم.*تعلمت|إحصائي/.test(t)) {
+        const total = Object.values(DB).reduce((s, c) => s + c.words.length, 0);
+        showTyping();
+        setTimeout(() => { hideTyping(); addBot(`تعلّمت <span class="hl">${learned.size}</span> كلمة من أصل <span class="hl">${total}</span> كلمة في قاعدة البيانات المحلية. نطقت <span class="hl">${spoken}</span> مرة.`); }, 400);
+        return;
+    }
+
+    // رد افتراضي
     showTyping();
     setTimeout(() => {
         hideTyping();
         addBot(`
-            لم أتعرف على هذا الطلب تحديداً. جرّب:
-            <br>• أرسل <strong>نص صيني</strong> وسأنطقه فوراً
-            <br>• اكتب كلمة <strong>عربية</strong> مثل "شكراً" أو "مرحباً"
-            <br>• اكتب <strong>"مساعدة"</strong> لكل الأوامر
+            لم أتمكن من الإجابة على هذا السؤال في الوضع المحلي.<br><br>
+            <div class="note-box"><i class="fas fa-microchip"></i><span><strong>للحصول على إجابات ذكية على أي سؤال:</strong><br>1. اذهب إلى <span style="color:var(--cyan);">aistudio.google.com</span><br>2. أنشئ مفتاح API مجاني<br>3. اضغط "ربط مع Gemini AI" بالجانب والصق المفتاح<br><br>بعدها سأستطيع ترجمة أي كلمة، شرح أي قاعدة، والإجابة على أي سؤال عن الصينية!</span></div>
         `);
     }, 400);
 }
 
 // ============================
-// ترجمة عربي → صيني (كلمات شائعة)
+// الإحصائيات والتقدم
 // ============================
-const arToZh = {
-    'مرحبا': { zh: '你好', py: 'nǐ hǎo', ar: 'مرحباً' },
-    'شكرا': { zh: '谢谢', py: 'xiè xie', ar: 'شكراً' },
-    'أهلا': { zh: '你好', py: 'nǐ hǎo', ar: 'أهلاً' },
-    'سلام': { zh: '你好', py: 'nǐ hǎo', ar: 'سلام' },
-    'مع السلامة': { zh: '再见', py: 'zài jiàn', ar: 'مع السلامة' },
-    'وداع': { zh: '再见', py: 'zài jiàn', ar: 'وداعاً' },
-    'آسف': { zh: '对不起', py: 'duì bu qǐ', ar: 'آسف' },
-    'نعم': { zh: '是', py: 'shì', ar: 'نعم' },
-    'لا': { zh: '不', py: 'bù', ar: 'لا' },
-    'حب': { zh: '爱', py: 'ài', ar: 'حب' },
-    'أحبك': { zh: '我爱你', py: 'wǒ ài nǐ', ar: 'أحبك' },
-    'ماء': { zh: '水', py: 'shuǐ', ar: 'ماء' },
-    'أكل': { zh: '吃', py: 'chī', ar: 'يأكل' },
-    'شرب': { zh: '喝', py: 'hē', ar: 'يشرب' },
-    'نوم': { zh: '睡觉', py: 'shuì jiào', ar: 'ينام' },
-    'ذهب': { zh: '去', py: 'qù', ar: 'يذهب' },
-    'جاء': { zh: '来', py: 'lái', ar: 'يجيء' },
-    'كبير': { zh: '大', py: 'dà', ar: 'كبير' },
-    'صغير': { zh: '小', py: 'xiǎo', ar: 'صغير' },
-    'جيد': { zh: '好', py: 'hǎo', ar: 'جيد' },
-    'سيء': { zh: '坏', py: 'huài', ar: 'سيء' },
-    'كثير': { zh: '多', py: 'duō', ar: 'كثير' },
-    'قليل': { zh: '少', py: 'shǎo', ar: 'قليل' },
-    'سريع': { zh: '快', py: 'kuài', ar: 'سريع' },
-    'بطيء': { zh: '慢', py: 'màn', ar: 'بطيء' },
-    'جميل': { zh: '漂亮', py: 'piào liang', ar: 'جميل' },
-    'قبيح': { zh: '丑', py: 'chǒu', ar: 'قبيح' },
-    'حار': { zh: '热', py: 'rè', ar: 'حار' },
-    'بارد': { zh: '冷', py: 'lěng', ar: 'بارد' },
-    'صين': { zh: '中国', py: 'Zhōng guó', ar: 'الصين' },
-    'عربي': { zh: '阿拉伯语', py: 'ā lā bó yǔ', ar: 'العربية' },
-    'إنجليزي': { zh: '英语', py: 'yīng yǔ', ar: 'الإنجليزية' },
-    'أنا': { zh: '我', py: 'wǒ', ar: 'أنا' },
-    'أنت': { zh: '你', py: 'nǐ', ar: 'أنت' },
-    'هو': { zh: '他', py: 'tā', ar: 'هو' },
-    'هي': { zh: '她', py: 'tā', ar: 'هي' },
-    'نحن': { zh: '我们', py: 'wǒ men', ar: 'نحن' },
-    'هم': { zh: '他们', py: 'tā men', ar: 'هم' },
-    'ماذا': { zh: '什么', py: 'shén me', ar: 'ماذا / ما' },
-    'أين': { zh: '哪里', py: 'nǎ lǐ', ar: 'أين' },
-    'متى': { zh: '什么时候', py: 'shén me shí hou', ar: 'متى' },
-    'لماذا': { zh: '为什么', py: 'wèi shén me', ar: 'لماذا' },
-    'كيف': { zh: '怎么', py: 'zěn me', ar: 'كيف' },
-    'من': { zh: '谁', py: 'shuí', ar: 'من' },
-    'ديناصور': { zh: '恐龙', py: 'kǒng lóng', ar: 'ديناصور' },
-    'تنين': { zh: '龙', py: 'lóng', ar: 'تنين' },
-    'قمر': { zh: '月亮', py: 'yuè liang', ar: 'قمر' },
-    'شمس': { zh: '太阳', py: 'tài yáng', ar: 'شمس' },
-    'نجمة': { zh: '星星', py: 'xīng xing', ar: 'نجمة' },
-    'بحر': { zh: '海', py: 'hǎi', ar: 'بحر' },
-    'جبل': { zh: '山', py: 'shān', ar: 'جبل' },
-    'شجرة': { zh: '树', py: 'shù', ar: 'شجرة' },
-    'زهرة': { zh: '花', py: 'huā', ar: 'زهرة' },
-    'كتاب': { zh: '书', py: 'shū', ar: 'كتاب' },
-    'هاتف': { zh: '手机', py: 'shǒu jī', ar: 'هاتف محمول' },
-    'كمبيوتر': { zh: '电脑', py: 'diàn nǎo', ar: 'كمبيوتر' },
-    'سيارة': { zh: '车', py: 'chē', ar: 'سيارة' },
-    'بيت': { zh: '房子', py: 'fáng zi', ar: 'بيت' },
-    'مدرسة': { zh: '学校', py: 'xué xiào', ar: 'مدرسة' },
-    'طعام': { zh: '食物', py: 'shí wù', ar: 'طعام' },
-    'شاي': { zh: '茶', py: 'chá', ar: 'شاي' },
-    'قهوة': { zh: '咖啡', py: 'kā fēi', ar: 'قهوة' },
-    'خبز': { zh: '面包', py: 'miàn bāo', ar: 'خبز' },
-    'دجاج': { zh: '鸡', py: 'jī', ar: 'دجاج' },
-    'أرز': { zh: '米饭', py: 'mǐ fàn', ar: 'أرز مطبوخ' },
-    'سمك': { zh: '鱼', py: 'yú', ar: 'سمك' },
-    'لحم': { zh: '肉', py: 'ròu', ar: 'لحم' },
-    'تفاح': { zh: '苹果', py: 'píng guǒ', ar: 'تفاح' },
-    'موز': { zh: '香蕉', py: 'xiāng jiāo', ar: 'موز' },
-    'سعيد': { zh: '开心', py: 'kāi xīn', ar: 'سعيد' },
-    'حزين': { zh: '难过', py: 'nán guò', ar: 'حزين' },
-    'متعب': { zh: '累', py: 'lèi', ar: 'متعب' },
-    'جائع': { zh: '饿', py: 'è', ar: 'جائع' },
-    'عطشان': { zh: '渴', py: 'kě', ar: 'عطشان' },
-    'مال': { zh: '钱', py: 'qián', ar: 'مال / فلوس' },
-    'عمل': { zh: '工作', py: 'gōng zuò', ar: 'عمل' },
-    'صديق': { zh: '朋友', py: 'péng you', ar: 'صديق' },
-    'عائلة': { zh: '家人', py: 'jiā rén', ar: 'عائلة' },
-    'أب': { zh: '爸爸', py: 'bà ba', ar: 'أب' },
-    'أم': { zh: '妈妈', py: 'mā ma', ar: 'أم' },
-    'أخ': { zh: '哥哥', py: 'gē ge', ar: 'أخ' },
-    'أخت': { zh: '姐姐', py: 'jiě jie', ar: 'أخت' },
-    'حصان': { zh: '马', py: 'mǎ', ar: 'حصان' },
-    'قطة': { zh: '猫', py: 'māo', ar: 'قطة' },
-    'كلب': { zh: '狗', py: 'gǒu', ar: 'كلب' },
-    'طائر': { zh: '鸟', py: 'niǎo', ar: 'طائر' },
-};
-
-function findArabicTranslation(text) {
-    // تطابق كامل
-    if (arToZh[text]) return arToZh[text];
-    // تطابق جزئي
-    for (const key in arToZh) {
-        if (text.includes(key) && key.length >= 2) return arToZh[key];
-    }
-    return null;
-}
-
-// ============================
-// الأوامر السريعة
-// ============================
-function qa(action) {
-    switch (action) {
-        case 'next':
-            addUser('الكلمة التالية');
-            if (curCat && DB[curCat]) {
-                curIdx = (curIdx + 1) % DB[curCat].words.length;
-                showWord(curIdx);
-            }
-            break;
-        case 'prev':
-            addUser('الكلمة السابقة');
-            if (curCat && DB[curCat]) {
-                curIdx = (curIdx - 1 + DB[curCat].words.length) % DB[curCat].words.length;
-                showWord(curIdx);
-            }
-            break;
-        case 'random':
-            addUser('كلمة عشوائية');
-            const cats = Object.keys(DB);
-            const rc = cats[Math.floor(Math.random() * cats.length)];
-            curCat = rc;
-            curIdx = Math.floor(Math.random() * DB[rc].words.length);
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            const rb = document.querySelector(`[data-cat="${rc}"]`);
-            if (rb) rb.classList.add('active');
-            document.getElementById('chatTitle').textContent = DB[rc].title;
-            showWord(curIdx);
-            break;
-        case 'quiz':
-            addUser('اختبرني');
-            startQuiz();
-            break;
-        case 'tones':
-            addUser('شرح النبرات');
-            showTyping();
-            setTimeout(() => {
-                hideTyping();
-                addBot(`
-                    <div style="font-weight:800;margin-bottom:10px;font-size:15px;">النبرات الأربع في الصينية (声调)</div>
-                    <div style="margin-bottom:8px;">
-                        <span style="color:#e63946;font-weight:800;">النبرة الأولى ━</span> مستقيمة عالية<br>
-                        <span class="zh" style="font-size:22px;display:inline;">妈 mā</span> <span class="mn">أم</span>
-                    </div>
-                    <div style="margin-bottom:8px;">
-                        <span style="color:#f4a261;font-weight:800;">النبرة الثانية ╱</span> تصاعدية<br>
-                        <span class="zh" style="font-size:22px;display:inline;">麻 má</span> <span class="mn">قنب</span>
-                    </div>
-                    <div style="margin-bottom:8px;">
-                        <span style="color:#e9c46a;font-weight:800;">النبرة الثالثة ╲╱</span> هابطة ثم صاعدة<br>
-                        <span class="zh" style="font-size:22px;display:inline;">马 mǎ</span> <span class="mn">حصان</span>
-                    </div>
-                    <div style="margin-bottom:8px;">
-                        <span style="color:#2a9d8f;font-weight:800;">النبرة الرابعة ╲</span> هابطة حادة<br>
-                        <span class="zh" style="font-size:22px;display:inline;">骂 mà</span> <span class="mn">يسب</span>
-                    </div>
-                    <div class="note-box" style="margin-top:10px;">
-                        <i class="fas fa-exclamation-triangle" style="color:var(--accent);"></i>
-                        <span>أربع كلمات مختلفة بنفس الحرف! النبرة تغيّر المعنى تماماً. انتبه دائماً للعلامة فوق الحرف.</span>
-                    </div>
-                `);
-            }, 600);
-            break;
-        case 'help':
-            addUser('مساعدة');
-            showTyping();
-            setTimeout(() => {
-                hideTyping();
-                addBot(`
-                    <div style="font-weight:800;margin-bottom:10px;">كل ما يمكنك فعله:</div>
-                    <div style="line-height:2.3;font-size:13px;">
-                        <div><span style="color:var(--accent);font-weight:700;">أرسل نص صيني أي</span> → أنطقه فوراً (مثل: 你好 أو 我爱你)</div>
-                        <div><span style="color:var(--accent);font-weight:700;">أرسل كلمة عربية</span> → أترجمها وأنطقها (مثل: حب، ماء، قمر)</div>
-                        <div><span style="color:var(--accent2);font-weight:700;">"التالي" / "السابق"</span> → تنقل بين الكلمات</div>
-                        <div><span style="color:var(--accent2);font-weight:700;">"اختبرني"</span> → اختبار سريع</div>
-                        <div><span style="color:var(--accent2);font-weight:700;">"عشوائي"</span> → كلمة من أي تصنيف</div>
-                        <div><span style="color:var(--accent2);font-weight:700;">"انطق"</span> → أعد نطق آخر كلمة</div>
-                        <div><span style="color:var(--accent2);font-weight:700;">"النبرات"</span> → شرح النبرات الأربع</div>
-                        <div><span style="color:var(--gold);font-weight:700;">اضغط على أي بطاقة</span> → سماع النطق</div>
-                        <div><span style="color:var(--gold);font-weight:700;">اختر من القائمة الجانبية</span> → تصنيفات الدروس</div>
-                    </div>
-                `);
-            }, 600);
-            break;
-    }
-}
-
-// ============================
-// أدوات
-// ============================
-function clearChat() {
-    msgs.innerHTML = '';
-    showToast('تم مسح المحادثة');
-    setTimeout(() => {
-        showTyping();
-        setTimeout(() => {
-            hideTyping();
-            addBot(`<span class="zh">你好！</span><span class="py">nǐ hǎo!</span><span class="mn">مرحباً من جديد! أرسل أي شيء وسأنطقه لك.</span>`);
-        }, 500);
-    }, 300);
-}
-
 function updateStats() {
     document.getElementById('sWords').textContent = learned.size;
-    document.getElementById('sCorrect').textContent = correct;
+    document.getElementById('sCorrect').textContent = correctCount;
     document.getElementById('sSpoken').textContent = spoken;
 }
 
 function updateProg() {
     const cat = DB[curCat];
     if (!cat) return;
-    const p = ((curIdx + 1) / cat.words.length) * 100;
-    document.getElementById('progFill').style.width = p + '%';
-}
-
-function showToast(text) {
-    const t = document.getElementById('toast');
-    document.getElementById('toastTxt').textContent = text;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
+    const learnedInCat = cat.words.filter(w => learned.has(w.zh)).length;
+    const pct = (learnedInCat / cat.words.length) * 100;
+    document.getElementById('progFill').style.width = pct + '%';
 }
 
 // ============================
-// أحداث الإدخال
+// مسح المحادثة
+// ============================
+function clearChat() {
+    msgs.innerHTML = '';
+    conversationHistory = [];
+    showToast('تم مسح المحادثة');
+    // رسالة ترحيب
+    setTimeout(() => {
+        addBot(apiConnected
+            ? '<div class="ai-badge"><i class="fas fa-microchip"></i> Gemini AI</div>مرحباً! أنا معلمك الذكي للصينية، مربوط بالذكاء الاصطناعي. اسألني أي شيء!'
+            : 'مرحباً! أنا معلمك للصينية. اربطني بـ Gemini AI للحصول على إجابات ذكية، أو استخدم القائمة الجانبية للتعلم.'
+        );
+    }, 300);
+}
+
+// ============================
+// الإشعارات
+// ============================
+let toastTimer;
+function showToast(msg) {
+    const el = document.getElementById('toast');
+    document.getElementById('toastTxt').textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ============================
+// حقل الإدخال - تكبير تلقائي + Enter
 // ============================
 const inp = document.getElementById('inp');
-inp.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-});
 inp.addEventListener('input', () => {
     inp.style.height = 'auto';
     inp.style.height = Math.min(inp.scrollHeight, 110) + 'px';
 });
+inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+    }
+});
 
 // ============================
-// رسالة الترحيب
+// بدء التشغيل
 // ============================
-setTimeout(() => {
-    showTyping();
+(function init() {
+    // رسالة ترحيب
     setTimeout(() => {
-        hideTyping();
-        addBot(`
-            <span class="zh" style="font-size:32px;">你好！欢迎！</span>
-            <span class="py">nǐ hǎo! huān yíng!</span>
-            <span class="mn">مرحباً! أهلاً وسهلاً!</span>
-            <br><br>
-            أنا معلمك الذكي للغة الصينية. مميزاتي:
-            <br>
-            <div style="margin-top:8px;line-height:2;">
-                <span style="color:var(--accent);font-weight:700;">1.</span> أرسل <strong>أي نص صيني</strong> وسأنطقه فوراً
-                <br>
-                <span style="color:var(--accent);font-weight:700;">2.</span> أرسل <strong>كلمة عربية</strong> وأترجمها وأنطقها
-                <br>
-                <span style="color:var(--accent);font-weight:700;">3.</span> أضغط على <strong>أي بطاقة</strong> لسماع النطق
-                <br>
-                <span style="color:var(--accent);font-weight:700;">4.</span> <strong>80+ كلمة</strong> في 8 تصنيفات مع شرح
-            </div>
-            <br>
-            جرّب الآن: اكتب <span class="hl">"حب"</span> أو <span class="hl">"我爱你"</span> أو اختر تصنيفاً من القائمة!
-        `);
-    }, 1000);
-}, 400);
+        if (apiConnected) {
+            addBot(`
+                <div class="ai-badge"><i class="fas fa-microchip"></i> Gemini AI</div>
+                <span class="zh">你好！</span><span class="py">nǐ hǎo!</span><br>
+                أنا معلمك الذكي للغة الصينية، <span class="hl">مربوط بالذكاء الاصطناعي</span>.<br><br>
+                يمكنك الآن:<br>
+                • ترجمة <strong>أي كلمة عربية</strong> إلى الصينية<br>
+                • إرسال <strong>أي نص صيني</strong> وسأنطقه وأشرحه<br>
+                • سؤالي عن <strong>القواعد والنبرات والثقافة</strong><br>
+                • أو استخدام الدروس الجاهزة من القائمة الجانبية<br><br>
+                جرب الآن! اكتب أي شيء...
+            `, true);
+            speak('你好');
+        } else {
+            addBot(`
+                <span class="zh">你好！</span><span class="py">nǐ hǎo!</span><br>
+                مرحباً بك في معلم الصينية الذكي!<br><br>
+                يمكنك التنقل بين الدروس بالقائمة الجانبية، أو إرسال كلمات عربية/صينية.<br><br>
+                <div class="note-box"><i class="fas fa-microchip"></i><span><strong>نصيحة:</strong> لتفعيل الذكاء الاصطناعي الكامل، اربط مع Gemini AI مجاناً:<br>
+                1. اذهب إلى <span style="color:var(--cyan);">aistudio.google.com</span><br>
+                2. أنشئ مفتاح API<br>
+                3. اضغط "ربط مع Gemini AI" بالشريط الجانبي</span></div>
+            `);
+            speak('你好');
+        }
+    }, 600);
+
+    showWord(0);
+})();
 </script>
 </body>
 </html>
